@@ -1,0 +1,22 @@
+# Replace with a real domain. Caddy manages HTTPS after DNS points at the VPS.
+buatin.example.com {
+    # One attachment per request. Defaults allow 10 MiB files plus multipart data.
+    # Raise together with MAX_REFERENCE_*_BYTES when increasing application limits.
+    @attachment {
+        method POST
+        path_regexp attachment ^/api/projects/[^/]+/attachments/?$
+    }
+    handle @attachment {
+        request_body {
+            max_size 12MB
+        }
+        reverse_proxy 127.0.0.1:3000
+    }
+    handle {
+        request_body {
+            max_size 256KB
+        }
+        reverse_proxy 127.0.0.1:3000
+    }
+    header Strict-Transport-Security "max-age=31536000"
+}

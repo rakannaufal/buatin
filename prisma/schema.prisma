@@ -1,0 +1,489 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String             @id
+  name             String
+  email            String             @unique
+  emailVerified    Boolean            @default(false)
+  image            String?
+  role             String             @default("user")
+  twoFactorEnabled Boolean            @default(false)
+  twoFactors       TwoFactor[]
+  dataRequests     DataRequest[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  sessions         Session[]
+  accounts         Account[]
+  projects         Project[]
+  jobs             Job[]
+  subscriptions    Subscription[]
+  payments         Payment[]
+  usagePeriods     UsagePeriod[]
+  quotaLedger      QuotaLedger[]
+  presets          BriefPreset[]
+  templates        DocumentTemplate[]
+  renewalReminders Boolean            @default(true)
+  aiUsage          AiUsage[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TwoFactor {
+  id String @id
+  secret String
+  backupCodes String
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified Boolean @default(true)
+  failedVerificationCount Int @default(0)
+  lockedUntil DateTime?
+
+  @@index([secret])
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Project {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String            @default("Proyek tanpa judul")
+  webType       String
+  brief         String            @default("")
+  preferences   Json              @default("{}")
+  briefVersion  Int               @default(1)
+  clarification Json              @default("{}")
+  clarified     Boolean           @default(false)
+  status        String            @default("draft")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  expiresAt     DateTime
+  plans         Plan[]
+  tasks         PlanningTask[]
+  jobs          Job[]
+  revisions     ProjectRevision[]
+  attachments   ProjectAttachment[]
+
+  @@index([userId, updatedAt])
+  @@index([expiresAt])
+}
+
+model PlanningTask {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  briefVersion Int
+  status       String   @default("queued")
+  errorCode    String?
+  snapshot     Json
+  heartbeatAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([status, heartbeatAt])
+}
+
+model Plan {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version      Int
+  briefVersion Int
+  data         Json
+  snapshot     Json
+  createdAt    DateTime @default(now())
+  jobs         Job[]
+
+  @@unique([projectId, version])
+}
+
+model Job {
+  id                String    @id @default(uuid())
+  projectId         String
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId            String
+  plan              Plan      @relation(fields: [planId], references: [id])
+  status            String    @default("queued")
+  snapshot          Json
+  total             Int
+  done              Int       @default(0)
+  failed            Int       @default(0)
+  llmRequestCount   Int       @default(0)
+  cancelRequestedAt DateTime?
+  leaseOwner        String?
+  leaseVersion      Int       @default(0)
+  leaseExpiresAt    DateTime?
+  heartbeatAt       DateTime  @default(now())
+  errorCode         String?
+  lint              Json      @default("[]")
+  manifest          Json      @default("{}")
+  createdAt         DateTime  @default(now())
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  billingPlanId     String    @default("free")
+  priority          Int       @default(0)
+  retentionDays     Int       @default(14)
+  expiresAt         DateTime  @default(dbgenerated("(now() + interval '14 days')"))
+  quotaRefundedAt   DateTime?
+  sourceJobId       String?
+  files             JobFile[]
+
+  @@index([userId, createdAt])
+  @@index([status, heartbeatAt])
+  @@index([expiresAt])
+}
+
+model BillingPlan {
+  id            String         @id
+  name          String
+  weeklyQuota   Int
+  retentionDays Int
+  priority      Int            @default(0)
+  monthlyPrice  Int?
+  available     Boolean        @default(false)
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+  payments      Payment[]
+}
+
+model Subscription {
+  id             String      @id @default(uuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId         String
+  plan           BillingPlan @relation(fields: [planId], references: [id])
+  paymentId      String      @unique
+  payment        Payment     @relation(fields: [paymentId], references: [id])
+  startsAt       DateTime
+  endsAt         DateTime
+  weeklyQuota    Int
+  retentionDays  Int
+  priority       Int
+  reminderSentAt DateTime?
+  createdAt      DateTime    @default(now())
+
+  @@index([userId, startsAt, endsAt])
+  @@index([endsAt, reminderSentAt])
+}
+
+model Payment {
+  id            String         @id
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId        String
+  plan          BillingPlan    @relation(fields: [planId], references: [id])
+  planName      String
+  amount        Int
+  weeklyQuota   Int
+  retentionDays Int
+  priority      Int
+  method        String
+  status        String         @default("creating")
+  reference     String?        @unique
+  qrString      String?
+  expiresAt     DateTime
+  paidAt        DateTime?
+  lastCheckedAt DateTime?
+  checks        Int            @default(0)
+  errorCode     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscription  Subscription?
+  events        WebhookEvent[]
+
+  @@index([userId, createdAt])
+  @@index([status, lastCheckedAt])
+}
+
+model WebhookEvent {
+  id          String    @id
+  paymentId   String
+  payment     Payment   @relation(fields: [paymentId], references: [id])
+  source      String
+  status      String
+  payload     Json
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+}
+
+model UsagePeriod {
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key        String
+  startsAt   DateTime
+  endsAt     DateTime?
+  jobsCount  Int       @default(0)
+  plansCount Int       @default(0)
+
+  @@id([userId, key])
+}
+
+model QuotaLedger {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  periodKey String
+  jobId     String
+  action    String
+  delta     Int
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([jobId, action])
+  @@index([userId, periodKey])
+}
+
+model ProjectRevision {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version   Int
+  name      String
+  webType   String
+  brief     String
+  preferences Json @default("{}")
+  attachmentIds Json @default("[]")
+  attachmentState Json @default("[]")
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, version])
+}
+
+model BriefPreset {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  webType   String
+  brief     String
+  preferences Json @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, updatedAt])
+}
+
+model ProjectAttachment {
+  id String @id @default(uuid())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name String
+  mime String
+  bytes Int
+  checksum String @default("")
+  storageKey String
+  role String @default("visual")
+  note String @default("")
+  sourceUrl String @default("")
+  rights String @default("")
+  status String @default("queued")
+  text String @default("")
+  errorCode String?
+  processingVersion Int @default(1)
+  included Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([projectId, included, createdAt])
+  @@index([status, updatedAt])
+}
+
+model DocumentTemplate {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileId    String
+  content   String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, fileId])
+}
+
+model EmailMessage {
+  id               String    @id @default(uuid())
+  to               String
+  subject          String
+  text             String
+  deduplicationKey String    @unique
+  attempts         Int       @default(0)
+  nextAttemptAt    DateTime  @default(now())
+  sentAt           DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([sentAt, nextAttemptAt])
+}
+
+model AiUsage {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resourceId String
+  task       String
+  model      String
+  modelUsed  String?
+  mock       Boolean
+  tokensIn   Int?
+  tokensOut  Int?
+  reservedTokens Int?
+  estimatedCostMicros BigInt?
+  status     String   @default("started")
+  errorCode  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([mock, createdAt])
+}
+
+model AiBudgetPeriod {
+  id String @id
+  day String
+  requests Int @default(0)
+  tokens Int @default(0)
+  costMicros BigInt @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([day])
+}
+
+model JobFile {
+  jobId        String
+  job          Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fileId       String
+  status       String   @default("pending")
+  attempts     Int      @default(0)
+  content      String?
+  checksum     String?
+  modelUsed    String?
+  tokensIn     Int?
+  tokensOut    Int?
+  finishReason String?
+  lint         Json     @default("[]")
+  errorCode    String?
+  updatedAt    DateTime @updatedAt
+
+  @@id([jobId, fileId])
+}
+
+model UsageDaily {
+  userId    String
+  day       String
+  jobsCount Int    @default(0)
+
+  @@id([userId, day])
+}
+
+model IdempotencyKey {
+  id          String   @id @default(uuid())
+  userId      String
+  operation   String
+  keyHash     String
+  requestHash String
+  resourceId  String
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, operation, keyHash])
+}
+
+model OutboxEvent {
+  id           String    @id @default(uuid())
+  eventType    String
+  resourceId   String
+  dispatchedAt DateTime?
+  attempts     Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  @@index([dispatchedAt, createdAt])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model RateLimit {
+  id          String @id @default(uuid())
+  key         String @unique
+  count       Int    @default(1)
+  lastRequest Float
+}
+
+model RequestLimit {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  resourceId String?
+  requestId  String?
+  errorCode  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model DataRequest {
+  id String @id @default(uuid())
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  kind String
+  status String @default("open")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}

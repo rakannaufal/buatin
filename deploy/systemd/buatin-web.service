@@ -1,0 +1,29 @@
+[Unit]
+Description=Buatin web
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=buatin
+Group=buatin
+WorkingDirectory=/opt/buatin/current
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=REFERENCE_STORAGE_DIR=/var/lib/buatin/references
+EnvironmentFile=/etc/buatin.env
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/buatin/current/.next
+StateDirectory=buatin
+StateDirectoryMode=0700
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Buatin database backup
+
+[Timer]
+OnCalendar=*-*-* 02:00:00 Asia/Jakarta
+Persistent=true
+RandomizedDelaySec=300
+Unit=buatin-backup.service
+
+[Install]
+WantedBy=timers.target

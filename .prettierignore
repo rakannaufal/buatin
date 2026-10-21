@@ -1,0 +1,11 @@
+node_modules
+.next
+.local
+.cache
+dist
+package-lock.json
+playwright-report
+test-results
+.next-production
+skill-packs/**/SKILL.upstream.md
+skill-packs/**/LICENSE.txt

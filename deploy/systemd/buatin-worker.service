@@ -1,0 +1,27 @@
+[Unit]
+Description=Buatin persistent worker
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=buatin
+Group=buatin
+WorkingDirectory=/opt/buatin/current
+Environment=NODE_ENV=production
+Environment=REFERENCE_STORAGE_DIR=/var/lib/buatin/references
+EnvironmentFile=/etc/buatin.env
+ExecStart=/usr/bin/node --import tsx src/worker/index.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=buatin
+StateDirectoryMode=0700
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

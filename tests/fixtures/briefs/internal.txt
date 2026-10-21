@@ -1,0 +1,1 @@
+Dashboard internal untuk admin gudang. Login, data produk persisten, stok, filter, dan laporan.

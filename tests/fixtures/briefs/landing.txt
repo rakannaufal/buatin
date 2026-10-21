@@ -1,0 +1,1 @@
+Landing page publik untuk jasa konsultasi desain. Pengguna pemilik UMKM. Tampilkan layanan, proses kerja, portofolio, dan CTA WhatsApp. Tanpa login, pembayaran, database, dan analitik. Gaya rapi, warna hijau, mobile first.

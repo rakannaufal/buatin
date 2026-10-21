@@ -1,0 +1,62 @@
+name: Native validation
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgresql://speckit:ci-fixture-only@127.0.0.1:5432/speckit
+      BETTER_AUTH_SECRET: ci-only-secret-never-use-in-production-123456789
+      OWNER_EMAIL: owner@localhost.test
+      MOCK_LLM: "true"
+      MOCK_LLM_BASE_URL: http://127.0.0.1:4010/v1
+      LLM_MIN_INTERVAL_MS: "10"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Start native PostgreSQL
+        run: |
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "CREATE ROLE speckit WITH LOGIN CREATEDB PASSWORD 'ci-fixture-only';"
+          sudo -u postgres createdb -O speckit speckit
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run db:migrate
+      - run: npm run owner:create -- --generate
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run security:scan
+      - run: npm run skills:verify
+      - run: npm run templates:verify
+      - run: npm test
+      - run: npm run build:worker
+      - run: npm run build
+      - name: Start local services
+        run: |
+          mkdir -p .local
+          npm run mock > .local/mock.log 2>&1 &
+          npm run start:worker > .local/worker.log 2>&1 &
+          npm start > .local/web.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/api/health; then break; fi
+            sleep 1
+          done
+      - run: npm run test:integration
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run backup:key
+      - run: npm run db:backup
+      - run: npm run test:backup
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: test-results

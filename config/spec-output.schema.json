@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Spec Kit output manifest",
+  "type": "object",
+  "properties": {
+    "specVersion": {
+      "const": "1.0"
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "webType": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "slug", "webType"],
+      "additionalProperties": false
+    },
+    "readiness": {
+      "enum": ["ready-for-review", "needs-review"]
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": ["core", "optional", "document", "manifest"]
+          }
+        },
+        "required": ["path", "kind"],
+        "additionalProperties": false
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": ["warning", "error"]
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "blocksExport": {
+            "type": "boolean"
+          }
+        },
+        "required": ["code", "message", "severity", "blocksExport"],
+        "additionalProperties": false
+      }
+    },
+    "traceability": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "req": {
+            "type": "string"
+          },
+          "ac": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "test": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "task": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["req", "ac", "test", "task"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "specVersion",
+    "project",
+    "readiness",
+    "updatedAt",
+    "files",
+    "assumptions",
+    "blockers",
+    "reviews",
+    "traceability"
+  ],
+  "additionalProperties": false
+}

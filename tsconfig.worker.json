@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "incremental": false,
+    "declaration": true
+  },
+  "include": [
+    "src/domain/**/*.ts",
+    "src/server/**/*.ts",
+    "src/worker/**/*.ts",
+    "config/**/*.json"
+  ]
+}
