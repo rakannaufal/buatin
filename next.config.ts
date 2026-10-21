@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   distDir: process.env.NEXT_BUILD_DIR || ".next",
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/api/*": [
+      "./templates/**/*",
+      "./prompts/**/*",
+      "./config/**/*",
+      "./skill-packs/**/*",
+    ],
+  },
   serverExternalPackages: [
     "pg",
     "pg-boss",

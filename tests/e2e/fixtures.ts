@@ -92,7 +92,9 @@ export const test = base.extend<{ testAccount: TestAccount }>({
       env.MOCK_LLM !== "true" ||
       !baseURL ||
       !isLoopback(new URL(baseURL).hostname) ||
-      !isLoopback(new URL(env.DATABASE_URL).hostname)
+      [env.DATABASE_URL, env.DATABASE_DIRECT_URL, env.DATABASE_WORKER_URL]
+        .filter(Boolean)
+        .some((value) => !isLoopback(new URL(value).hostname))
     )
       throw new Error("E2E requires a loopback app/database and MOCK_LLM=true");
     const configuration = await page.request.get("/api/public-config");

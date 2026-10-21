@@ -7,6 +7,7 @@ import { z } from "zod";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { Button, Folio, Notice } from "@/components/ui";
 import { Challenge } from "./challenge";
+import { GoogleLogin } from "./google";
 type Mode = "signup" | "forgot" | "reset" | "verify";
 const titles = {
   signup: "Buat ruang untuk ide Anda.",
@@ -19,12 +20,14 @@ export function PublicAuthForm({
   siteKey,
   ready,
   localEmail,
+  googleReady = false,
   token = "",
 }: {
   mode: Mode;
   siteKey: string;
   ready: boolean;
   localEmail: boolean;
+  googleReady?: boolean;
   token?: string;
 }) {
   const [error, setError] = useState("");
@@ -148,6 +151,9 @@ export function PublicAuthForm({
             </Notice>
           )}
           {error && <Notice tone="error">{error}</Notice>}
+          {mode === "signup" && googleReady && !success && (
+            <GoogleLogin siteKey={siteKey} signup />
+          )}
           {success ? (
             <Notice tone="info">
               {mode === "reset"

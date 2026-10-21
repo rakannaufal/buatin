@@ -28,7 +28,7 @@ export function readiness(): Promise<Readiness> {
       }>(`
         SELECT (SELECT "updatedAt" AT TIME ZONE 'UTC' FROM "Setting" WHERE key = 'worker') AS worker_at,
           (SELECT count(*) FROM "_prisma_migrations" WHERE finished_at IS NULL AND rolled_back_at IS NULL) AS unfinished,
-          EXISTS(SELECT 1 FROM "_prisma_migrations" WHERE migration_name = '20261021060000_admin_retention' AND finished_at IS NOT NULL AND rolled_back_at IS NULL) AS migrated
+          EXISTS(SELECT 1 FROM "_prisma_migrations" WHERE migration_name = '20261021110000_server_only_data' AND finished_at IS NOT NULL AND rolled_back_at IS NULL) AS migrated
       `);
       const row = result.rows[0];
       const database = Boolean(row && row.unfinished === "0" && row.migrated);

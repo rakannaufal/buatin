@@ -12,7 +12,7 @@ export function publicAuthReady() {
   return (
     localApp() ||
     Boolean(
-      env.APP_URL.startsWith("https://") &&
+      challengeReady() &&
       env.EMAIL_PROVIDER === "resend" &&
       env.RESEND_API_KEY &&
       env.EMAIL_FROM !== "Buatin <noreply@example.com>" &&
@@ -21,9 +21,20 @@ export function publicAuthReady() {
     )
   );
 }
-export async function verifyChallenge(token: unknown) {
+export function challengeReady() {
   const env = getEnv();
-  if (!publicAuthReady())
+  return (
+    localApp() ||
+    Boolean(
+      env.APP_URL.startsWith("https://") &&
+      env.TURNSTILE_SITE_KEY &&
+      env.TURNSTILE_SECRET_KEY,
+    )
+  );
+}
+export async function verifyChallenge(token: unknown, email = true) {
+  const env = getEnv();
+  if (!(email ? publicAuthReady() : challengeReady()))
     throw new AppError(
       "AUTH_NOT_CONFIGURED",
       503,

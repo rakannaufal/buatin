@@ -1,5 +1,82 @@
 # Hasil verifikasi Buatin
 
+## Hosting bersama dan Google login - 21 Oktober 2026
+
+Target: Vercel web, Supabase PostgreSQL/storage privat dan Railway worker Node 24.
+Pengujian aplikasi memakai PostgreSQL 17 lokal dengan database
+`buatin_admin_fixture_20261021`, web port 3108 dan mock port 4118, build terpisah
+`.local/admin-next`. Semua credential AI, pembayaran, email dan S3 nyata dihapus
+dari environment fixture. `.env`, database dan layanan sumber tidak dimigrasikan
+atau ditimpa oleh tugas ini. Integration/E2E/restore dijalankan bergantian.
+
+| Pemeriksaan                    | Hasil aktual                                                                                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`                     | 70 tes unit, 11 file, lulus                                                                                                                                                                   |
+| `npm run test:integration`     | 50 tes, tujuh file, lulus dalam 218,93 detik                                                                                                                                                  |
+| `npm run test:e2e`             | 18 skenario Chromium lulus dalam 2,6 menit                                                                                                                                                    |
+| `npm run build:hosted`         | Prisma generate, build worker dan Next.js 16.4.2 lulus                                                                                                                                        |
+| Prisma migrate status          | 12 migration terpasang dan up to date pada fixture                                                                                                                                            |
+| `npm run test:migrations`      | Upgrade invoice historis, subscription, manfaat dan ledger lulus pada database inspeksi baru                                                                                                  |
+| `npm run test:backup`          | Backup database/blob terenkripsi, restore baru, checksum dan isi lampiran lulus; receipt terbaca tanpa filesystem host backup                                                                 |
+| `npm run test:recovery`        | SIGKILL, lease kedaluwarsa, worker baru dan resume 20/20 dokumen lulus; checksum serta attempts checkpoint sukses tetap                                                                       |
+| `npm audit --audit-level=high` | 0 vulnerabilities                                                                                                                                                                             |
+| Katalog reviewed               | Lima skill pack dan 42 template lolos checksum                                                                                                                                                |
+| Konfigurasi provider           | `vercel.json` dan `railpack.json` lolos validasi constraints schema resmi menggunakan Ajv; deployment nyata belum dijalankan                                                                  |
+| Runtime assets                 | Trace build API menyertakan 43 file template, dua prompt, sepuluh config dan 16 file skill pack                                                                                               |
+| Akses Supabase operator        | Project `oeznehkxknbgvbtunebu` bernama `buatin`, `ACTIVE_HEALTHY`, region `ap-south-1`; SELECT metadata berhasil sebagai `postgres`, PostgreSQL 17.11; izin CREATE tabel/schema terkonfirmasi |
+
+Pemeriksaan akhir `npm run format:check`, `npm run lint`, `npm run typecheck`
+dan `git diff --check` lulus; lint tanpa warning. `npm run security:scan` lulus,
+316 file source/config/dokumen diperiksa tanpa mencetak nilai secret. Format check
+sempat menemukan cache yang dibuat Supabase CLI; `supabase/.temp/` sekarang
+dikecualikan dari Git dan formatter, lalu pemeriksaan diulang hingga lulus.
+
+Cakupan Google memakai callback Better Auth sebenarnya dengan respons provider
+yang diganti lewat fetch fixture, RSA/JWKS dan credential test. Cakupan: state cookie/database sekali pakai,
+PKCE S256, cancel, replay, signature/issuer/audience/expiry token, email terverifikasi,
+linking aman, signup pause, suspend, unique provider identity, penolakan login
+Google untuk staf/MFA dan pembuangan token provider. Direct idToken, callback
+override, Origin salah serta body lebih dari 16 KiB ditolak. Browser memeriksa
+keyboard, error yang dapat dicoba ulang dan pesan callback yang aman. Screenshot
+Google login desktop/mobile diperiksa secara visual; mobile tidak overflow.
+Tidak ada akun Google nyata atau credential produksi dipakai oleh fixture.
+
+Temuan yang direproduksi dan diperbaiki:
+
+- Callback code pada versi Better Auth terpasang semula hanya men-decode ID token.
+  Token fixture dengan audience salah berhasil masuk. Callback sekarang memanggil
+  verifier Google resmi library secara eksplisit; regression audience/issuer/expiry
+  salah ditolak. Tidak ada implementasi kriptografi buatan sendiri.
+- Pembatas body yang membaca clone request dapat menunggu selamanya saat cancel
+  stream bercabang. Handler kini membaca body asli secara terbatas, melepas reader
+  dan membentuk request baru. Regression oversized request menghasilkan HTTP 413.
+- Locator browser `getByRole('alert')` semula juga memilih route announcer Next.
+  Dua tes Google gagal strict mode, sementara UI menampilkan pesan yang benar.
+  Locator dibatasi ke `main`; seluruh 18 skenario kemudian lulus.
+- Kesiapan scanner dan waktu backup tidak dapat dibaca dari filesystem Vercel
+  karena worker/backup berada di host lain. Scanner sekarang dibaca dari heartbeat
+  worker segar, backup dari receipt DB setelah bundle selesai. Regression
+  memeriksa heartbeat hilang/stale/legacy dan pembacaan receipt lintas host.
+
+Uji backup memakai bundle privat
+`.local/admin-fixture-backups/buatin-2026-10-21T08-26-45-561Z-40d8fc77-fec8-44b9-89d6-b934152d67be`,
+database restore `buatin_restore_1df0f7ebfe69487ab3436801da9e5c24` dan inspeksi
+`.local/restore-check-18df4264-d414-4b2b-8df7-dff6902b003e`.
+Dua file diverifikasi, `attachmentVerified:true`. Uji upgrade menggunakan
+`buatin_admin_upgrade_718f1a9a98ad4c0b94abb09c2b85cd40`. Semua artefak tersebut
+privat dan tidak disertakan ke Git atau hosting.
+
+Query Supabase hanya memeriksa metadata: schema `public` memiliki nol tabel dan
+`_prisma_migrations` belum ada. Belum ada migration, seed, akun, perubahan data
+pengguna atau deployment cloud pada project itu. Akses SQL operator bukan bukti
+connection string runtime Vercel/Railway sudah tersedia. Publishable/anon key
+tidak diperlukan untuk Prisma + Better Auth. Konfigurasi server database, S3,
+domain web, Google OAuth, email, Turnstile, scanner, backup luar host dan batas
+AI nyata tetap diperlukan. RLS sudah diuji pada fixture; smoke role Supabase,
+OAuth publik, upload lintas host, reboot Railway dan kapasitas belum diverifikasi.
+Receipt backup bukan bukti volume/offsite/restore produksi. Panduan dan prioritas
+ada di `DEPLOYMENT.md` serta `PRODUCTION_READINESS.md`.
+
 ## Implementasi admin - 21 Oktober 2026
 
 Implementasi dan batas operasional ada di `ADMIN_GUIDE.md`. Pengujian pada macOS

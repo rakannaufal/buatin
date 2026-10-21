@@ -5,8 +5,15 @@ beforeAll(async () => {
   const local = (host: string) =>
     ["localhost", "127.0.0.1", "[::1]"].includes(host);
   const app = new URL(process.env.APP_URL || "http://localhost:3000");
-  const database = new URL(process.env.DATABASE_URL || "");
-  if (!local(app.hostname) || !local(database.hostname))
+  const databases = [
+    process.env.DATABASE_URL,
+    process.env.DATABASE_DIRECT_URL,
+    process.env.DATABASE_WORKER_URL,
+  ].filter(Boolean);
+  if (
+    !local(app.hostname) ||
+    databases.some((value) => !local(new URL(value!).hostname))
+  )
     throw new Error(
       "Integration fixtures require a loopback application and database.",
     );

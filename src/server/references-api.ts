@@ -16,6 +16,8 @@ import { skillCatalog } from "../domain/skills";
 import { technologyCatalog } from "../domain/technology";
 import { styleOptions } from "../domain/preferences";
 import { callLlm, llmConfig, checkModels } from "./llm";
+import { localApp } from "./challenge";
+import { workerScannerReady } from "./worker-status";
 
 const reply = (value: unknown, status = 200) =>
   Response.json(value, {
@@ -75,11 +77,7 @@ export async function customizationApi(
         total: env.MAX_REFERENCE_TOTAL_BYTES,
       },
       visionAvailable: env.MOCK_LLM !== "true" && Boolean(env.LLM_VISION_MODEL),
-      binaryScanAvailable:
-        Boolean(env.REFERENCE_SCANNER_PATH) ||
-        ["localhost", "127.0.0.1", "[::1]"].includes(
-          new URL(env.APP_URL).hostname,
-        ),
+      binaryScanAvailable: localApp() || (await workerScannerReady()),
     });
   }
   if (resource !== "projects" || !projectId || action !== "attachments")

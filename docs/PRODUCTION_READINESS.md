@@ -1,7 +1,10 @@
 # Kesiapan produksi dan prioritas
 
-Hosting dan database produksi belum disediakan. Aplikasi lokal bukan layanan
-publik yang sudah diluncurkan. Bukti eksekusi terbaru ada pada `VALIDATION.md`.
+Target awal pada `DEPLOYMENT.md`: Vercel web, Supabase PostgreSQL/storage,
+Railway worker tetap. Akses SQL operator ke project Supabase `buatin` sudah
+diverifikasi; schema aplikasi belum dimigrasikan. Koneksi runtime hosting,
+bucket dan kredensial Google produksi belum dihubungkan; layanan belum diluncurkan.
+Bukti eksekusi terbaru ada pada `VALIDATION.md`.
 
 ## Sudah disiapkan dalam aplikasi
 
@@ -33,7 +36,8 @@ publik yang sudah diluncurkan. Bukti eksekusi terbaru ada pada `VALIDATION.md`.
 
 | Kebutuhan                          | Tindakan dan bukti yang diperlukan                                                                                                                                                              |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hosting, domain, database produksi | Menyusul sesuai keputusan pengguna. Pisahkan staging/produksi, migration, jaringan privat, HTTPS dan secrets.                                                                                   |
+| Hosting, domain, database produksi | Hubungkan Vercel, Supabase dan Railway worker sesuai `DEPLOYMENT.md`. Pisahkan staging/produksi, migration, HTTPS dan secrets; lindungi Data API serta koneksi worker.                          |
+| Login Google                       | Buat OAuth web client, redirect `/api/auth/callback/google`, secret server dan audience publik. Uji akun baru/lama, email terverifikasi, cancel, pause serta penolakan MFA/staf.                |
 | Akun operator                      | Aktifkan dua faktor melalui Akun; simpan recovery codes. Jangan menggunakan akun/email bootstrap lokal sebagai identitas publik.                                                                |
 | Email dan perlindungan registrasi  | Isi Resend, pengirim/domain terverifikasi, Turnstile site/secret dan SUPPORT_EMAIL. Uji verifikasi/reset sampai email diterima.                                                                 |
 | Anggaran AI                        | Tarif USD belum ditebak. Isi LLM_INPUT_USD_PER_MILLION / LLM_OUTPUT_USD_PER_MILLION dengan tarif konservatif seluruh model, LLM_DAILY_BUDGET_USD, lalu batas tagihan pada provider.             |

@@ -27,6 +27,22 @@ npm run templates:verify
 
 ## Cakupan
 
+Google diuji dengan callback Better Auth sesungguhnya dan token/JWKS fixture
+RSA di proses test; tidak menghubungi atau membuat akun Google nyata. Cakupan:
+PKCE, state cookie, replay, audience, email terverifikasi, linking aman, unique
+identity, role/suspend/MFA serta signup pause pada callback. Browser memeriksa
+tombol Google, keyboard, mobile dan kegagalan yang bisa dicoba ulang. Kelulusan
+fixture bukan bukti OAuth Google pada domain publik; smoke staging tetap wajib.
+Variable Google fixture tidak boleh berisi credential sebenarnya.
+Uji RLS beralih ke `pg_read_all_data` agar role non-pemilik tetap tidak dapat
+membaca row. Role fixture CI diberi keanggotaan role baca tersebut; ini hanya
+untuk database test terisolasi, bukan instruksi akses produksi.
+
+Konfigurasi hosted diuji menolak loopback/mock/secret yang belum lengkap, memilih
+koneksi direct/session, serta tidak mencetak nilai rahasia. Script hosted bukan
+test beban atau bukti provider. Integration/E2E juga menolak direct/worker URL
+yang menunjuk database non-loopback.
+
 Unit memeriksa preferensi, rekomendasi, konflik stack, HEX/kontras, katalog skill,
 signature file serta batas input. Integration membuktikan persistence, version
 conflict, ownership, lampiran privat, parser, revisi/preset dan snapshot. E2E

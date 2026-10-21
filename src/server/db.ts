@@ -7,7 +7,7 @@ export const db =
   new PrismaClient({
     adapter: new PrismaPg({
       connectionString: getEnv().DATABASE_URL,
-      max: 10,
+      max: getEnv().DATABASE_POOL_MAX,
       connectionTimeoutMillis: 5000,
       idleTimeoutMillis: 30000,
     }),

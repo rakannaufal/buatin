@@ -2,7 +2,13 @@ import { z } from "zod";
 const schema = z.object({
   APP_URL: z.url().default("http://localhost:3000"),
   DATABASE_URL: z.string().min(1),
+  DATABASE_DIRECT_URL: z.string().default(""),
+  DATABASE_WORKER_URL: z.string().default(""),
+  DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(30).default(10),
+  DATABASE_WORKER_POOL_MAX: z.coerce.number().int().min(1).max(20).default(5),
   BETTER_AUTH_SECRET: z.string().min(32),
+  GOOGLE_CLIENT_ID: z.string().trim().default(""),
+  GOOGLE_CLIENT_SECRET: z.string().trim().default(""),
   OWNER_EMAIL: z.email().default("owner@localhost.test"),
   SUPPORT_EMAIL: z.union([z.email(), z.literal("")]).default(""),
   EMAIL_PROVIDER: z.enum(["local", "resend"]).default("local"),
@@ -127,7 +133,23 @@ const schema = z.object({
   TZ: z.string().default("Asia/Jakarta"),
 });
 export function getEnv() {
-  return schema.parse(process.env);
+  const env = schema.parse(process.env);
+  if (process.env.VERCEL !== "1") return env;
+  // Buffered Vercel Function payloads are limited to 4.5 MB; leave headroom.
+  const payloadBytes = 3 * 1048576;
+  return {
+    ...env,
+    DATABASE_POOL_MAX: Math.min(env.DATABASE_POOL_MAX, 3),
+    MAX_REFERENCE_IMAGE_BYTES: Math.min(
+      env.MAX_REFERENCE_IMAGE_BYTES,
+      payloadBytes,
+    ),
+    MAX_REFERENCE_DOCUMENT_BYTES: Math.min(
+      env.MAX_REFERENCE_DOCUMENT_BYTES,
+      payloadBytes,
+    ),
+    MAX_ARCHIVE_BYTES: Math.min(env.MAX_ARCHIVE_BYTES, payloadBytes),
+  };
 }
 export function dayKey(date = new Date(), zone = getEnv().TZ) {
   return new Intl.DateTimeFormat("en-CA", {

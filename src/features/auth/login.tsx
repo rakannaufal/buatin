@@ -7,13 +7,22 @@ import { z } from "zod";
 import { BookOpen, ArrowRight, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { Button, Folio, Notice } from "@/components/ui";
+import { GoogleLogin } from "./google";
 const schema = z.object({
   email: z.email("Masukkan alamat email yang valid."),
   password: z.string().min(1, "Masukkan password."),
 });
-export function LoginForm() {
+export function LoginForm({
+  googleReady = false,
+  siteKey = "",
+  initialError = "",
+}: {
+  googleReady?: boolean;
+  siteKey?: string;
+  initialError?: string;
+}) {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [challenge, setChallenge] = useState(false);
   const [recovery, setRecovery] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -113,6 +122,7 @@ export function LoginForm() {
           <h2>Selamat datang kembali.</h2>
           <p className="muted">Masuk untuk melanjutkan rencana proyek Anda.</p>
           {error && <Notice tone="error">{error}</Notice>}
+          {googleReady && !challenge && <GoogleLogin siteKey={siteKey} />}
           {challenge ? (
             <form onSubmit={verify}>
               <p>Verifikasi dua faktor untuk menyelesaikan proses masuk.</p>

@@ -4,8 +4,19 @@
 
 Next.js App Router + TypeScript melayani halaman dan REST API. PostgreSQL + Prisma
 menyimpan akun, proyek, transaksi, ledger, dan antrean pg-boss. Tidak memerlukan
-Redis. Worker native persisten menjaga proses panjang dari timeout web. Node 24,
-PostgreSQL, systemd, dan Caddy dipasang langsung; Docker tidak digunakan.
+Redis. Worker native persisten menjaga proses panjang dari timeout web. Runtime
+Node 24; systemd/Caddy tersedia sebagai alternatif server sendiri.
+
+## Hosting awal yang bisa dipindahkan
+
+Vercel melayani web; Supabase menyimpan PostgreSQL dan blob S3 privat; Railway
+menjalankan satu worker tetap. Pilihan pengguna ini memisahkan request web dari
+generasi panjang tanpa mengganti model data atau menambah Redis. Vercel memakai
+transaction pooler dan pool kecil; migration/backup dan advisory lock worker
+memakai direct/session. Tabel aplikasi tertutup RLS serta revoke role publik.
+Browser hanya memakai API Buatin. Heartbeat scanner dan receipt backup disimpan
+di DB bersama karena filesystem kedua host berbeda. Resource dan OAuth produksi
+masih perlu dihubungkan; detail dan batas paket ada di `docs/DEPLOYMENT.md`.
 
 ## Identitas publik, data privat
 
@@ -15,6 +26,13 @@ signup. Semua resource dicari bersama userId dari sesi. Admin dan owner hanya da
 mengakses pengaturan operasional, daftar akun/pembayaran/job; tidak memperoleh
 bypass ownership untuk konten proyek. Mutasi membutuhkan Origin, validasi, dan
 rate limit. Resend serta Turnstile harus dikonfigurasi sebelum registrasi publik.
+
+Google memakai OAuth code + PKCE/state Better Auth, ditambah verifier ID token
+resmi library sebelum membaca profil. Email lokal/provider harus terverifikasi
+untuk linking; token Google tidak disimpan. MFA plugin versi terpasang hanya
+menantang login credential, sehingga akun ber-MFA serta owner/admin memakai
+password/TOTP dan ditolak pada jalur Google. Ini mencegah social login melewati
+perlindungan akun; tidak ada Supabase Auth kedua yang memecah identitas pengguna.
 
 ## Hak berlangganan berbentuk interval dibayar
 

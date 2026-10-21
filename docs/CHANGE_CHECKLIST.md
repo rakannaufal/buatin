@@ -11,5 +11,8 @@
   placeholder stabil/aksesibel, tanpa delay buatan atau progres palsu. Perubahan
   performa dibuktikan dengan HTML/network dan metrik aktual bila target tersedia.
 - Migration dan environment baru didokumentasikan; rollback menjaga data lama.
+- Tabel aplikasi baru mengaktifkan RLS dan mencabut akses role publik Supabase;
+  server tetap memakai role yang ditinjau. Query web memakai pool kecil, sedangkan
+  migration/backup dan advisory lock worker memakai koneksi direct/session.
 - Skill/dependency baru memiliki sumber, versi terkunci, lisensi dan batas dukungan.
 - Hasil mock serta test pending tidak dilaporkan sebagai bukti produksi.

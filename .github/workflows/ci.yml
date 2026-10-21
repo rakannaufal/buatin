@@ -8,6 +8,8 @@ jobs:
       APP_URL: http://localhost:3000
       DATABASE_URL: postgresql://speckit:ci-fixture-only@127.0.0.1:5432/speckit
       BETTER_AUTH_SECRET: ci-only-secret-never-use-in-production-123456789
+      GOOGLE_CLIENT_ID: test-only-google.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: test-only-google-client-secret
       OWNER_EMAIL: owner@localhost.test
       MOCK_LLM: "true"
       MOCK_LLM_BASE_URL: http://127.0.0.1:4010/v1
@@ -23,6 +25,7 @@ jobs:
         run: |
           sudo systemctl start postgresql
           sudo -u postgres psql -c "CREATE ROLE speckit WITH LOGIN CREATEDB PASSWORD 'ci-fixture-only';"
+          sudo -u postgres psql -c "GRANT pg_read_all_data TO speckit;"
           sudo -u postgres createdb -O speckit speckit
       - run: npm ci
       - run: npm run db:generate

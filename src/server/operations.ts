@@ -1,6 +1,5 @@
 import path from "node:path";
-import { access, stat, statfs } from "node:fs/promises";
-import { constants } from "node:fs";
+import { stat, statfs } from "node:fs/promises";
 import { db } from "./db";
 import { getEnv } from "./config";
 import { readiness } from "./health";
@@ -9,6 +8,9 @@ import { publicAuthReady, localApp } from "./challenge";
 import { paymentConfigured } from "./duitku";
 import { llmConfig, checkModels } from "./llm";
 import { controls, siteSettings } from "./admin/policies";
+import { googleAuthReady } from "./google-auth";
+import { hostedConfigurationIssues } from "./hosted";
+import { workerScannerReady } from "./worker-status";
 
 export type ProductionCheck = {
   id: string;
@@ -45,7 +47,23 @@ export async function productionChecks(
     "P0",
     env.APP_URL.startsWith("https:") && !localApp(),
     "Domain dan HTTPS",
-    "Hosting, DNS dan sertifikat produksi disediakan kemudian.",
+    "Hubungkan domain HTTPS ke service web sesuai docs/DEPLOYMENT.md.",
+  );
+  const hostingIssues = hostedConfigurationIssues();
+  add(
+    "hosting-config",
+    "P0",
+    hostingIssues.length === 0,
+    "Konfigurasi hosting bersama",
+    hostingIssues.join(" ") ||
+      "Konfigurasi hosted lengkap; konektivitas dan kapasitas tetap perlu diverifikasi pada staging.",
+  );
+  add(
+    "google-auth",
+    "P0",
+    googleAuthReady() && !localApp(),
+    "Login Google publik",
+    "OAuth web client, callback domain yang tepat, audience publik dan uji login Google nyata diperlukan.",
   );
   add(
     "public-auth",
@@ -96,20 +114,13 @@ export async function productionChecks(
     "Template terstruktur",
     "Gunakan builtin yang ditinjau atau kit original yang sah; hasil AI tetap perlu tinjauan manusia.",
   );
-  let scanner = false;
-  if (path.isAbsolute(env.REFERENCE_SCANNER_PATH))
-    try {
-      await access(env.REFERENCE_SCANNER_PATH, constants.X_OK);
-      scanner = true;
-    } catch {
-      scanner = false;
-    }
+  const scanner = await workerScannerReady().catch(() => false);
   add(
     "scanner",
     "P0",
     scanner,
     "Pemindai PDF/DOCX",
-    "Executable ClamAV-compatible dan pembaruan signature diperlukan pada host; uji file bersih serta fixture berbahaya.",
+    "Heartbeat worker harus melaporkan executable ClamAV-compatible tersedia. Pembaruan signature dan uji file bersih/berbahaya tetap wajib.",
   );
   let storage = false;
   if (env.REFERENCE_STORAGE === "s3")
@@ -198,7 +209,7 @@ export async function productionChecks(
       "P0",
       false,
       "Schema database",
-      "PostgreSQL harus terjangkau dan seluruh migration diterapkan. Database produksi menyusul.",
+      "PostgreSQL terkelola harus terjangkau dan seluruh migration diterapkan. Periksa URL privat dan koneksi direct/session.",
     );
   }
   try {
@@ -208,7 +219,7 @@ export async function productionChecks(
       "P0",
       Boolean(backup && backup.ageHours < env.BACKUP_MAX_AGE_HOURS),
       "Backup terenkripsi terbaru",
-      "Backup database + lampiran lengkap, kunci terpisah, salinan di luar host dan latihan restore wajib tersedia.",
+      "Waktu backup selesai dibaca dari database bersama. Verifikasi job/volume backup, kunci terpisah, salinan di luar host dan latihan restore tetap wajib.",
     );
   } catch {
     add(

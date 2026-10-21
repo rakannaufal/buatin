@@ -41,6 +41,7 @@ import { activeUser, adminMutation, audit } from "@/server/admin/security";
 import { siteSettings } from "@/server/admin/policies";
 import { reasonSchema } from "@/domain/admin";
 import { supportApi } from "@/server/admin/support";
+import { googleAuthReady } from "@/server/google-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const typeSchema = z.enum([
@@ -108,6 +109,7 @@ async function handler(
         mock: getEnv().MOCK_LLM === "true",
         turnstileSiteKey: getEnv().TURNSTILE_SITE_KEY,
         registrationReady: publicAuthReady(),
+        googleReady: googleAuthReady(),
         localEmail: localApp() && getEnv().EMAIL_PROVIDER === "local",
       });
     if (resource === "site" && method === "GET")

@@ -45,6 +45,28 @@ wajib, audit dependency dan secret scan. Temuan high/critical memblokir rilis.
 
 ## Operator dan batas biaya
 
+Login Google memakai callback Better Auth dengan state cookie/database sekali
+pakai dan PKCE. Callback memanggil verifier Google dari library secara eksplisit
+untuk signature RS256, issuer, audience serta masa berlaku sebelum membaca profil.
+Email provider wajib terverifikasi; implicit linking hanya ke
+email lokal terverifikasi yang sama. Token Google tidak dipertahankan. Unique
+constraint provider/subject mencegah satu identitas terikat ke beberapa akun.
+Signup pause juga diperiksa pada callback. Suspend diperiksa sebelum sesi baru.
+Better Auth 1.7.11 tidak menantang MFA aplikasi pada social sign-in: akun dengan
+MFA serta owner/admin harus memakai email/password/TOTP, termasuk setelah promosi
+role saat OAuth berjalan. Jangan mengubah aturan ini tanpa regression test.
+
+Hosting memakai DB terlindungi dan bucket privat bersama; URL/kredensial hanya di server.
+Tabel aplikasi memakai RLS tanpa policy publik, dengan hak PUBLIC/anon/
+authenticated dicabut. Supabase Data API dimatikan bila tidak diperlukan;
+tabel baru wajib dilindungi migration yang sama ketatnya. Role koneksi server
+harus pemilik tabel atau memiliki izin/bypass yang ditinjau, bukan role browser.
+Vercel membatasi payload buffered; konfigurasi otomatis menjaga unggahan dan
+konten ZIP di bawah 3 MiB serta pool maksimal tiga koneksi per instance.
+Migration/backup serta lock worker memakai koneksi langsung/session, bukan
+transaction pooler. `check:hosted` memeriksa konfigurasi, bukan bukti konektivitas
+atau validitas secret. Prosedur peluncuran ada di `docs/DEPLOYMENT.md`.
+
 Role/status terkini diperiksa server pada setiap request. Suspend mencabut sesi,
 memblokir login/API dan menghentikan job antrean sebelum AI. Request provider yang
 terlanjur berjalan masih dapat ditagih. Callback pembayaran tetap diproses.

@@ -88,7 +88,18 @@ Pemakaian satu minggu tetap sama meski periode pembayaran berganti. Pengingat
 berakhir dikirim tiga hari sebelumnya jika pengguna mengaktifkannya. Detail:
 `docs/BILLING.md`. Tidak ada pembayaran nyata dilakukan oleh tes.
 
-## Lokal: Node.js 24 + PostgreSQL native
+## Hosting untuk banyak pengguna
+
+Target awal: Vercel web, Supabase PostgreSQL/storage privat, Railway worker Node 24.
+Panduan deployment, penggunaan database online, environment produksi,
+Google OAuth serta verifikasi peluncuran ada di [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Template variable tersedia di `deploy/hosted.env.example`. Jalur hosted memakai
+`npm run build:hosted`, `npm run start:hosted`, dan `npm run start:hosted-worker`;
+tidak memulai database pada komputer pengguna. `npm run check:hosted` menolak
+konfigurasi lokal atau produksi yang belum lengkap. Akun hosting, domain dan
+credential OAuth tetap harus dihubungkan sebelum layanan bisa dipakai publik.
+
+## Development: Node.js 24 + PostgreSQL native
 
 Prasyarat: Node.js 24.x, npm, PostgreSQL 17 dengan `initdb`, `pg_ctl`, `psql`, `createdb`, `pg_dump`, dan `pg_restore` pada PATH. macOS dapat memasang `node@24` dan `postgresql@17` melalui Homebrew; tidak perlu Docker Desktop. Pada mesin ini Node.js 24 tersedia di `/opt/homebrew/opt/node@24/bin`.
 
@@ -264,7 +275,10 @@ Uji crash proses nyata: hentikan worker normal, lalu jalankan `npm run test:reco
 
 Kontrak SaaS lengkap tersedia di `docs/PROMPT_WEB.md`; aturan pembayaran serta pengoperasian di `docs/BILLING.md`; keputusan implementasi di `docs/BUATIN_IMPLEMENTATION.md`.
 
-## Build dan deploy native
+## Alternatif deploy native
+
+Target awal tetap Vercel + Supabase + Railway pada `docs/DEPLOYMENT.md`.
+Bagian ini hanya untuk development atau perpindahan ke server sendiri.
 
 ```sh
 npm ci
@@ -286,7 +300,10 @@ direktori privat serta key backup milik service user sebelum mengaktifkan timer.
 Timer backup harian dan monitor tiap menit hanya contoh, belum dipasang ke host.
 Hubungkan salinan off-site, retensi dan alert operator. Detail: `docs/OPERATIONS.md`.
 
-Biaya tergantung VPS, backup, email, gateway, dan provider AI. Pilih satu VPS kecil terlebih dahulu, ukur penggunaan RAM/disk sebelum naik kelas. Tidak ada deployment atau perubahan DNS yang dilakukan oleh script proyek. Untuk rollback: hentikan worker, pindahkan symlink ke release sebelumnya yang kompatibel, restart web/worker. Jangan rollback schema secara destruktif otomatis.
+Biaya alternatif ini tergantung VPS, backup, email, gateway, dan provider AI.
+Ukur penggunaan RAM/disk sebelum naik kelas. Script proyek tidak mengubah DNS
+atau membuat resource hosting. Untuk rollback, gunakan release sebelumnya yang
+kompatibel, restart web/worker; jangan rollback schema secara destruktif otomatis.
 
 ## Backup, retensi, dan pemulihan
 

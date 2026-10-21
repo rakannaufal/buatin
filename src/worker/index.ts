@@ -3,13 +3,18 @@ import { PgBoss } from "pg-boss";
 import { Client } from "pg";
 import { db, json } from "../server/db";
 import { getEnv } from "../server/config";
+import { workerDatabaseUrl } from "../server/database-config";
 import { processPlan } from "./planner";
 import { generateJob } from "./generator";
 import { maintenance } from "./maintenance";
 import { processReference } from "./references";
 import { deliverEmails } from "../server/email";
 import { maintainBilling } from "../server/billing";
-const lock = new Client({ connectionString: getEnv().DATABASE_URL });
+import { scannerExecutableAvailable } from "../server/worker-status";
+const lock = new Client({
+  connectionString: workerDatabaseUrl(),
+  connectionTimeoutMillis: 10000,
+});
 await lock.connect();
 const result = await lock.query<{ locked: boolean }>(
   "SELECT pg_try_advisory_lock(70421020) AS locked",
@@ -25,9 +30,9 @@ lock.on("error", () => {
   process.exit(1);
 });
 const boss = new PgBoss({
-  connectionString: getEnv().DATABASE_URL,
+  connectionString: workerDatabaseUrl(),
   schema: "pgboss",
-  max: 5,
+  max: getEnv().DATABASE_WORKER_POOL_MAX,
 });
 boss.on("error", () => console.error(JSON.stringify({ event: "queue.error" })));
 await boss.start();
@@ -105,10 +110,14 @@ async function dispatch() {
         data: { dispatchedAt: new Date(), attempts: { increment: 1 } },
       });
     }
+    const heartbeat = json({
+      at: new Date().toISOString(),
+      scanner: await scannerExecutableAvailable(),
+    });
     await db.setting.upsert({
       where: { key: "worker" },
-      create: { key: "worker", value: json({ at: new Date().toISOString() }) },
-      update: { value: json({ at: new Date().toISOString() }) },
+      create: { key: "worker", value: heartbeat },
+      update: { value: heartbeat },
     });
   } catch {
     console.error(JSON.stringify({ event: "outbox.dispatch.failed" }));

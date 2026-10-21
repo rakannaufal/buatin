@@ -5,6 +5,7 @@ node_modules/
 !.env.example
 .local/
 .cache/
+supabase/.temp/
 dist/
 coverage/
 playwright-report/

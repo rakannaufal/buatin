@@ -20,6 +20,7 @@ const ignored = new Set([
 ]);
 const runtimeKeys = [
   "BETTER_AUTH_SECRET",
+  "GOOGLE_CLIENT_SECRET",
   "NINEROUTER_API_KEY",
   "DUITKU_API_KEY",
   "RESEND_API_KEY",

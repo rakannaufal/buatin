@@ -639,6 +639,7 @@ export function runtimeSecrets() {
   return [
     env.NINEROUTER_API_KEY,
     env.BETTER_AUTH_SECRET,
+    env.GOOGLE_CLIENT_SECRET,
     env.DUITKU_API_KEY,
     env.RESEND_API_KEY,
     env.TURNSTILE_SECRET_KEY,

@@ -2,9 +2,13 @@
 
 ## Menyiapkan host kemudian
 
+Deployment awal memakai Vercel web, Supabase DB/storage dan Railway worker;
+ikuti `DEPLOYMENT.md`. Web dapat serverless, worker harus tetap berjalan.
+Contoh systemd/Caddy berikut hanya alternatif bila pindah ke server sendiri.
+
 Gunakan Node.js 24, npm lockfile dan PostgreSQL yang kompatibel dengan pg-boss.
-Web dan worker adalah proses persisten; jangan mengandalkan request serverless
-untuk pekerjaan panjang. Simpan `.env` produksi/secret file di luar repository,
+Jangan mengandalkan request serverless untuk pekerjaan panjang.
+Simpan `.env` produksi/secret file di luar repository,
 mode 0600, akses hanya service user. Instal seluruh dependency termasuk runtime
 tsx; build worker saat ini memverifikasi tipe, start worker memakai TypeScript.
 
@@ -12,7 +16,8 @@ Pada host Linux, sesuaikan contoh `deploy/systemd/` dan `deploy/Caddyfile` untuk
 path, user, runtime, database lokal/managed dan domain sebenarnya. Contoh bukan
 installer yang sudah dijalankan. Untuk database managed, ganti dependency
 postgresql.service. Web/worker memakai satu direktori lampiran privat yang sama
-atau satu bucket privat. Jangan membuka port PostgreSQL/9router ke internet.
+atau satu bucket privat. Batasi akses PostgreSQL pada koneksi server ber-TLS.
+9router harus memakai gateway HTTPS berautentikasi yang terjangkau kedua host.
 
 Konfigurasi produksi: APP_URL HTTPS, auth secret acak, kontak nyata, Resend dan
 Turnstile, model dan kredensial AI, tarif/batas AI, storage/scanner serta key backup.
@@ -31,9 +36,11 @@ script owner bootstrap atau test dengan database produksi tanpa tujuan yang jela
 5. Bila regresi, batasi trafik/side effect lalu kembali ke release sebelumnya yang
    kompatibel dengan schema. Jangan otomatis rollback schema atau menimpa database.
 
-Caddy mengizinkan 12 MB hanya untuk POST lampiran; request lain 256 KB. Upload
+Pada alternatif server sendiri, Caddy mengizinkan 12 MB hanya untuk POST lampiran;
+request lain 256 KB. Upload
 masih dibatasi API 5 MiB gambar/10 MiB dokumen secara default. Samakan proxy saat
 menaikkan batas env; uji upload sah dan penolakan oversize melalui proxy sebenarnya.
+Vercel otomatis membatasi file/ZIP 3 MiB sesuai `DEPLOYMENT.md`.
 
 ## Pemeriksaan dan alert
 
@@ -72,6 +79,12 @@ Jika lampiran berubah, hilang atau tidak dapat diverifikasi, backup gagal. Coba
 lagi setelah pemrosesan selesai; jangan menganggap folder `.partial` sebagai backup.
 Folder incomplete dapat memuat dump/blob plaintext sementara; perlakukan privat,
 periksa penyebab dan hapus secara sengaja setelah tak diperlukan.
+
+Setelah bundle selesai, job mencatat ID dan waktu ke `Setting` dengan key
+`backup.completed`. Panel web membaca receipt ini dari DB bersama walau volume
+backup berada di host lain. Receipt bukan bukti salinan di luar host, kesehatan
+volume atau hasil restore. Scanner juga dilaporkan heartbeat worker; konfigurasi
+path pada web tidak membuktikan executable tersedia di Railway.
 
 `backup:verify -- ... --restore` mendekripsi ke folder inspeksi privat `.local/`,
 memeriksa tag/checksum, membuat database `buatin_restore_*` baru, memulihkan schema

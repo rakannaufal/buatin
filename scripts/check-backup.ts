@@ -2,9 +2,10 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import assert from "node:assert/strict";
 import { db } from "../src/server/db";
 import { getEnv } from "../src/server/config";
-import { createBackup, checkBackup } from "../src/server/backup";
+import { createBackup, checkBackup, latestBackup } from "../src/server/backup";
 import {
   writeReference,
   removeReference,
@@ -55,6 +56,16 @@ try {
     },
   });
   const backup = await createBackup();
+  const previousDirectory = process.env.BACKUP_DIRECTORY;
+  try {
+    process.env.BACKUP_DIRECTORY = path.join(backup.directory, "other-host");
+    const receipt = await latestBackup();
+    assert.equal(receipt?.source, "shared");
+    assert.ok(receipt.ageHours < 1);
+  } finally {
+    if (previousDirectory === undefined) delete process.env.BACKUP_DIRECTORY;
+    else process.env.BACKUP_DIRECTORY = previousDirectory;
+  }
   const restored = await checkBackup(backup.directory, true);
   if (!(await readFile(path.join(restored.inspection, key))).equals(data))
     throw new Error("Restored attachment differs from source.");

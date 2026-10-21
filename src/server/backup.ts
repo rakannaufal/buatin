@@ -14,6 +14,8 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { getEnv } from "./config";
+import { directDatabaseUrl } from "./database-config";
+import { db } from "./db";
 import { readReference } from "./reference-storage";
 import {
   backupKey,
@@ -35,7 +37,7 @@ const manifestSchema = z.object({
   files: z.array(entrySchema).min(1),
 });
 export function postgresEnvironment(database?: string) {
-  const url = new URL(getEnv().DATABASE_URL);
+  const url = new URL(directDatabaseUrl());
   return {
     ...process.env,
     PGHOST: url.hostname,
@@ -79,7 +81,7 @@ export async function createBackup() {
   const directory = path.join(root, `${id}.partial`);
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const connection = new Client({
-    connectionString: env.DATABASE_URL,
+    connectionString: directDatabaseUrl(),
     connectionTimeoutMillis: 5000,
   });
   await connection.connect();
@@ -175,6 +177,12 @@ export async function createBackup() {
     );
     const complete = path.join(root, id);
     await rename(directory, complete);
+    // The web host has a different filesystem from the backup job.
+    await connection.query(
+      `INSERT INTO "Setting" (key, value, "updatedAt") VALUES ('backup.completed', $1::jsonb, now() AT TIME ZONE 'UTC')
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, "updatedAt" = EXCLUDED."updatedAt"`,
+      [JSON.stringify({ id, completedAt: new Date().toISOString() })],
+    );
     return { directory: complete, files: files.length, projects };
   } finally {
     await connection.end();
@@ -238,7 +246,7 @@ export async function checkBackup(directory: string, restoreDatabase = false) {
       database,
       path.join(inspection, "database.dump"),
     ]);
-    const url = new URL(env.DATABASE_URL);
+    const url = new URL(directDatabaseUrl());
     url.pathname = `/${database}`;
     const connection = new Client({
       connectionString: url.href,
@@ -281,6 +289,21 @@ export async function checkBackup(directory: string, restoreDatabase = false) {
   return { inspection, database, files: manifest.files.length };
 }
 export async function latestBackup() {
+  const receipt = await db.setting.findUnique({
+    where: { key: "backup.completed" },
+  });
+  const recorded = z
+    .object({
+      id: manifestSchema.shape.id,
+      completedAt: z.iso.datetime(),
+    })
+    .safeParse(receipt?.value);
+  if (recorded.success) {
+    const ageHours =
+      (Date.now() - Date.parse(recorded.data.completedAt)) / 3600000;
+    if (ageHours >= 0)
+      return { ageHours, source: "shared" as const, id: recorded.data.id };
+  }
   const root = path.resolve(getEnv().BACKUP_DIRECTORY);
   const names = await readdir(root).catch((error: NodeJS.ErrnoException) => {
     if (error.code === "ENOENT") return [];
@@ -294,6 +317,7 @@ export async function latestBackup() {
   const file = await stat(path.join(root, complete[0], "envelope.json"));
   return {
     ageHours: (Date.now() - file.mtimeMs) / 3600000,
+    source: "filesystem" as const,
     directory: path.join(root, complete[0]),
   };
 }

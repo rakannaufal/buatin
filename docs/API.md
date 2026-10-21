@@ -65,6 +65,15 @@ tetap estimasi operator dan tidak menggantikan tagihan/batas provider.
 
 Login: `POST /api/auth/sign-in/email` dengan `{email,password}`. Logout: `POST /api/auth/sign-out` dengan `{}`. `POST /api/auth/sign-up/email` menerima `{name,email,password,callbackURL}`. Password minimal 12 karakter. Verifikasi email wajib; signup/recovery/resend memerlukan header `x-turnstile-token` ketika Turnstile aktif. Token ditukar hanya pada server dan tidak disimpan dalam browser storage.
 
+Google: `POST /api/auth/sign-in/social` dengan body tepat
+`{provider:"google",callbackURL:"/dashboard",errorCallbackURL:"/login",disableRedirect:true}`,
+Origin aplikasi dan `x-turnstile-token`. Body maksimal 16 KiB; login ID token
+langsung, field tambahan dan override redirect ditolak. Respons berisi URL
+otorisasi Google; browser diarahkan ke sana. Callback resmi
+`GET /api/auth/callback/google` memakai state cookie/database sekali pakai dan
+PKCE. Akun owner/admin serta akun ber-MFA harus memakai jalur credential/TOTP.
+`GET /api/public-config` menyediakan `googleReady`, tanpa Google secret.
+
 Contoh mutasi setelah login, cookie dikirim otomatis browser:
 
 ```js
