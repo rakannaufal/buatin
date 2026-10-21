@@ -12,6 +12,7 @@ export async function grantTestPlan(
       planId,
       planName: plan.name,
       amount: 10000,
+      subtotal: 10000,
       weeklyQuota: plan.weeklyQuota,
       retentionDays: plan.retentionDays,
       priority: plan.priority,
@@ -35,8 +36,15 @@ export async function grantTestPlan(
   });
 }
 export async function clearTestBilling(userId: string) {
+  await db.creditAllocation.deleteMany({ where: { grant: { userId } } });
+  await db.creditGrant.deleteMany({ where: { userId } });
+  await db.entitlementGrant.deleteMany({ where: { userId } });
+  await db.refundRequest.deleteMany({ where: { payment: { userId } } });
+  await db.voucherRedemption.deleteMany({ where: { userId } });
+  await db.supportTicket.deleteMany({ where: { userId } });
   await db.aiUsage.deleteMany({ where: { userId } });
   await db.webhookEvent.deleteMany({ where: { payment: { userId } } });
   await db.subscription.deleteMany({ where: { userId } });
   await db.payment.deleteMany({ where: { userId } });
+  await db.quotaLedger.deleteMany({ where: { userId } });
 }

@@ -120,8 +120,9 @@ tanpa menuliskan nilai key.
 ## Permintaan data dan privasi
 
 Pengguna terverifikasi membuat permintaan export/deletion pada Akun dengan
-konfirmasi email. Admin meninjau status di Operasional. Tidak ada pengiriman
-email, export atau penghapusan otomatis akibat tombol permintaan/status.
+konfirmasi email. Admin meninjau di `/admin/privacy`. Perubahan status terminal mengantrekan
+notifikasi email. Export data dan penghapusan tetap mengikuti pemenuhan manual;
+status completed memerlukan processing sebelumnya serta referensi bukti.
 
 Verifikasi identitas serta scope; catat penerimaan, owner dan tenggat sesuai
 kebijakan yang disetujui. Untuk export, sertakan profil, proyek/hasil/lampiran,
@@ -131,9 +132,20 @@ terautentikasi yang disepakati. Jangan mengirim data ke orang lain tanpa instruk
 
 Untuk penghapusan, hentikan pekerjaan aktif dan cabut sesi, nilai kewajiban retensi
 pembayaran, lalu gunakan prosedur migrasi/anonymisasi yang ditinjau. Jangan langsung
-DELETE User karena relasi cascade juga mencakup ledger pembayaran. Dokumenkan
+DELETE User: relasi invoice/subscription/ledger/grant/kredit/bantuan kini
+menolak penghapusan yang menghilangkan riwayat. Retensi dan pseudonimisasi perlu
+prosedur tersendiri yang ditinjau. Dokumenkan
 pengecualian, jadwal cadangan dan bukti pemenuhan sebelum menandai selesai.
 
 Log penggunaan AI, budget period, audit dan permintaan selesai mengikuti cleanup
 180 hari; permintaan terbuka tetap tersedia untuk ditindaklanjuti. Retensi finansial
 dan backup harus ditentukan pengelola sebelum layanan publik dibuka.
+
+## Pengelolaan admin
+
+Lihat `ADMIN_GUIDE.md` untuk izin, reauth, undangan staf, harga, voucher,
+refund merchant, kompensasi, jeda layanan, audit dan riwayat konfigurasi.
+Jangan menggunakan restore database untuk membatalkan perubahan harga/voucher.
+Settings dapat dipulihkan sebagai versi baru, konten melalui versi yang sudah
+ditinjau, dan penawaran paket melalui draft baru. Snapshot pembelian/job lama
+tetap dipertahankan.

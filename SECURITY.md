@@ -45,16 +45,50 @@ wajib, audit dependency dan secret scan. Temuan high/critical memblokir rilis.
 
 ## Operator dan batas biaya
 
+Role/status terkini diperiksa server pada setiap request. Suspend mencabut sesi,
+memblokir login/API dan menghentikan job antrean sebelum AI. Request provider yang
+terlanjur berjalan masih dapat ditagih. Callback pembayaran tetap diproses.
+Owner terakhir dilindungi transaksi dan lock, termasuk penurunan role bersamaan.
+Undangan staf terikat email terverifikasi, hash token sekali pakai dan expiry
+24 jam. Penerimaan mencabut sesi; role tidak ditentukan dari input signup.
+
 BetterAuth menangani TOTP/MFA dan recovery code terenkripsi. Aktivasi berhasil
 mencabut sesi lain. Operator pada domain publik wajib memakai MFA; pengujian lokal
 tidak mengaktifkan MFA pada akun pengguna secara otomatis. URI setup/recovery code
 hanya terlihat saat pengaturan; tidak disimpan pada browser storage atau log.
+
+Semua perubahan panel memerlukan verifikasi ulang password/TOTP pada sesi yang
+berlaku lima menit, Origin benar, alasan, permission dan Idempotency-Key. Owner
+saja mengelola staf, persetujuan refund uang dan kontrol anggaran. Batas grant
+admin kumulatif per hari UTC; default nol. Key sama dengan payload berbeda dan
+versi lama ditolak 409. Audit atomik dengan perubahan mencatat actor/target,
+alasan, request ID dan before/after yang disunting dari kredensial. Verifikasi
+ulang sukses/gagal serta penolakan API admin tercatat tanpa payload autentikasi.
+Log penolakan dibatasi agar tidak menjadi saluran penulisan tanpa batas.
+
+Konten admin terbatas pada key template/skill siap. Review mendahului publish,
+versi lama tetap immutable dan snapshot job membekukan konten saat perencanaan.
+Panduan keamanan wajib tidak dapat diganti. Sumber/lisensi/checksum wajib;
+tautan metadata tidak di-fetch dan kode plugin tidak dieksekusi. Integrasi plugin
+baru tetap memerlukan tinjauan repository. Pesan bantuan/konten publik berupa
+teks; catatan internal hanya tersedia bagi operator.
+
+Refund uang memerlukan alur owner, referensi merchant dan bukti; panel tidak
+melakukan transfer dana. Snapshot invoice/manfaat dan ledger keuangan dipertahankan.
+CSV privat membutuhkan reauth/audit, maksimum 31 hari/1.000 invoice, formula
+spreadsheet dinetralkan. Permintaan privasi terminal memerlukan penanganan manual
+dan bukti; hubungan keuangan memakai Restrict untuk mencegah cascade delete.
 
 Request AI nyata harus memiliki audit dan reservasi persisten dalam transaksi.
 Batas request/token berlaku global/per akun; estimasi USD memakai tarif operator.
 Usage hilang atau request ambigu menahan cadangan. Estimasi bukan tagihan final;
 aktifkan spending cap di provider. Uji otomatis menghapus key nyata dari environment
 fixture dan menolak server integration/E2E yang tidak menjalankan mock.
+
+Panel hanya dapat menurunkan cap dibanding environment. Tarif input/output dan
+versinya dicatat per request nyata. Tarif atau usage yang belum diketahui tidak
+dianggap biaya nol. Jeda signup/checkout/generasi tidak menghentikan callback dan
+rekonsiliasi. Gunakan cap provider serta alert eksternal untuk biaya sebenarnya.
 
 ## Backup dan kesiapan layanan
 

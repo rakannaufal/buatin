@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 import { getEnv } from "@/server/config";
 import { Shell } from "@/components/shell";
+import { db } from "@/server/db";
+import { suspended } from "@/domain/admin";
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 export default async function WorkspaceLayout({
@@ -12,12 +14,14 @@ export default async function WorkspaceLayout({
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session || !session.user.emailVerified) redirect("/login");
+  const current = await db.user.findUnique({ where: { id: session.user.id } });
+  if (!current || suspended(current)) redirect("/login?restricted=1");
   return (
     <Shell
       user={{
         name: session.user.name,
         email: session.user.email,
-        role: session.user.role,
+        role: current.role,
       }}
       mock={getEnv().MOCK_LLM === "true"}
     >

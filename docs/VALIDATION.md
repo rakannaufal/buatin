@@ -1,8 +1,98 @@
 # Hasil verifikasi Buatin
 
+## Implementasi admin - 21 Oktober 2026
+
+Implementasi dan batas operasional ada di `ADMIN_GUIDE.md`. Pengujian pada macOS
+arm64, Node.js 24.22.0, PostgreSQL 17 lokal, database/storage/email fixture terpisah.
+Server dan worker fixture memakai mock dengan seluruh kredensial layanan nyata
+dikosongkan. Suite dijalankan bergantian. Konfigurasi `.env` sumber dipertahankan.
+
+| Pemeriksaan                               | Hasil aktual                                                                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Migration admin                           | Dua migration baru diterapkan setelah backup/rehearsal; total sepuluh migration                                        |
+| Kesetaraan data lama                      | Invoice/status/manfaat, masa subscription, ledger dan usage sama dengan salinan rehearsal; subtotal backfill valid     |
+| Prisma validate/status/diff               | Schema valid, seluruh migration terpasang; tidak ada drift setelah normalisasi ekspresi default PostgreSQL yang setara |
+| `npm test`                                | 62 tes unit dalam sembilan file lulus                                                                                  |
+| Format/lint/typecheck                     | Lulus; lint tanpa warning                                                                                              |
+| Build web/worker                          | Keduanya lulus; web mencakup admin dinamis dan bantuan pengguna                                                        |
+| `npm audit --omit=dev --audit-level=high` | 0 vulnerabilities                                                                                                      |
+| Verifikasi katalog                        | Lima skill pack reviewed dan 42 template lolos checksum; upstream tidak dieksekusi                                     |
+| `npm run security:scan`                   | Lulus, 297 file source/config/dokumen; secret tidak dicetak                                                            |
+| `npm run test:backup`                     | Database dan blob fixture terenkripsi, restore ke database baru, checksum/isi lampiran lulus                           |
+| `npm run test:recovery`                   | SIGKILL, lease kedaluwarsa, worker baru, resume 20/20 dokumen; checkpoint sukses tidak berubah                         |
+
+Suite integrasi akhir: 44 tes dalam enam file lulus, 149,84 detik, pada build
+produksi. Audit dependency lengkap maupun produksi: 0 vulnerabilities.
+Suite browser akhir: 16 skenario Chromium lulus dalam 2,7 menit, mencakup
+desktop/mobile, keyboard, riwayat bantuan serta balasan dari halaman pesan lama.
+Screenshot voucher desktop dan audit mobile diperiksa secara visual.
+`test:migrations` lulus pada database inspeksi baru berisi dua invoice historis;
+nominal/manfaat/periode/ledger/usage dipertahankan, subtotal diisi dan default
+sementara dilepas. Migration sudah selaras pada sumber lokal dan fixture.
+
+Cakupan mencakup permission owner/admin, password/TOTP reauth, owner terakhir
+concurrent, undangan single-use, suspend, pencabutan sesi, grant/kredit kumulatif,
+versi harga/manfaat, reservasi voucher concurrent, quote expired/berubah, callback
+duplikat/ambigu/terlambat, rekonsiliasi tanpa penurunan paid, refund uang dengan
+approval/bukti dan revokasi akses idempotent. Bantuan memeriksa ownership, catatan
+internal, retry dan pagination; privasi memeriksa bukti/notifikasi; CSV memeriksa
+izin, batas dan formula. Konten reviewed/checksum dibekukan dalam snapshot job.
+
+Temuan selama validasi:
+
+- Fixture voucher awal mencari kode lowercase sementara produk menormalisasi
+  uppercase; fixture diperbaiki. Navigasi browser kemudian masih mengisi form
+  lama sebelum detail siap; fixture sekarang menunggu heading detail.
+- Riwayat tiket semula hanya mengambil 100 pesan pertama. Regression dengan 105
+  pesan publik membuktikan balasan terbaru hilang. API/UI kini memakai 20 pesan
+  per halaman, halaman terbaru dahulu, count publik tanpa catatan internal;
+  balasan dari halaman lama kembali ke halaman terbaru.
+- Cache detail tidak mempertahankan data target lain saat ID berubah; daftar
+  dengan filter pada target yang sama tetap mempertahankan data selama fetch.
+- Model AI kini membutuhkan alasan dan versi aktif, memakai key retry stabil;
+  audit mencatat reauth sukses/gagal tanpa payload autentikasi. Laporan AI
+  menampilkan versi/tarif yang tersimpan dan model provider.
+- Bootstrap owner dikeluarkan dari CI fixture. Suite admin menolak database
+  yang sudah berisi owner, sehingga tes owner terakhir tidak mengubah akun nyata.
+- Percobaan backup fixture pertama gagal karena kunci khusus fixture belum ada.
+  Kunci privat baru dibuat; pengulangan backup/restore lulus. Kunci sumber tidak
+  dipakai ulang atau dicetak.
+- Tinjauan SQL menemukan `subtotal NOT NULL` tanpa default sementara invoice
+  historis belum terisi. Uji upgrade berisi dua invoice mereproduksi `23502`.
+  Migration admin baru yang belum dipush/dirilis dikoreksi memakai default nol
+  sementara; backfill mengisi nominal asal, lalu default dihapus. Uji ulang lulus,
+  termasuk subscription, fitur, masa bayar, ledger dan usage lama. Checksum tiga
+  database lokal diselaraskan setelah metadata dibackup; tabel aplikasi tidak
+  diubah oleh penyelarasan. Migration lama yang sudah dipublikasikan tidak diubah.
+  Regression permanen `npm run test:migrations` ditambahkan ke CI.
+
+Backup sebelum migration sumber dipertahankan privat di
+`.local/backups/buatin-2026-10-21T03-51-02-090Z-3172d129-2e8e-4d45-85d6-2f5af5509035`.
+Bundle admin yang diuji:
+`.local/admin-fixture-backups/buatin-2026-10-21T05-12-12-395Z-8f0e1e5d-2e0f-4059-b66e-9983d4182caa`.
+Database restore: `buatin_restore_b1abffcbe75a4c51b5ed81201d625bd6`.
+Hasil inspeksi: `.local/restore-check-a3ba48a1-e092-4d19-b271-208e74c8f1f1`.
+Database sumber tidak ditimpa oleh restore. Path build fixture otomatis di
+next-env/tsconfig telah dikembalikan ke `.next` sebelum verifikasi akhir.
+
+Web/worker sumber kembali memakai konfigurasi privat non-mock. Pemulihan worker
+awalnya ditolak tinjauan otomatis karena potensi inferensi berbayar. Pembacaan
+read-only membuktikan nol job/task/lampiran/outbox/antrean AI; pemulihan kemudian
+diizinkan. Tidak ada inferensi tambahan. Halaman publik dan health HTTP 200,
+admin anonim 401, bantuan anonim redirect login. `ops:check` exit 0: DB/worker
+sehat, antrean kosong, tanpa alert. `check:production` exit 1 sesuai tujuan:
+tujuh konfigurasi P0 belum siap dan empat tindak lanjut P1 manual.
+
+Hosting/domain/database produksi tetap ditunda. Merchant/refund uang, email,
+challenge, MFA owner sebenarnya, scanner, storage produksi, backup luar host,
+alert dan CI pada runner GitHub memerlukan bukti staging. Tarif AI tetap perlu
+ditetapkan berdasarkan provider; mock tidak membuktikan mutu/biaya inference.
+Refund uang dan pemenuhan privasi tetap membutuhkan tindakan operator yang
+diverifikasi. Tidak ada klaim peluncuran publik dari pengujian lokal ini.
+
 ## Rencana pengembangan admin - 21 Oktober 2026
 
-Perubahan hanya dokumentasi: kondisi admin saat ini, matriks izin, manajemen
+Catatan historis sebelum implementasi. Perubahan hanya dokumentasi: kondisi admin saat itu, matriks izin, manajemen
 pengguna/paket/voucher, integritas pembayaran, perubahan data/API, tahapan dan
 kriteria penerimaan dicatat di `ADMIN_PLAN.md` serta ditautkan dari README.
 Tidak ada implementasi fitur admin baru atau perubahan schema/runtime.

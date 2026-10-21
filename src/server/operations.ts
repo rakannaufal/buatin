@@ -8,6 +8,7 @@ import { latestBackup } from "./backup";
 import { publicAuthReady, localApp } from "./challenge";
 import { paymentConfigured } from "./duitku";
 import { llmConfig, checkModels } from "./llm";
+import { controls, siteSettings } from "./admin/policies";
 
 export type ProductionCheck = {
   id: string;
@@ -20,6 +21,10 @@ export async function productionChecks(
   provider = false,
 ): Promise<ProductionCheck[]> {
   const env = getEnv();
+  const policy = await controls().catch(() => null);
+  const contact =
+    (await siteSettings().catch(() => null))?.value.supportEmail ||
+    env.SUPPORT_EMAIL;
   const checks: ProductionCheck[] = [];
   const add = (
     id: string,
@@ -54,8 +59,7 @@ export async function productionChecks(
   add(
     "support",
     "P0",
-    Boolean(env.SUPPORT_EMAIL) &&
-      !/@(?:localhost\.test|example\.com)$/.test(env.SUPPORT_EMAIL),
+    Boolean(contact) && !/@(?:localhost\.test|example\.com)$/.test(contact),
     "Kontak pengelola",
     "Isi kontak dukungan dan identitas pengelola pada kebijakan layanan.",
   );
@@ -76,9 +80,12 @@ export async function productionChecks(
   add(
     "ai-budget",
     "P0",
-    env.LLM_DAILY_BUDGET_USD > 0 &&
-      env.LLM_INPUT_USD_PER_MILLION > 0 &&
-      env.LLM_OUTPUT_USD_PER_MILLION > 0,
+    Boolean(
+      policy &&
+      policy.dailyBudgetUsd > 0 &&
+      policy.inputRate > 0 &&
+      policy.outputRate > 0,
+    ),
     "Batas estimasi biaya AI",
     "Isi tarif konservatif untuk seluruh model terpilih dan batas USD harian; aktifkan batas tagihan di provider juga.",
   );
@@ -263,6 +270,7 @@ export async function productionChecks(
 }
 export async function operationsSnapshot() {
   const ready = await readiness();
+  const policy = await controls();
   const day = new Date().toISOString().slice(0, 10);
   const [
     queue,
@@ -320,9 +328,10 @@ export async function operationsSnapshot() {
       requests: budget?.requests ?? 0,
       tokens: budget?.tokens ?? 0,
       estimatedUsd: Number(budget?.costMicros ?? 0n) / 1000000,
-      requestLimit: getEnv().LLM_DAILY_REQUEST_LIMIT,
-      tokenLimit: getEnv().LLM_DAILY_TOKEN_LIMIT,
-      budgetUsd: getEnv().LLM_DAILY_BUDGET_USD,
+      requestLimit: policy.dailyRequests,
+      tokenLimit: policy.dailyTokens,
+      budgetUsd: policy.dailyBudgetUsd,
+      pricingKnown: policy.inputRate > 0 && policy.outputRate > 0,
     },
   };
 }

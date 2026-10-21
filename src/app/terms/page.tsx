@@ -1,10 +1,19 @@
 import { PublicShell } from "@/components/public-shell";
+import { siteSettings } from "@/server/admin/policies";
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Ketentuan layanan" };
-export default function Page() {
+export default async function Page() {
+  const { value: site } = await siteSettings();
   return (
     <PublicShell>
       <article className="public-content legal-content">
         <h1>Ketentuan layanan.</h1>
+        {site.termsNotice && (
+          <section>
+            <h2>Ketentuan tambahan pengelola</h2>
+            <p className="preserve-lines">{site.termsNotice}</p>
+          </section>
+        )}
         <p className="muted">Berlaku 20 Oktober 2026.</p>
         <h2>Layanan dan akun</h2>
         <p>
@@ -16,11 +25,11 @@ export default function Page() {
         </p>
         <h2>Paket dan kuota</h2>
         <p>
-          Free menyediakan satu generasi seumur hidup per akun. Pro menyediakan
-          kuota mingguan sesuai paket dan harga yang ditampilkan sebelum
-          pembayaran. Kuota Pro reset Senin pukul 00.00 WIB selama langganan
-          aktif, tidak menumpuk. Bulan penagihan dan minggu kuota dihitung
-          terpisah.
+          Free menyediakan kuota seumur hidup yang ditampilkan pada halaman
+          paket. Pro menyediakan kuota mingguan sesuai paket dan harga yang
+          ditampilkan sebelum pembayaran. Kuota Pro reset Senin pukul 00.00 WIB
+          selama langganan aktif, tidak menumpuk. Bulan penagihan dan minggu
+          kuota dihitung terpisah.
         </p>
         <p>
           Satu generasi berarti satu proses baru untuk satu paket dokumen.

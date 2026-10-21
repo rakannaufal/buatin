@@ -9,10 +9,13 @@ import { weekPeriod } from "../../src/domain/billing";
 import { entitlementFor } from "../../src/server/entitlements";
 import { grantTestPlan, clearTestBilling } from "../helpers/saas";
 import { generateJob } from "../../src/worker/generator";
+import { fixtureLogin } from "../helpers/http";
 import type { Snapshot } from "../../src/domain/types";
 
 const base = process.env.APP_URL || "http://localhost:3000";
-const mock = "http://127.0.0.1:4010";
+const mock = new URL(
+  process.env.MOCK_LLM_BASE_URL || "http://127.0.0.1:4010/v1",
+).origin;
 const fixtureIds: string[] = [];
 function zipEntries(buffer: Buffer) {
   const end = buffer.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
@@ -92,12 +95,7 @@ async function fixture() {
     data: { role: "user", emailVerified: true },
   });
   await grantTestPlan(result.user.id);
-  const response = await request(
-    "/auth/sign-in/email",
-    "POST",
-    { email, password },
-    "",
-  );
+  const response = await fixtureLogin(base, email, password);
   expect(response.status).toBe(200);
   return {
     id: result.user.id,

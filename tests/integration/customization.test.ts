@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { db } from "../../src/server/db";
 import { getEnv } from "../../src/server/config";
 import { createAuth } from "../../src/server/auth";
+import { fixtureLogin } from "../helpers/http";
 import { grantTestPlan, clearTestBilling } from "../helpers/saas";
 import { defaultPreferences } from "../../src/domain/preferences";
 import {
@@ -148,11 +149,7 @@ beforeAll(async () => {
       data: { emailVerified: true },
     });
     await grantTestPlan(result.user.id);
-    const login = await fetch(base + "/api/auth/sign-in/email", {
-      method: "POST",
-      headers: { Origin: base, "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    const login = await fixtureLogin(base, email, password);
     expect(login.status).toBe(200);
     accounts[i].cookie = login.headers
       .getSetCookie()

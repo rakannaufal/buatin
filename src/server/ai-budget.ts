@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { db } from "./db";
-import { getEnv } from "./config";
 import { AppError } from "./errors";
+import { controls } from "./admin/policies";
 
 export type AiAudit = { userId?: string; resourceId: string };
 type Reservation = {
@@ -28,7 +28,7 @@ export async function reserveAiUsage(
   outputTokens: number,
   now = new Date(),
 ): Promise<Reservation> {
-  const env = getEnv();
+  const policy = await controls();
   const day = now.toISOString().slice(0, 10);
   const keys = [`real:${day}:global`];
   if (audit.userId)
@@ -39,13 +39,10 @@ export async function reserveAiUsage(
   const cost = estimatedMicros(
     inputTokens,
     outputTokens,
-    env.LLM_INPUT_USD_PER_MILLION,
-    env.LLM_OUTPUT_USD_PER_MILLION,
+    policy.inputRate,
+    policy.outputRate,
   );
-  if (
-    env.LLM_DAILY_BUDGET_USD > 0 &&
-    (!env.LLM_INPUT_USD_PER_MILLION || !env.LLM_OUTPUT_USD_PER_MILLION)
-  )
+  if (policy.dailyBudgetUsd > 0 && (!policy.inputRate || !policy.outputRate))
     throw new AppError(
       "LLM_PRICING_REQUIRED",
       503,
@@ -62,17 +59,13 @@ export async function reserveAiUsage(
       });
       if (
         period.requests + 1 >
-          (index
-            ? env.LLM_USER_DAILY_REQUEST_LIMIT
-            : env.LLM_DAILY_REQUEST_LIMIT) ||
+          (index ? policy.userDailyRequests : policy.dailyRequests) ||
         period.tokens + tokens >
-          (index
-            ? env.LLM_USER_DAILY_TOKEN_LIMIT
-            : env.LLM_DAILY_TOKEN_LIMIT) ||
+          (index ? policy.userDailyTokens : policy.dailyTokens) ||
         (!index &&
-          env.LLM_DAILY_BUDGET_USD > 0 &&
+          policy.dailyBudgetUsd > 0 &&
           period.costMicros + cost >
-            BigInt(Math.floor(env.LLM_DAILY_BUDGET_USD * 1000000)))
+            BigInt(Math.floor(policy.dailyBudgetUsd * 1000000)))
       )
         throw new AppError(
           "LLM_DAILY_LIMIT",
@@ -95,7 +88,11 @@ export async function reserveAiUsage(
         model,
         mock: false,
         reservedTokens: tokens,
-        estimatedCostMicros: cost,
+        estimatedCostMicros:
+          policy.inputRate > 0 && policy.outputRate > 0 ? cost : null,
+        pricingVersion: policy.pricingVersion,
+        inputRate: policy.inputRate || null,
+        outputRate: policy.outputRate || null,
       },
     });
     return {
@@ -103,8 +100,8 @@ export async function reserveAiUsage(
       keys,
       tokens,
       cost,
-      inputRate: env.LLM_INPUT_USD_PER_MILLION,
-      outputRate: env.LLM_OUTPUT_USD_PER_MILLION,
+      inputRate: policy.inputRate,
+      outputRate: policy.outputRate,
     };
   });
 }
@@ -138,7 +135,8 @@ export async function settleAiUsage(
         modelUsed: result.model_used,
         tokensIn: result.tokens_in,
         tokensOut: result.tokens_out,
-        estimatedCostMicros: cost,
+        estimatedCostMicros:
+          reservation.inputRate > 0 && reservation.outputRate > 0 ? cost : null,
       },
     });
     if (!changed.count) return;

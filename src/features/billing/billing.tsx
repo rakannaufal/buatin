@@ -8,6 +8,7 @@ import { api, post, message } from "@/components/api";
 import { Loading, Notice, Button } from "@/components/ui";
 import { formatDate, rupiah } from "@/domain/billing";
 import { PlanComparison } from "./plans";
+import type { BillingQuote } from "@/server/vouchers";
 import {
   paymentLabels,
   type CommercialPlan,
@@ -37,11 +38,17 @@ export function BillingPage() {
       }>("/billing"),
   });
   const checkout = useMutation({
-    mutationFn: (planId: CommercialPlan["id"]) =>
+    mutationFn: ({
+      planId,
+      quote,
+    }: {
+      planId: CommercialPlan["id"];
+      quote: BillingQuote;
+    }) =>
       post<{ payment: { id: string } }>(
         "/billing/checkout",
-        { planId },
-        { "Idempotency-Key": `${key}:${planId}` },
+        { planId, quote },
+        { "Idempotency-Key": `${key}:${quote.signature.slice(0, 32)}` },
       ),
     onSuccess: ({ payment }) => router.push(`/billing/${payment.id}`),
   });
@@ -63,8 +70,8 @@ export function BillingPage() {
           <span>Paket saat ini</span>
           <h2>{data.entitlement.name}</h2>
           <p>
-            {data.entitlement.remaining} dari {data.entitlement.limit} generasi
-            tersisa.
+            {data.entitlement.baseRemaining ?? data.entitlement.remaining} dari{" "}
+            {data.entitlement.limit} generasi tersisa.
           </p>
         </div>
         <div>
@@ -76,7 +83,7 @@ export function BillingPage() {
           <p>
             {data.entitlement.activeUntil
               ? formatDate(data.entitlement.activeUntil)
-              : "1 generasi per akun, tanpa reset"}
+              : `${data.entitlement.limit} generasi per akun, tanpa reset`}
           </p>
           <small>
             {data.entitlement.resetsAt
@@ -85,6 +92,12 @@ export function BillingPage() {
           </small>
         </div>
       </section>
+      {!!data.entitlement.creditRemaining && (
+        <p className="notice">
+          Bonus generasi tersisa: {data.entitlement.creditRemaining}. Kuota
+          paket dipakai dahulu.
+        </p>
+      )}
       {data.subscriptions.map((period) => (
         <p className="muted" key={period.id}>
           {period.plan.name}: {formatDate(period.startsAt)} sampai{" "}
@@ -109,39 +122,16 @@ export function BillingPage() {
         onChoose={setChoice}
       />
       {selected && (
-        <section
-          className="panel checkout-review"
-          aria-label="Tinjau pembelian"
-        >
-          <h2>Konfirmasi {selected.name}</h2>
-          <p>
-            Total {rupiah(selected.monthlyPrice ?? 0)} untuk satu bulan.
-            Pembayaran hanya QRIS. Biaya gateway ditanggung pengelola.
-          </p>
-          <p className="muted">
-            Jika paket masih aktif, periode baru dimulai setelah periode yang
-            sudah dibayar berakhir. Perubahan tingkat paket berlaku saat periode
-            baru dimulai. Membayar tidak mereset kuota minggu berjalan.
-          </p>
-          {checkout.error && (
-            <Notice tone="error">{message(checkout.error)}</Notice>
-          )}
-          <div className="inline-actions">
-            <Button
-              busy={checkout.isPending}
-              onClick={() => checkout.mutate(selected.id)}
-            >
-              Buat tagihan QRIS
-            </Button>
-            <Button
-              variant="ghost"
-              disabled={checkout.isPending}
-              onClick={() => setChoice(null)}
-            >
-              Kembali
-            </Button>
-          </div>
-        </section>
+        <CheckoutReview
+          key={selected.id}
+          plan={selected}
+          busy={checkout.isPending}
+          error={checkout.error}
+          onCancel={() => setChoice(null)}
+          onCheckout={(quote) =>
+            checkout.mutate({ planId: selected.id, quote })
+          }
+        />
       )}
       <p className="pricing-note">
         Sisa kuota tidak menumpuk. Satu generasi menghasilkan satu paket
@@ -188,6 +178,90 @@ export function BillingPage() {
         </p>
       )}
     </>
+  );
+}
+function CheckoutReview({
+  plan,
+  busy,
+  error,
+  onCancel,
+  onCheckout,
+}: {
+  plan: CommercialPlan;
+  busy: boolean;
+  error: Error | null;
+  onCancel: () => void;
+  onCheckout: (quote: BillingQuote) => void;
+}) {
+  const [code, setCode] = useState("");
+  const quote = useMutation({
+    mutationFn: () =>
+      post<{ quote: BillingQuote }>("/billing/quote", {
+        planId: plan.id,
+        code,
+      }),
+  });
+  return (
+    <section className="panel checkout-review" aria-label="Tinjau pembelian">
+      <h2>Konfirmasi {plan.name}</h2>
+      <p>
+        Periode baru dimulai setelah seluruh masa bayar/grant yang tersedia.
+        Membayar tidak mereset kuota minggu berjalan.
+      </p>
+      <label className="field">
+        Kode voucher (opsional)
+        <input
+          name="voucher"
+          value={code}
+          maxLength={32}
+          onChange={(event) => {
+            setCode(event.target.value);
+            quote.reset();
+          }}
+        />
+      </label>
+      <Button
+        variant="secondary"
+        busy={quote.isPending}
+        onClick={() => quote.mutate()}
+      >
+        Periksa total
+      </Button>
+      {quote.error && <Notice tone="error">{message(quote.error)}</Notice>}
+      {quote.data && (
+        <dl className="limits-list">
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{rupiah(quote.data.quote.subtotal)}</dd>
+          </div>
+          <div>
+            <dt>Diskon {quote.data.quote.code}</dt>
+            <dd>{rupiah(quote.data.quote.discount)}</dd>
+          </div>
+          <div>
+            <dt>Total bayar</dt>
+            <dd>{rupiah(quote.data.quote.amount)}</dd>
+          </div>
+        </dl>
+      )}
+      <p className="muted">
+        QRIS saja. Biaya gateway ditanggung pengelola. Total berlaku lima menit;
+        slot voucher dipastikan saat invoice dibuat.
+      </p>
+      {error && <Notice tone="error">{message(error)}</Notice>}
+      <div className="inline-actions">
+        <Button
+          busy={busy}
+          disabled={!quote.data || quote.isPending}
+          onClick={() => quote.data && onCheckout(quote.data.quote)}
+        >
+          Buat tagihan QRIS
+        </Button>
+        <Button variant="ghost" disabled={busy} onClick={onCancel}>
+          Kembali
+        </Button>
+      </div>
+    </section>
   );
 }
 export function PaymentPage({ id }: { id: string }) {
@@ -259,6 +333,20 @@ export function PaymentPage({ id }: { id: string }) {
         </div>
         <div>
           <dl className="invoice-details">
+            <dt>Harga paket</dt>
+            <dd>{rupiah(payment.subtotal ?? payment.amount)}</dd>
+            {!!payment.discount && (
+              <>
+                <dt>Diskon</dt>
+                <dd>-{rupiah(payment.discount)}</dd>
+              </>
+            )}
+            {payment.voucherCode && (
+              <>
+                <dt>Voucher</dt>
+                <dd>{payment.voucherCode}</dd>
+              </>
+            )}
             <dt>Total pembayaran</dt>
             <dd className="payment-total">{rupiah(payment.amount)}</dd>
             <dt>Status</dt>

@@ -113,7 +113,7 @@ test("operator sees production priorities and runtime metrics without mobile ove
     data: { role: "admin" },
   });
   await login(page, testAccount);
-  await page.goto("/admin");
+  await page.goto("/admin/operations");
   await expect(
     page.getByRole("heading", { name: "Prioritas peluncuran" }),
   ).toBeVisible();

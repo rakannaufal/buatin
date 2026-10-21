@@ -34,6 +34,7 @@ export async function processPlan(id: string) {
     clarified: boolean;
     catalog: CatalogEntry[];
     projectContext?: import("../domain/project-context").ProjectContext;
+    templateOverrides?: Record<string, string>;
   };
   const timer = setInterval(() => {
     void db.planningTask
@@ -128,6 +129,7 @@ export async function processPlan(id: string) {
           briefVersion: task.briefVersion,
           data: json(plan),
           snapshot: json({
+            templateOverrides: snapshot.templateOverrides,
             catalog: snapshot.catalog,
             model: snapshot.config.planner,
             prompt: snapshot.prompt,

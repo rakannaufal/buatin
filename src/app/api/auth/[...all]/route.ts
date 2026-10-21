@@ -3,10 +3,26 @@ import { auth } from "@/server/auth";
 import { verifyChallenge } from "@/server/challenge";
 import { AppError } from "@/server/errors";
 import { db } from "@/server/db";
+import { assertServiceOpen } from "@/server/admin/policies";
 const handlers = toNextJsHandler(auth);
 export const GET = handlers.GET;
 export async function POST(request: Request) {
   const pathname = new URL(request.url).pathname;
+  if (pathname.endsWith("/sign-up/email")) {
+    try {
+      await assertServiceOpen("Signup");
+    } catch (error) {
+      return Response.json(
+        {
+          message:
+            error instanceof AppError
+              ? error.publicMessage
+              : "Pendaftaran belum tersedia.",
+        },
+        { status: 503 },
+      );
+    }
+  }
   const enrollment = pathname.endsWith("/two-factor/verify-totp")
     ? await auth.api.getSession({ headers: request.headers })
     : null;

@@ -14,6 +14,16 @@
   --serif: "Source Serif 4", serif;
   color-scheme: light;
 }
+.preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.public-announcement {
+  padding: 16px 24px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  text-align: center;
+}
 * {
   box-sizing: border-box;
 }

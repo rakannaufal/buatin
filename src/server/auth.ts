@@ -4,10 +4,27 @@ import { getEnv } from "./config";
 import { db } from "./db";
 import { queueEmail } from "./email";
 import { twoFactor } from "better-auth/plugins/two-factor";
+import { APIError } from "better-auth/api";
+import { suspended } from "../domain/admin";
 export function createAuth(bootstrap = false) {
   const env = getEnv();
   return betterAuth({
     database: prismaAdapter(db, { provider: "postgresql" }),
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            const user = await db.user.findUnique({
+              where: { id: session.userId },
+            });
+            if (!user || suspended(user))
+              throw new APIError("FORBIDDEN", {
+                message: "Akun dibatasi. Hubungi bantuan untuk peninjauan.",
+              });
+          },
+        },
+      },
+    },
     baseURL: env.APP_URL,
     secret: env.BETTER_AUTH_SECRET,
     plugins: [

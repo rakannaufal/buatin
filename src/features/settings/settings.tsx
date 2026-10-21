@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ShieldCheck,
@@ -9,10 +9,13 @@ import {
   KeyRound,
   Database,
 } from "lucide-react";
-import { api, post, patch, message } from "@/components/api";
+import { api, post, message } from "@/components/api";
 import { Button, Loading, Notice } from "@/components/ui";
+import { AdminUnlock } from "@/features/admin/shared";
+import "@/features/admin/admin.css";
 type Settings = {
   mock: boolean;
+  version: number;
   planner: string;
   writer: string;
   workerReady: boolean;
@@ -22,7 +25,9 @@ type Settings = {
 export function SettingsPage() {
   const client = useQueryClient();
   const [planner, setPlanner] = useState<string | null>(null),
-    [writer, setWriter] = useState<string | null>(null);
+    [writer, setWriter] = useState<string | null>(null),
+    [reason, setReason] = useState("");
+  const receipt = useRef<{ payload: string; key: string } | null>(null);
   const query = useQuery({
     queryKey: ["settings"],
     queryFn: () => api<Settings>("/settings"),
@@ -32,12 +37,26 @@ export function SettingsPage() {
       post<{ models: string[]; mock: boolean }>("/settings/llm-check"),
   });
   const save = useMutation({
-    mutationFn: () =>
-      patch("/settings", {
+    mutationFn: () => {
+      const payload = JSON.stringify({
         planner: planner ?? query.data?.planner,
         writer: writer ?? query.data?.writer,
-      }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["settings"] }),
+        version: query.data?.version,
+        reason,
+      });
+      if (!receipt.current || receipt.current.payload !== payload)
+        receipt.current = { payload, key: crypto.randomUUID() };
+      return api("/settings", {
+        method: "PATCH",
+        headers: { "Idempotency-Key": receipt.current.key },
+        body: payload,
+      });
+    },
+    onSuccess: async () => {
+      receipt.current = null;
+      setReason("");
+      await client.invalidateQueries({ queryKey: ["settings"] });
+    },
   });
   if (query.isPending) return <Loading />;
   if (query.isError)
@@ -53,6 +72,7 @@ export function SettingsPage() {
         </div>
         <ShieldCheck size={32} strokeWidth={1.3} />
       </div>
+      <AdminUnlock />
       {data.mock && (
         <Notice tone="info">
           Mode mock aktif. Ubah <code>MOCK_LLM=false</code> pada environment
@@ -146,6 +166,20 @@ export function SettingsPage() {
                 />
               )}
             </div>
+            <label className="field">
+              <span>Alasan perubahan model</span>
+              <input
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                minLength={8}
+                maxLength={500}
+                required
+                disabled={data.mock}
+              />
+              <small className="muted">
+                Minimal 8 karakter. Jangan tulis kredensial atau data rahasia.
+              </small>
+            </label>
             {save.error && <Notice tone="error">{message(save.error)}</Notice>}
             {save.isSuccess && (
               <Notice tone="info">
@@ -182,7 +216,7 @@ export function SettingsPage() {
               </div>
               <div>
                 <dt>Retensi konten</dt>
-                <dd>14 / 30 / 90 / 180 hari menurut paket</dd>
+                <dd>Menurut versi paket saat job diterima</dd>
               </div>
               <div>
                 <dt>Kuota dan antrean</dt>

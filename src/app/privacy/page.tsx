@@ -1,12 +1,20 @@
 import { PublicShell } from "@/components/public-shell";
 import { getEnv } from "@/server/config";
+import { siteSettings } from "@/server/admin/policies";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Kebijakan privasi" };
-export default function Page() {
+export default async function Page() {
+  const { value: site } = await siteSettings();
   return (
     <PublicShell>
       <article className="public-content legal-content">
         <h1>Kebijakan privasi.</h1>
+        {site.privacyNotice && (
+          <section>
+            <h2>Pemberitahuan tambahan pengelola</h2>
+            <p className="preserve-lines">{site.privacyNotice}</p>
+          </section>
+        )}
         <p className="muted">Berlaku 21 Oktober 2026.</p>
         <h2>Data yang diproses</h2>
         <p>
@@ -36,11 +44,11 @@ export default function Page() {
         <h2>Penyimpanan dan penghapusan</h2>
         <p>
           Draft tanpa hasil berakhir setelah 24 jam tidak diperbarui. Hasil
-          disimpan sesuai paket saat proses dimulai: Free 14 hari, Starter 30
-          hari, Plus 90 hari, Max 180 hari. Mengganti paket tidak memperpendek
-          masa penyimpanan hasil lama. Unduh dokumen sebelum masa tersebut
-          berakhir. Cadangan database mengikuti rotasi pengelola sehingga
-          penghapusan dari cadangan tidak selalu langsung.
+          disimpan sesuai durasi paket yang disepakati saat proses dimulai dan
+          tanggal kedaluwarsa pada halaman hasil. Mengganti paket tidak
+          memperpendek masa penyimpanan hasil lama. Unduh dokumen sebelum masa
+          tersebut berakhir. Cadangan database mengikuti rotasi pengelola
+          sehingga penghapusan dari cadangan tidak selalu langsung.
         </p>
         <p>
           Catatan pemakaian Free tetap tersimpan selama akun ada agar
@@ -61,12 +69,12 @@ export default function Page() {
           perlu diverifikasi sebelum permintaan dipenuhi.
         </p>
         <p>
-          {getEnv().SUPPORT_EMAIL ? (
+          {site.supportEmail || getEnv().SUPPORT_EMAIL ? (
             <a
               className="text-button"
-              href={`mailto:${getEnv().SUPPORT_EMAIL}`}
+              href={`mailto:${site.supportEmail || getEnv().SUPPORT_EMAIL}`}
             >
-              {getEnv().SUPPORT_EMAIL}
+              {site.supportEmail || getEnv().SUPPORT_EMAIL}
             </a>
           ) : (
             "Kontak pengelola belum dikonfigurasi. Layanan saat ini dalam penyiapan lokal."

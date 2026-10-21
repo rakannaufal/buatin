@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { readTemplate } from "./templates";
+import { applyPublishedSkills, publishedTemplates } from "./admin/content";
 import path from "node:path";
 import { Prisma } from "@prisma/client";
 import { db, json } from "./db";
@@ -282,10 +283,10 @@ export async function queuePlan(
         snapshot: json({
           brief: planningBrief(project.brief, preferences, references),
           sourceBrief: project.brief,
-          projectContext: projectContext(
-            preferences,
-            project.webType as WebType,
-            references,
+          templateOverrides: await publishedTemplates(tx),
+          projectContext: await applyPublishedSkills(
+            projectContext(preferences, project.webType as WebType, references),
+            tx,
           ),
           webType: project.webType,
           config,
@@ -368,6 +369,10 @@ async function snapshotFor(
     preferences: unknown;
   },
   plan: ResolvedPlan,
+  pinned?: {
+    projectContext?: import("../domain/project-context").ProjectContext;
+    templateOverrides?: Record<string, string>;
+  },
 ): Promise<Snapshot> {
   const templates: Record<string, string> = {};
   const entitlement = await entitlementFor(userId);
@@ -382,7 +387,9 @@ async function snapshotFor(
       templates[file.id] = override.content;
       continue;
     }
-    templates[file.id] = await readTemplate(entry);
+    templates[file.id] =
+      pinned?.templateOverrides?.[entry.path] ??
+      (await readTemplate(entry, pinned?.templateOverrides === undefined));
   }
   return {
     brief: project.brief,
@@ -399,11 +406,15 @@ async function snapshotFor(
     plan,
     maxRequests: getEnv().MAX_LLM_CALLS_PER_JOB,
     maxFileRequests: getEnv().MAX_FILE_TOTAL_REQUESTS,
-    projectContext: projectContext(
-      project.preferences,
-      project.webType as WebType,
-      await referenceSnapshot(db, project.id),
-    ),
+    projectContext:
+      pinned?.projectContext ??
+      (await applyPublishedSkills(
+        projectContext(
+          project.preferences,
+          project.webType as WebType,
+          await referenceSnapshot(db, project.id),
+        ),
+      )),
   };
 }
 async function prepareJob(
@@ -433,6 +444,10 @@ async function prepareJob(
       userId,
       project,
       current.data as unknown as ResolvedPlan,
+      current.snapshot as {
+        projectContext?: import("../domain/project-context").ProjectContext;
+        templateOverrides?: Record<string, string>;
+      },
     ),
     sourceJobId: null as string | null,
   };
@@ -817,7 +832,12 @@ export async function jobFor(userId: string, id: string) {
     );
   return job;
 }
-export async function resumeJob(userId: string, id: string, key: string) {
+export async function resumeJob(
+  userId: string,
+  id: string,
+  key: string,
+  transaction?: Transaction,
+) {
   const previous = await db.idempotencyKey.findUnique({
     where: {
       userId_operation_keyHash: {
@@ -832,7 +852,7 @@ export async function resumeJob(userId: string, id: string, key: string) {
   const job = await jobFor(userId, id);
   const snapshot = job.snapshot as unknown as Snapshot;
   await checkModels(snapshot.config);
-  return db.$transaction(async (tx) => {
+  const run = async (tx: Transaction) => {
     await userLock(tx, userId);
     const operation = `resume:${id}`,
       keyHash = hash(key);
@@ -903,10 +923,15 @@ export async function resumeJob(userId: string, id: string, key: string) {
       },
     });
     return { id };
-  });
+  };
+  return transaction ? run(transaction) : db.$transaction(run);
 }
-export async function cancelJob(userId: string, id: string) {
-  return db.$transaction(async (tx) => {
+export async function cancelJob(
+  userId: string,
+  id: string,
+  transaction?: Transaction,
+) {
+  const run = async (tx: Transaction) => {
     await userLock(tx, userId);
     const job = await tx.job.findFirst({ where: { id, userId } });
     if (!job) throw new AppError("NOT_FOUND", 404);
@@ -929,5 +954,6 @@ export async function cancelJob(userId: string, id: string) {
     if (status === "cancelled" && job.llmRequestCount === 0)
       await refundQuota(tx, userId, id, "cancelled_before_ai");
     return { id, status };
-  });
+  };
+  return transaction ? run(transaction) : db.$transaction(run);
 }

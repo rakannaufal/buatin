@@ -10,6 +10,10 @@ import {
   validDuitkuSignature,
 } from "./duitku";
 import { queueEmail } from "./email";
+import { quoteInTransaction, verifyQuote, settleVoucher } from "./vouchers";
+import { activeUser } from "./admin/security";
+import { assertServiceOpen } from "./admin/policies";
+import { planFeatures } from "../domain/admin";
 import {
   addBillingMonth,
   formatDate,
@@ -26,14 +30,19 @@ export async function checkout(
   user: { id: string; name: string; email: string },
   planId: PlanId,
   key: string,
+  quote?: unknown,
 ) {
   if (planId === "free") throw new AppError("INVALID_PLAN", 400);
   await rateLimit(`checkout:${user.id}`, 10, 3600);
+  const verified = quote ? verifyQuote(quote, user.id, planId, true) : null;
   const keyHash = hash(key),
     operation = "checkout",
-    requestHash = hash(planId);
+    requestHash = verified
+      ? hash(JSON.stringify({ planId, quote: verified }))
+      : hash(planId);
   const result = await db.$transaction(async (tx) => {
     await userLock(tx, user.id);
+    await activeUser(user.id, tx);
     const prior = await tx.idempotencyKey.findUnique({
       where: {
         userId_operation_keyHash: { userId: user.id, operation, keyHash },
@@ -44,15 +53,15 @@ export async function checkout(
         throw new AppError("IDEMPOTENCY_CONFLICT", 409);
       return { id: prior.resourceId, created: false };
     }
-    const plan = await tx.billingPlan.findUnique({ where: { id: planId } });
-    if (!plan?.available || !plan.monthlyPrice || !paymentConfigured())
+    await assertServiceOpen("Checkout", tx);
+    if (!paymentConfigured())
       throw new AppError(
         "PAYMENT_UNAVAILABLE",
         503,
         "Harga atau QRIS belum diaktifkan. Paket belum dapat dibeli.",
       );
     const future = await tx.subscription.count({
-      where: { userId: user.id, startsAt: { gt: new Date() } },
+      where: { userId: user.id, revokedAt: null, startsAt: { gt: new Date() } },
     });
     if (future)
       throw new AppError(
@@ -67,7 +76,16 @@ export async function checkout(
       },
     });
     if (pending) {
-      if (pending.planId !== planId)
+      const oldCode =
+        (pending.voucherSnapshot as { code?: string } | null)?.code ?? "";
+      if (
+        pending.planId !== planId ||
+        oldCode !== (verified?.code ?? "") ||
+        (verified &&
+          (pending.amount !== verified.amount ||
+            pending.discount !== verified.discount ||
+            pending.planVersion !== verified.planVersion))
+      )
         throw new AppError(
           "PAYMENT_PENDING",
           409,
@@ -84,13 +102,47 @@ export async function checkout(
       });
       return { id: pending.id, created: false };
     }
+    const priced = await quoteInTransaction(
+      tx,
+      user.id,
+      planId,
+      verified?.code,
+    );
+    if (verified && verified.expiresAt <= Date.now())
+      throw new AppError(
+        "QUOTE_EXPIRED",
+        409,
+        "Rincian harga kedaluwarsa. Periksa total kembali.",
+      );
+    const { plan } = priced;
+    if (
+      verified &&
+      (verified.planVersion !== plan.version ||
+        verified.voucherVersion !== (priced.voucher?.version ?? null) ||
+        verified.subtotal !== priced.subtotal ||
+        verified.discount !== priced.discount ||
+        verified.amount !== priced.amount)
+    )
+      throw new AppError(
+        "PRICE_CHANGED",
+        409,
+        "Harga atau syarat voucher berubah. Periksa total kembali.",
+      );
     const payment = await tx.payment.create({
       data: {
         id: `BT${crypto.randomUUID().replaceAll("-", "")}`,
         userId: user.id,
         planId,
         planName: plan.name,
-        amount: plan.monthlyPrice,
+        amount: priced.amount,
+        subtotal: priced.subtotal,
+        discount: priced.discount,
+        planVersion: plan.version,
+        features: json(planFeatures(planId, plan.features)),
+        plannerLimit: plan.plannerLimit,
+        ...(priced.voucher
+          ? { voucherSnapshot: json({ ...priced.voucher, code: priced.code }) }
+          : {}),
         weeklyQuota: plan.weeklyQuota,
         retentionDays: plan.retentionDays,
         priority: plan.priority,
@@ -100,6 +152,15 @@ export async function checkout(
         ),
       },
     });
+    if (priced.voucher)
+      await tx.voucherRedemption.create({
+        data: {
+          voucherId: priced.voucher.id,
+          version: priced.voucher.version,
+          userId: user.id,
+          paymentId: payment.id,
+        },
+      });
     await tx.idempotencyKey.create({
       data: {
         userId: user.id,
@@ -143,12 +204,17 @@ export async function checkout(
       const certain =
         error instanceof AppError &&
         ["QRIS_UNAVAILABLE", "PAYMENT_UNAVAILABLE"].includes(error.code);
-      await db.payment.updateMany({
-        where: { id: payment.id, status: "creating" },
-        data: {
-          status: certain ? "failed" : "creating",
-          errorCode: certain ? "QRIS_UNAVAILABLE" : "PROVIDER_UNCERTAIN",
-        },
+      await db.$transaction(async (tx) => {
+        await userLock(tx, user.id);
+        const changed = await tx.payment.updateMany({
+          where: { id: payment.id, status: "creating" },
+          data: {
+            status: certain ? "failed" : "creating",
+            errorCode: certain ? "QRIS_UNAVAILABLE" : "PROVIDER_UNCERTAIN",
+          },
+        });
+        if (certain && changed.count)
+          await settleVoucher(tx, payment.id, false);
       });
       // Keep an uncertain order for reconciliation instead of creating a second payable invoice.
       if (certain) throw error;
@@ -273,10 +339,20 @@ export async function reconcilePayment(id: string) {
     });
     if (status.statusCode === "00") {
       const latest = await tx.subscription.findFirst({
-        where: { userId: payment.userId, endsAt: { gt: now } },
+        where: { userId: payment.userId, revokedAt: null, endsAt: { gt: now } },
         orderBy: { endsAt: "desc" },
       });
-      const startsAt = latest?.endsAt ?? now,
+      const grant = await tx.entitlementGrant.findFirst({
+        where: { userId: payment.userId, revokedAt: null, endsAt: { gt: now } },
+        orderBy: { endsAt: "desc" },
+      });
+      const startsAt = new Date(
+          Math.max(
+            now.getTime(),
+            latest?.endsAt.getTime() ?? 0,
+            grant?.endsAt.getTime() ?? 0,
+          ),
+        ),
         endsAt = addBillingMonth(startsAt);
       await tx.subscription.create({
         data: {
@@ -288,8 +364,13 @@ export async function reconcilePayment(id: string) {
           weeklyQuota: payment.weeklyQuota,
           retentionDays: payment.retentionDays,
           priority: payment.priority,
+          planName: payment.planName,
+          planVersion: payment.planVersion,
+          features: payment.features ?? undefined,
+          plannerLimit: payment.plannerLimit,
         },
       });
+      await settleVoucher(tx, id, true);
       await tx.payment.update({
         where: { id },
         data: {
@@ -321,6 +402,7 @@ export async function reconcilePayment(id: string) {
         where: { id },
         data: { status: "expired", errorCode: null },
       });
+      await settleVoucher(tx, id, false);
     }
     await tx.webhookEvent.updateMany({
       where: { paymentId: id, source: "callback", processedAt: null },
@@ -359,6 +441,7 @@ export async function maintainBilling() {
   const subscriptions = await db.subscription.findMany({
     where: {
       reminderSentAt: null,
+      revokedAt: null,
       startsAt: { lte: now },
       endsAt: { gt: now, lte: new Date(Date.now() + 3 * 86400000) },
       user: { renewalReminders: true },
@@ -370,6 +453,7 @@ export async function maintainBilling() {
     const renewed = await db.subscription.count({
       where: {
         userId: subscription.userId,
+        revokedAt: null,
         startsAt: { gte: subscription.endsAt },
       },
     });

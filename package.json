@@ -34,6 +34,7 @@
     "db:check-restore": "tsx scripts/check-restore.ts",
     "db:stop": "tsx scripts/local-db.ts --stop",
     "test:recovery": "node --import tsx scripts/check-worker-restart.ts",
+    "test:migrations": "node --import tsx scripts/check-admin-upgrade.ts",
     "check:production": "node --import tsx scripts/check-production.ts",
     "provider:check": "node --import tsx scripts/check-provider.ts",
     "backup:key": "node --import tsx scripts/backup-key.ts",

@@ -9,7 +9,7 @@ export default tseslint.config(
   hooks.configs.flat.recommended,
   accessibility.flatConfigs.recommended,
   {
-    files: ["src/features/billing/plans.tsx"],
+    files: ["src/features/billing/plans.tsx", "src/features/admin/shared.tsx"],
     rules: {
       // The named overflow region must remain keyboard-scrollable in Safari.
       "jsx-a11y/no-noninteractive-tabindex": [

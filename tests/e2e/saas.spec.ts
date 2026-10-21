@@ -1,6 +1,7 @@
 import { test, expect, login, removeAccount } from "./fixtures";
 import { grantTestPlan } from "../helpers/saas";
 import { db } from "../../src/server/db";
+import { Prisma } from "@prisma/client";
 const brief =
   "Landing page untuk studio desain UMKM, layanan desain, portofolio, proses kerja, dan kontak WhatsApp. Tanpa login atau pembayaran. Prioritas mobile, warna hijau dan tipografi yang mudah dibaca.";
 test("public registration, email verification and login", async ({
@@ -323,6 +324,7 @@ test("QRIS fixture renders a private mobile invoice; anonymous access is denied"
       planId: "starter",
       planName: "QRIS fixture",
       amount: 10000,
+      subtotal: 10000,
       weeklyQuota: 3,
       retentionDays: 30,
       priority: 0,
@@ -369,15 +371,39 @@ test("admin price changes preserve already purchased benefits", async ({
   });
   try {
     await login(page, testAccount);
-    await page.goto("/admin");
-    await expect(
-      page.getByRole("heading", { name: "Operasional Buatin.", exact: true }),
-    ).toBeVisible();
-    await page.locator("#plus-price").fill("12345");
-    await page.locator("#plus-quota").fill("11");
+    await page.goto("/admin/plans");
     await page
-      .getByRole("button", { name: "Simpan Pro Plus", exact: true })
+      .getByLabel("Password verifikasi admin")
+      .fill(testAccount.password);
+    await page
+      .getByRole("button", { name: "Verifikasi akses", exact: true })
       .click();
+    await expect(
+      page.getByText("Perubahan admin terbuka sementara", { exact: true }),
+    ).toBeVisible();
+    const panel = page
+      .locator(".admin-plan")
+      .filter({ has: page.getByRole("heading", { name: /Pro Plus/ }) });
+    await panel.getByText("Susun perubahan Pro Plus", { exact: true }).click();
+    const draft = panel.locator(".admin-action-form").first();
+    await draft.getByLabel("Harga bulanan IDR").fill("12345");
+    await draft.getByLabel("Generasi per minggu").fill("11");
+    await draft
+      .getByLabel("Alasan perubahan")
+      .fill("Reviewed E2E pricing change");
+    await draft
+      .getByRole("button", { name: "Simpan draft Pro Plus", exact: true })
+      .click();
+    const version = panel
+      .locator(".admin-version")
+      .filter({ hasText: "draft" })
+      .first();
+    await version.locator("summary").click();
+    await version
+      .getByLabel("Alasan perubahan")
+      .fill("Publish reviewed E2E package version");
+    await version.getByRole("checkbox").check();
+    await version.getByRole("button", { name: /Publish versi/ }).click();
     await expect
       .poll(async () => {
         const plan = await db.billingPlan.findUniqueOrThrow({
@@ -399,6 +425,9 @@ test("admin price changes preserve already purchased benefits", async ({
       retentionDays: 90,
     });
   } finally {
+    await db.billingPlanVersion.deleteMany({
+      where: { createdBy: testAccount.id },
+    });
     await db.billingPlan.update({
       where: { id: "plus" },
       data: {
@@ -406,6 +435,10 @@ test("admin price changes preserve already purchased benefits", async ({
         weeklyQuota: original.weeklyQuota,
         retentionDays: original.retentionDays,
         available: original.available,
+        version: original.version,
+        features:
+          original.features === null ? Prisma.DbNull : original.features,
+        plannerLimit: original.plannerLimit,
       },
     });
   }

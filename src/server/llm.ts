@@ -3,6 +3,7 @@ import { getEnv } from "./config";
 import { AppError } from "./errors";
 import type { LlmConfig } from "../domain/types";
 import { reserveAiUsage, settleAiUsage, type AiAudit } from "./ai-budget";
+import { activeUser } from "./admin/security";
 export interface LlmResult {
   content: string;
   model_used: string | null;
@@ -172,6 +173,7 @@ export async function callLlm(
     if (wait) await pause(Math.min(wait, 60000));
     const interval = Math.max(0, nextRequest - Date.now());
     if (interval) await pause(interval);
+    if (audit?.userId) await activeUser(audit.userId);
     await beforeRequest();
     const reservation =
       !config.mock && audit

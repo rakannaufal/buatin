@@ -14,6 +14,7 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm test
+npm run test:migrations
 npm run test:integration
 npm run test:e2e
 npm run build:worker
@@ -32,6 +33,20 @@ conflict, ownership, lampiran privat, parser, revisi/preset dan snapshot. E2E
 membuktikan editor sampai dokumen/ZIP, interaksi desktop/mobile dan failure paths.
 Fixture memakai akun sementara; cleanup hanya menyentuh data milik fixture.
 
+Admin memerlukan regression untuk role/status terbaru, MFA/reauth, owner terakhir
+concurrent, undangan email sekali pakai, suspend dan pencabutan sesi, cap grant
+kumulatif UTC, refund kredit ke sumber asal, snapshot paket dan konflik versi.
+Voucher diuji untuk slot terakhir concurrent, batas per akun, quote berubah/
+kedaluwarsa, provider ambigu, callback berulang dan paid terlambat. Refund uang
+memeriksa transisi, bukti, approval owner dan revokasi subscription sekali.
+Rekonsiliasi tidak boleh menurunkan invoice paid ketika request bersamaan.
+
+Konten diuji draft/review/publish/unpublish, checksum dan snapshot job lama.
+Bantuan memeriksa ownership/internal note serta retry tanpa duplikasi. Privasi
+memerlukan bukti/status/antrean pemberitahuan. CSV diperiksa izin, batas dan
+formula injection. E2E admin mencakup kredit, voucher versi, audit, keyboard,
+tampilan desktop/mobile; fixture menunggu halaman detail siap sebelum mengisi.
+
 Strategi loading diuji sebagai rekomendasi kontekstual dan kontrak dokumen hasil:
 jenis website/rendering, hero/LCP tanpa lazy, skeleton kondisional, tanpa delay
 buatan, reduced motion dan status/progres nyata. Pemeriksaan performa website
@@ -45,6 +60,28 @@ Vitest mengisolasi MOCK_LLM=true dan mengosongkan key 9router fixture. Integrati
 dan E2E memeriksa mode server aktual sebelum membuat akun/proyek. Jalankan web
 dan worker test dengan override MOCK_LLM=true meski `.env` lokal memakai AI nyata.
 Jangan menjalankan integration/E2E bersamaan karena kontrol mock digunakan bersama.
+
+Jangan mengarahkan fixture admin ke database lokal yang berisi owner nyata:
+uji owner terakhir membutuhkan database khusus tanpa owner yang sudah ada.
+Suite menolak database dengan owner; CI tidak menjalankan bootstrap owner.
+Pakai database baru, storage/outbox/backup terpisah dan kosongkan semua kredensial
+AI, merchant, email serta S3 nyata. Untuk web dev/build bersamaan, gunakan
+`NEXT_BUILD_DIR` berbeda agar hasil compile tidak saling menimpa. Jangan commit
+path dist sementara yang otomatis ditambahkan Next ke next-env/tsconfig.
+
+Migration admin perlu rehearsal pada salinan backup terlebih dahulu. Bandingkan
+nominal/status invoice, manfaat, masa subscription dan ledger sebelum/sesudah.
+FK Restrict baru berarti cleanup fixture harus menghapus catatan miliknya secara
+eksplisit dalam urutan yang benar. Jangan mengubah migration yang sudah diterapkan.
+Uji restore ke database baru serta recovery worker setelah perubahan keuangan.
+
+`test:migrations` membuat database baru dengan prefix `buatin_admin_upgrade_`,
+menerapkan schema lama, mengisi invoice paid/pending, subscription dan ledger,
+lalu menjalankan upgrade dan memeriksa backfill/manfaat/data asal. Database
+inspeksi dipertahankan; perintah memerlukan PostgreSQL CLI dan izin CREATEDB,
+loopback serta MOCK_LLM=true. Tidak menimpa database sumber. CI menjalankannya
+sebelum migration database fixture utama. Migration yang sudah dipublikasikan
+tidak boleh ditulis ulang; koreksi memakai migration baru dan runbook yang ditinjau.
 
 Operasi memerlukan regression untuk reservasi AI concurrent, usage hilang, MFA /
 recovery code, pencabutan sesi, kesiapan dependency dan integritas backup. Jalankan

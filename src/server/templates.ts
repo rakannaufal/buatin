@@ -4,7 +4,24 @@ import { createHash } from "node:crypto";
 import checksums from "../../config/template-checksums.json";
 import { getEnv } from "./config";
 import { AppError } from "./errors";
-export async function readTemplate(entry: { path: string; title: string }) {
+import { db } from "./db";
+export async function readTemplate(
+  entry: { path: string; title: string },
+  usePublished = true,
+) {
+  const published = usePublished
+    ? await db.contentVersion.findFirst({
+        where: { kind: "template", key: entry.path, status: "published" },
+      })
+    : null;
+  if (published) {
+    if (
+      createHash("sha256").update(published.content).digest("hex") !==
+      published.checksum
+    )
+      throw new AppError("TEMPLATE_UNAVAILABLE", 503);
+    return published.content;
+  }
   const env = getEnv();
   try {
     const content = await readFile(

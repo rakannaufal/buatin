@@ -36,6 +36,11 @@ import { cleanupReferenceStorage } from "@/server/reference-storage";
 import { readiness } from "@/server/health";
 import { checkOperatorMfa } from "@/server/operator-access";
 import { accountApi } from "@/server/account-api";
+import { adminApi, acceptInvitation } from "@/server/admin/api";
+import { activeUser, adminMutation, audit } from "@/server/admin/security";
+import { siteSettings } from "@/server/admin/policies";
+import { reasonSchema } from "@/domain/admin";
+import { supportApi } from "@/server/admin/support";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const typeSchema = z.enum([
@@ -105,10 +110,12 @@ async function handler(
         registrationReady: publicAuthReady(),
         localEmail: localApp() && getEnv().EMAIL_PROVIDER === "local",
       });
+    if (resource === "site" && method === "GET")
+      return reply((await siteSettings()).value);
     const session = await auth.api.getSession({ headers: req.headers });
     if (!session)
       throw new AppError("UNAUTHENTICATED", 401, "Silakan masuk kembali.");
-    const user = session.user;
+    const user = await activeUser(session.user.id);
     if (!user.emailVerified)
       throw new AppError(
         "EMAIL_UNVERIFIED",
@@ -127,6 +134,30 @@ async function handler(
     await rateLimit(`api:${user.id}`, 300, 60);
     if (["admin", "settings"].includes(resource) && adminRole(user.role))
       checkOperatorMfa(user);
+    const actor = {
+      id: user.id,
+      role: user.role,
+      sessionId: session.session.id,
+      twoFactorEnabled: user.twoFactorEnabled,
+      requestId,
+    };
+    if (resource === "admin") {
+      const response = await adminApi(req, actor, segments, () => body(req));
+      if (response) return response;
+    }
+    if (resource === "support") {
+      const response = await supportApi(req, user.id, segments, () =>
+        body(req),
+      );
+      if (response) return response;
+    }
+    if (
+      resource === "account" &&
+      id === "invitations" &&
+      action === "accept" &&
+      method === "POST"
+    )
+      return reply(await acceptInvitation(user, await body(req)));
     const account = await accountApi(req, session, segments, () => body(req));
     if (account) return account;
     const customization = await customizationApi(req, user, segments, () =>
@@ -520,8 +551,13 @@ async function handler(
         const worker = await db.setting.findUnique({
           where: { key: "worker" },
         });
+        const models = await db.setting.findUnique({
+          where: { key: "models" },
+          select: { version: true },
+        });
         return reply({
           mock: config.mock,
+          version: models?.version ?? 0,
           planner: config.planner,
           writer: config.writer,
           workerReady: Boolean(
@@ -540,7 +576,10 @@ async function handler(
           .object({
             planner: z.string().min(1).max(160),
             writer: z.string().min(1).max(160),
+            version: z.number().int().min(0),
+            reason: reasonSchema,
           })
+          .strict()
           .parse(await body(req));
         const config = await llmConfig();
         if (config.mock)
@@ -550,12 +589,43 @@ async function handler(
             "Nonaktifkan mode mock melalui environment server untuk memilih model nyata.",
           );
         await checkModels({ ...config, ...input });
-        await db.setting.upsert({
-          where: { key: "models" },
-          create: { key: "models", value: json(input) },
-          update: { value: json(input) },
-        });
-        return reply({ ok: true });
+        return reply(
+          await adminMutation(
+            req,
+            actor,
+            "jobs",
+            input,
+            async (tx, requestId) => {
+              const prior = await tx.setting.findUnique({
+                where: { key: "models" },
+              });
+              if ((prior?.version ?? 0) !== input.version)
+                throw new AppError(
+                  "VERSION_CONFLICT",
+                  409,
+                  "Pilihan model berubah. Muat ulang sebelum menyimpan.",
+                );
+              const value = { planner: input.planner, writer: input.writer };
+              await tx.setting.upsert({
+                where: { key: "models" },
+                create: { key: "models", value: json(value) },
+                update: { value: json(value), version: { increment: 1 } },
+              });
+              await audit(
+                tx,
+                actor,
+                "ai.models.updated",
+                "setting",
+                "models",
+                input.reason,
+                prior?.value,
+                value,
+                requestId,
+              );
+              return { ok: true };
+            },
+          ),
+        );
       }
     }
     throw new AppError("NOT_FOUND", 404, "Halaman API tidak ditemukan.");
@@ -571,13 +641,38 @@ async function handler(
         },
         400,
       );
-    if (error instanceof AppError)
+    if (error instanceof AppError) {
+      if (
+        error.status === 403 &&
+        req.nextUrl.pathname.startsWith("/api/admin/")
+      ) {
+        try {
+          await rateLimit("security-log:admin-denied", 10, 60);
+          console.warn(
+            JSON.stringify({
+              event: "admin.request.denied",
+              requestId,
+              code: error.code,
+            }),
+          );
+        } catch (loggingError) {
+          // Expected limiter rejection suppresses floods without changing authorization.
+          if (!(
+            loggingError instanceof AppError &&
+            loggingError.code === "RATE_LIMITED"
+          ))
+            console.error(
+              JSON.stringify({ event: "security.logging.failed", requestId }),
+            );
+        }
+      }
       return reply(
         {
           error: { code: error.code, message: error.publicMessage, requestId },
         },
         error.status,
       );
+    }
     const code =
       error instanceof Error && "code" in error
         ? String(error.code)

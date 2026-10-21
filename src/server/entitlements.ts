@@ -3,21 +3,41 @@ import { AppError } from "./errors";
 import { userLock } from "./limits";
 import {
   PLANS,
-  hasFeature,
   weekPeriod,
   type PlanId,
   type ProFeature,
 } from "../domain/billing";
+import { planFeatures } from "../domain/admin";
+import { activeUser } from "./admin/security";
+import { assertServiceOpen } from "./admin/policies";
 
 export async function entitlementFor(
   userId: string,
   tx: Transaction = db,
   now = new Date(),
 ) {
-  const active = await tx.subscription.findFirst({
-    where: { userId, startsAt: { lte: now }, endsAt: { gt: now } },
+  const paid = await tx.subscription.findFirst({
+    where: {
+      userId,
+      revokedAt: null,
+      startsAt: { lte: now },
+      endsAt: { gt: now },
+    },
     orderBy: { startsAt: "desc" },
   });
+  const grant = await tx.entitlementGrant.findFirst({
+    where: {
+      userId,
+      revokedAt: null,
+      startsAt: { lte: now },
+      endsAt: { gt: now },
+    },
+    orderBy: { startsAt: "desc" },
+  });
+  const active = paid ?? grant;
+  const free = active
+    ? null
+    : await tx.billingPlan.findUnique({ where: { id: "free" } });
   const planId = (active?.planId ?? "free") as PlanId;
   const period = active
     ? weekPeriod(now)
@@ -25,28 +45,36 @@ export async function entitlementFor(
   const usage = await tx.usagePeriod.findUnique({
     where: { userId_key: { userId, key: period.key } },
   });
-  const limit = active?.weeklyQuota ?? 1;
+  const limit = active?.weeklyQuota ?? free?.weeklyQuota ?? 1;
+  const baseRemaining = Math.max(0, limit - (usage?.jobsCount ?? 0));
+  const credits = await tx.creditGrant.findMany({
+    where: { userId, revokedAt: null, expiresAt: { gt: now } },
+    select: { amount: true, used: true },
+  });
+  const creditRemaining = credits.reduce(
+    (sum, credit) => sum + credit.amount - credit.used,
+    0,
+  );
   return {
     planId,
-    name: PLANS[planId].name,
+    name: active?.planName ?? free?.name ?? PLANS[planId].name,
     limit,
     used: usage?.jobsCount ?? 0,
-    remaining: Math.max(0, limit - (usage?.jobsCount ?? 0)),
-    plannerLimit: active ? Math.min(120, limit * 4) : 5,
+    remaining: baseRemaining + creditRemaining,
+    baseRemaining,
+    creditRemaining,
+    plannerLimit:
+      active?.plannerLimit ??
+      free?.plannerLimit ??
+      (active ? Math.min(120, limit * 4) : 5),
     plannerUsed: usage?.plansCount ?? 0,
-    retentionDays: active?.retentionDays ?? 14,
+    retentionDays: active?.retentionDays ?? free?.retentionDays ?? 14,
     priority: active?.priority ?? 0,
     periodKey: period.key,
     startsAt: period.startsAt,
     resetsAt: period.endsAt,
     activeUntil: active?.endsAt ?? null,
-    features: {
-      revisions: hasFeature(planId, "revisions"),
-      regeneration: hasFeature(planId, "regeneration"),
-      presets: hasFeature(planId, "presets"),
-      templates: hasFeature(planId, "templates"),
-      batch: hasFeature(planId, "batch"),
-    },
+    features: planFeatures(planId, active?.features ?? free?.features),
   };
 }
 export type Entitlement = Awaited<ReturnType<typeof entitlementFor>>;
@@ -56,7 +84,7 @@ export async function requireFeature(
   tx: Transaction = db,
 ) {
   const entitlement = await entitlementFor(userId, tx);
-  if (!hasFeature(entitlement.planId, feature))
+  if (!entitlement.features[feature])
     throw new AppError(
       "PLAN_REQUIRED",
       403,
@@ -70,6 +98,8 @@ export async function reserveQuota(
   jobId: string,
   entitlement: Entitlement,
 ) {
+  await activeUser(userId, tx);
+  await assertServiceOpen("Generation", tx);
   if (entitlement.remaining < 1)
     throw new AppError(
       "QUOTA_EXHAUSTED",
@@ -78,6 +108,20 @@ export async function reserveQuota(
         ? "Kesempatan Free sudah digunakan. Pilih Pro untuk membuat paket baru."
         : "Kuota minggu ini habis. Kuota berikutnya tersedia Senin 00.00 WIB selama paket aktif.",
     );
+  if (entitlement.baseRemaining < 1) {
+    const grants = await tx.creditGrant.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: [{ expiresAt: "asc" }, { id: "asc" }],
+    });
+    const grant = grants.find((item) => item.used < item.amount);
+    if (!grant) throw new AppError("QUOTA_EXHAUSTED", 429);
+    await tx.creditGrant.update({
+      where: { id: grant.id },
+      data: { used: { increment: 1 } },
+    });
+    await tx.creditAllocation.create({ data: { grantId: grant.id, jobId } });
+    return;
+  }
   await tx.usagePeriod.upsert({
     where: { userId_key: { userId, key: entitlement.periodKey } },
     create: {
@@ -106,6 +150,26 @@ export async function refundQuota(
   jobId: string,
   reason: string,
 ) {
+  const allocation = await tx.creditAllocation.findUnique({
+    where: { jobId },
+    include: { grant: true },
+  });
+  if (allocation) {
+    if (allocation.grant.userId !== userId || allocation.returnedAt) return;
+    await tx.creditAllocation.update({
+      where: { jobId },
+      data: { status: "returned", returnedAt: new Date() },
+    });
+    await tx.creditGrant.update({
+      where: { id: allocation.grantId },
+      data: { used: { decrement: 1 } },
+    });
+    await tx.job.update({
+      where: { id: jobId },
+      data: { quotaRefundedAt: new Date() },
+    });
+    return;
+  }
   const reservation = await tx.quotaLedger.findUnique({
     where: { jobId_action: { jobId, action: "reserve" } },
   });
@@ -155,6 +219,8 @@ export async function closeFailedJob(userId: string, id: string) {
   });
 }
 export async function reservePlanner(tx: Transaction, userId: string) {
+  await activeUser(userId, tx);
+  await assertServiceOpen("Generation", tx);
   const entitlement = await entitlementFor(userId, tx);
   if (entitlement.remaining < 1)
     throw new AppError(

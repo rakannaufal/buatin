@@ -235,7 +235,7 @@ describe("SaaS entitlements and durable quotas", () => {
         email,
         password,
         name: "Public account",
-        callbackURL: "http://localhost:3000/login",
+        callbackURL: `${process.env.APP_URL}/login`,
       },
     });
     users.push(result.user);
@@ -256,7 +256,7 @@ describe("SaaS entitlements and durable quotas", () => {
       (await db.user.findUniqueOrThrow({ where: { email } })).emailVerified,
     ).toBe(true);
     await auth.api.requestPasswordReset({
-      body: { email, redirectTo: "http://localhost:3000/reset-password" },
+      body: { email, redirectTo: `${process.env.APP_URL}/reset-password` },
     });
     const reset = await db.emailMessage.findFirstOrThrow({
       where: { to: email, subject: "Atur ulang password Buatin" },
@@ -440,6 +440,7 @@ describe("Duitku QRIS billing", () => {
         planId: "plus",
         planName: "Pro Plus",
         amount: 10000,
+        subtotal: 10000,
         weeklyQuota: 10,
         retentionDays: 90,
         priority: 10,
@@ -556,6 +557,7 @@ describe("Duitku QRIS billing", () => {
         planId: "plus",
         planName: "Pro Plus",
         amount: 10000,
+        subtotal: 10000,
         weeklyQuota: 10,
         retentionDays: 90,
         priority: 10,

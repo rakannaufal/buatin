@@ -1,0 +1,250 @@
+.admin-container {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.admin-content {
+  min-width: 0;
+}
+.admin-navigation {
+  position: sticky;
+  top: 24px;
+  border-right: 1px solid var(--line);
+  padding-right: 16px;
+}
+.admin-desktop-menu {
+  display: grid;
+  gap: 3px;
+}
+.admin-navigation a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--muted);
+  border-radius: 6px;
+  text-decoration: none;
+}
+.admin-navigation a[aria-current="page"] {
+  background: var(--accent-wash);
+  color: var(--accent);
+  box-shadow: inset 3px 0 var(--accent);
+  font-weight: 700;
+}
+.admin-mobile-menu {
+  display: none;
+}
+.admin-unlock {
+  padding: 20px;
+  background: var(--sidebar);
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+.admin-unlock p {
+  margin: 4px 0 16px;
+}
+.admin-unlock form {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-unlock .field {
+  flex: 1 1 180px;
+  margin: 0;
+}
+.admin-unlock .notice {
+  margin-top: 16px;
+}
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  margin: 24px 0;
+  padding: 24px 0;
+  border-block: 1px solid var(--line);
+}
+.admin-metrics > div {
+  display: grid;
+  gap: 8px;
+}
+.admin-metrics span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.admin-metrics strong {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.admin-form-grid,
+.admin-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.admin-action-form {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--line);
+  padding: 24px;
+  border-radius: 12px;
+  margin: 24px 0;
+  background: var(--surface);
+  min-width: 0;
+}
+.admin-action-form .field {
+  margin: 0;
+}
+.admin-action-form > .button {
+  justify-self: start;
+}
+.admin-action-form h3 {
+  margin: 0;
+}
+.admin-action-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+.admin-action-form details,
+.admin-action-form p {
+  overflow-wrap: anywhere;
+}
+.admin-form-grid > .admin-action-form {
+  margin: 0;
+}
+.admin-form-grid {
+  margin-block: 24px;
+}
+.admin-filters {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 24px 0 16px;
+}
+.admin-filters .field {
+  flex: 1 1 150px;
+  margin: 0;
+}
+.admin-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.admin-pagination > span {
+  margin-right: auto;
+  color: var(--muted);
+}
+.admin-content .projects-table {
+  font-size: 13px;
+}
+.admin-content .projects-table td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  max-width: 340px;
+}
+.admin-content .projects-table .admin-action-form {
+  min-width: 240px;
+  max-width: 340px;
+  padding: 16px;
+}
+.admin-content details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  color: var(--accent);
+  font-weight: 600;
+}
+.admin-content .panel {
+  margin-block: 24px;
+}
+.admin-content .table-scroll {
+  max-width: 100%;
+}
+.admin-empty {
+  padding: 32px 16px;
+  border-block: 1px solid var(--line);
+  color: var(--muted);
+}
+.admin-audit-value {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 12px;
+  padding: 12px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.admin-checkboxes {
+  border: 1px solid var(--line);
+  padding: 16px;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+}
+.admin-version {
+  padding-block: 8px;
+  border-top: 1px solid var(--line);
+}
+.admin-summary code,
+.cell-sub {
+  overflow-wrap: anywhere;
+}
+.cell-sub {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+.preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .admin-container {
+    grid-template-columns: 144px minmax(0, 1fr);
+    gap: 20px;
+  }
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 850px) {
+  .admin-container {
+    display: block;
+  }
+  .admin-navigation {
+    position: static;
+    border: 0;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+  .admin-desktop-menu {
+    display: none;
+  }
+  .admin-mobile-menu {
+    display: grid;
+    gap: 8px;
+  }
+  .admin-mobile-menu select {
+    width: 100%;
+    min-height: 44px;
+  }
+  .admin-fields-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-unlock,
+  .admin-action-form {
+    padding: 16px;
+  }
+  .admin-unlock form > .button {
+    width: 100%;
+  }
+}

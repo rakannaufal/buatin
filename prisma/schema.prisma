@@ -7,54 +7,65 @@ datasource db {
 }
 
 model User {
-  id               String             @id
-  name             String
-  email            String             @unique
-  emailVerified    Boolean            @default(false)
-  image            String?
-  role             String             @default("user")
-  twoFactorEnabled Boolean            @default(false)
-  twoFactors       TwoFactor[]
-  dataRequests     DataRequest[]
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  sessions         Session[]
-  accounts         Account[]
-  projects         Project[]
-  jobs             Job[]
-  subscriptions    Subscription[]
-  payments         Payment[]
-  usagePeriods     UsagePeriod[]
-  quotaLedger      QuotaLedger[]
-  presets          BriefPreset[]
-  templates        DocumentTemplate[]
-  renewalReminders Boolean            @default(true)
-  aiUsage          AiUsage[]
+  id                String             @id
+  name              String
+  email             String             @unique
+  emailVerified     Boolean            @default(false)
+  image             String?
+  role              String             @default("user")
+  status            String             @default("active")
+  suspendedUntil    DateTime?
+  suspensionReason  String?
+  accessVersion     Int                @default(1)
+  twoFactorEnabled  Boolean            @default(false)
+  twoFactors        TwoFactor[]
+  dataRequests      DataRequest[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  projects          Project[]
+  jobs              Job[]
+  subscriptions     Subscription[]
+  payments          Payment[]
+  usagePeriods      UsagePeriod[]
+  quotaLedger       QuotaLedger[]
+  presets           BriefPreset[]
+  templates         DocumentTemplate[]
+  renewalReminders  Boolean            @default(true)
+  aiUsage           AiUsage[]
+  entitlementGrants EntitlementGrant[]
+  creditGrants      CreditGrant[]
+  supportTickets    SupportTicket[]
+  adminMutations    AdminMutation[]
+
+  @@index([status, createdAt], map: "User_status_created")
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id
+  expiresAt   DateTime
+  token       String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  ipAddress   String?
+  userAgent   String?
+  userId      String
+  reauthUntil DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model TwoFactor {
-  id String @id
-  secret String
-  backupCodes String
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  verified Boolean @default(true)
-  failedVerificationCount Int @default(0)
-  lockedUntil DateTime?
+  id                      String    @id
+  secret                  String
+  backupCodes             String
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean   @default(true)
+  failedVerificationCount Int       @default(0)
+  lockedUntil             DateTime?
 
   @@index([secret])
   @@index([userId])
@@ -91,19 +102,19 @@ model Verification {
 }
 
 model Project {
-  id            String            @id @default(uuid())
+  id            String              @id @default(uuid())
   userId        String
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name          String            @default("Proyek tanpa judul")
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String              @default("Proyek tanpa judul")
   webType       String
-  brief         String            @default("")
-  preferences   Json              @default("{}")
-  briefVersion  Int               @default(1)
-  clarification Json              @default("{}")
-  clarified     Boolean           @default(false)
-  status        String            @default("draft")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  brief         String              @default("")
+  preferences   Json                @default("{}")
+  briefVersion  Int                 @default(1)
+  clarification Json                @default("{}")
+  clarified     Boolean             @default(false)
+  status        String              @default("draft")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   expiresAt     DateTime
   plans         Plan[]
   tasks         PlanningTask[]
@@ -171,7 +182,7 @@ model Job {
   billingPlanId     String    @default("free")
   priority          Int       @default(0)
   retentionDays     Int       @default(14)
-  expiresAt         DateTime  @default(dbgenerated("(now() + interval '14 days')"))
+  expiresAt         DateTime  @default(dbgenerated("(now() + '14 days'::interval)"))
   quotaRefundedAt   DateTime?
   sourceJobId       String?
   files             JobFile[]
@@ -189,6 +200,10 @@ model BillingPlan {
   priority      Int            @default(0)
   monthlyPrice  Int?
   available     Boolean        @default(false)
+  description   String         @default("")
+  version       Int            @default(1)
+  features      Json?
+  plannerLimit  Int?
   updatedAt     DateTime       @updatedAt
   subscriptions Subscription[]
   payments      Payment[]
@@ -197,16 +212,21 @@ model BillingPlan {
 model Subscription {
   id             String      @id @default(uuid())
   userId         String
-  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   planId         String
   plan           BillingPlan @relation(fields: [planId], references: [id])
   paymentId      String      @unique
   payment        Payment     @relation(fields: [paymentId], references: [id])
   startsAt       DateTime
   endsAt         DateTime
+  revokedAt      DateTime?
   weeklyQuota    Int
   retentionDays  Int
   priority       Int
+  planName       String?
+  planVersion    Int         @default(1)
+  features       Json?
+  plannerLimit   Int?
   reminderSentAt DateTime?
   createdAt      DateTime    @default(now())
 
@@ -215,29 +235,37 @@ model Subscription {
 }
 
 model Payment {
-  id            String         @id
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId        String
-  plan          BillingPlan    @relation(fields: [planId], references: [id])
-  planName      String
-  amount        Int
-  weeklyQuota   Int
-  retentionDays Int
-  priority      Int
-  method        String
-  status        String         @default("creating")
-  reference     String?        @unique
-  qrString      String?
-  expiresAt     DateTime
-  paidAt        DateTime?
-  lastCheckedAt DateTime?
-  checks        Int            @default(0)
-  errorCode     String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  subscription  Subscription?
-  events        WebhookEvent[]
+  id              String             @id
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  planId          String
+  plan            BillingPlan        @relation(fields: [planId], references: [id])
+  planName        String
+  amount          Int
+  subtotal        Int
+  discount        Int                @default(0)
+  planVersion     Int                @default(1)
+  features        Json?
+  plannerLimit    Int?
+  voucherSnapshot Json?
+  weeklyQuota     Int
+  retentionDays   Int
+  priority        Int
+  method          String
+  status          String             @default("creating")
+  reference       String?            @unique
+  qrString        String?
+  expiresAt       DateTime
+  paidAt          DateTime?
+  lastCheckedAt   DateTime?
+  checks          Int                @default(0)
+  errorCode       String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  subscription    Subscription?
+  events          WebhookEvent[]
+  redemption      VoucherRedemption?
+  refunds         RefundRequest[]
 
   @@index([userId, createdAt])
   @@index([status, lastCheckedAt])
@@ -269,7 +297,7 @@ model UsagePeriod {
 model QuotaLedger {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   periodKey String
   jobId     String
   action    String
@@ -282,55 +310,56 @@ model QuotaLedger {
 }
 
 model ProjectRevision {
-  id        String   @id @default(uuid())
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  version   Int
-  name      String
-  webType   String
-  brief     String
-  preferences Json @default("{}")
-  attachmentIds Json @default("[]")
-  attachmentState Json @default("[]")
-  createdAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version         Int
+  name            String
+  webType         String
+  brief           String
+  preferences     Json     @default("{}")
+  attachmentIds   Json     @default("[]")
+  attachmentState Json     @default("[]")
+  createdAt       DateTime @default(now())
 
   @@unique([projectId, version])
 }
 
 model BriefPreset {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  webType   String
-  brief     String
-  preferences Json @default("{}")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  webType     String
+  brief       String
+  preferences Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([userId, updatedAt])
 }
 
 model ProjectAttachment {
-  id String @id @default(uuid())
-  projectId String
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  name String
-  mime String
-  bytes Int
-  checksum String @default("")
-  storageKey String
-  role String @default("visual")
-  note String @default("")
-  sourceUrl String @default("")
-  rights String @default("")
-  status String @default("queued")
-  text String @default("")
-  errorCode String?
-  processingVersion Int @default(1)
-  included Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid())
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name              String
+  mime              String
+  bytes             Int
+  checksum          String   @default("")
+  storageKey        String
+  role              String   @default("visual")
+  note              String   @default("")
+  sourceUrl         String   @default("")
+  rights            String   @default("")
+  status            String   @default("queued")
+  text              String   @default("")
+  errorCode         String?
+  processingVersion Int      @default(1)
+  included          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
   @@index([projectId, included, createdAt])
   @@index([status, updatedAt])
 }
@@ -361,33 +390,36 @@ model EmailMessage {
 }
 
 model AiUsage {
-  id         String   @id @default(uuid())
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  resourceId String
-  task       String
-  model      String
-  modelUsed  String?
-  mock       Boolean
-  tokensIn   Int?
-  tokensOut  Int?
-  reservedTokens Int?
+  id                  String   @id @default(uuid())
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resourceId          String
+  task                String
+  model               String
+  modelUsed           String?
+  mock                Boolean
+  tokensIn            Int?
+  tokensOut           Int?
+  reservedTokens      Int?
   estimatedCostMicros BigInt?
-  status     String   @default("started")
-  errorCode  String?
-  createdAt  DateTime @default(now())
+  pricingVersion      Int?
+  inputRate           Float?
+  outputRate          Float?
+  status              String   @default("started")
+  errorCode           String?
+  createdAt           DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([mock, createdAt])
 }
 
 model AiBudgetPeriod {
-  id String @id
-  day String
-  requests Int @default(0)
-  tokens Int @default(0)
-  costMicros BigInt @default(0)
-  updatedAt DateTime @updatedAt
+  id         String   @id
+  day        String
+  requests   Int      @default(0)
+  tokens     Int      @default(0)
+  costMicros BigInt   @default(0)
+  updatedAt  DateTime @updatedAt
 
   @@index([day])
 }
@@ -445,6 +477,7 @@ model OutboxEvent {
 model Setting {
   key       String   @id
   value     Json
+  version   Int      @default(1)
   updatedAt DateTime @updatedAt
 }
 
@@ -470,20 +503,250 @@ model AuditEvent {
   resourceId String?
   requestId  String?
   errorCode  String?
+  targetType String?
+  reason     String?
+  before     Json?
+  after      Json?
+  result     String   @default("success")
   createdAt  DateTime @default(now())
 
   @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([resourceId, createdAt])
 }
 
 model DataRequest {
-  id String @id @default(uuid())
-  userId String?
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  kind String
-  status String @default("open")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  kind       String
+  status     String   @default("open")
+  assignedTo String?
+  note       String?
+  evidence   String?
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+}
+
+model AdminMutation {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operation   String
+  keyHash     String
+  requestHash String
+  response    Json
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, operation, keyHash])
+}
+
+model AdminInvitation {
+  id         String   @id @default(uuid())
+  email      String
+  tokenHash  String   @unique
+  role       String   @default("admin")
+  status     String   @default("pending")
+  invitedBy  String
+  acceptedBy String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([email, status])
+}
+
+model BillingPlanVersion {
+  id          String    @id @default(uuid())
+  planId      String
+  version     Int
+  status      String    @default("draft")
+  value       Json
+  createdBy   String
+  publishedBy String?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@unique([planId, version])
+}
+
+model Voucher {
+  id               String              @id @default(uuid())
+  code             String              @unique
+  title            String
+  status           String              @default("paused")
+  kind             String
+  value            Int
+  minimumAmount    Int                 @default(0)
+  maximumDiscount  Int?
+  maxUses          Int
+  perUserLimit     Int                 @default(1)
+  newCustomersOnly Boolean             @default(false)
+  planIds          Json
+  userIds          Json
+  startsAt         DateTime
+  endsAt           DateTime
+  version          Int                 @default(1)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  redemptions      VoucherRedemption[]
+
+  @@index([status, endsAt])
+}
+
+model VoucherRedemption {
+  id        String   @id @default(uuid())
+  voucherId String
+  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Restrict)
+  paymentId String   @unique
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  userId    String
+  version   Int
+  status    String   @default("reserved")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([voucherId, status])
+  @@index([voucherId, userId, status])
+}
+
+model VoucherVersion {
+  id        String   @id @default(uuid())
+  voucherId String
+  version   Int
+  value     Json
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@unique([voucherId, version])
+}
+
+model SettingRevision {
+  id        String   @id @default(uuid())
+  key       String
+  version   Int
+  value     Json
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@unique([key, version])
+}
+
+model EntitlementGrant {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  planId        String
+  planName      String
+  planVersion   Int
+  features      Json
+  plannerLimit  Int
+  weeklyQuota   Int
+  retentionDays Int
+  priority      Int
+  startsAt      DateTime
+  endsAt        DateTime
+  revokedAt     DateTime?
+  createdBy     String
+  reason        String
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, startsAt, endsAt])
+  @@index([createdBy, createdAt], map: "EntitlementGrant_actor_created")
+}
+
+model CreditGrant {
+  id          String             @id @default(uuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  amount      Int
+  used        Int                @default(0)
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdBy   String
+  reason      String
+  createdAt   DateTime           @default(now())
+  allocations CreditAllocation[]
+
+  @@index([userId, expiresAt])
+  @@index([createdBy, createdAt], map: "CreditGrant_actor_created")
+}
+
+model CreditAllocation {
+  id         String      @id @default(uuid())
+  grantId    String
+  grant      CreditGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
+  jobId      String      @unique
+  status     String      @default("reserved")
+  returnedAt DateTime?
+  createdAt  DateTime    @default(now())
+}
+
+model RefundRequest {
+  id                String   @id @default(uuid())
+  paymentId         String
+  payment           Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  amount            Int
+  status            String   @default("requested")
+  reason            String
+  evidence          String?
+  providerReference String?  @unique
+  createdBy         String
+  approvedBy        String?
+  version           Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model ContentVersion {
+  id          String    @id @default(uuid())
+  kind        String
+  key         String
+  version     Int
+  status      String    @default("draft")
+  content     String
+  source      String
+  license     String
+  checksum    String
+  createdBy   String
+  reviewedBy  String?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@unique([kind, key, version])
+  @@index([kind, key, status])
+}
+
+model SupportTicket {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subject    String
+  status     String           @default("open")
+  priority   String           @default("normal")
+  assignedTo String?
+  version    Int              @default(1)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  messages   SupportMessage[]
+
+  @@index([status, updatedAt])
+  @@index([userId, createdAt])
+}
+
+model SupportMessage {
+  id        String        @id @default(uuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  internal  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+
+  @@index([ticketId, createdAt])
 }

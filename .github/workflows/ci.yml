@@ -26,8 +26,8 @@ jobs:
           sudo -u postgres createdb -O speckit speckit
       - run: npm ci
       - run: npm run db:generate
+      - run: npm run test:migrations
       - run: npm run db:migrate
-      - run: npm run owner:create -- --generate
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck

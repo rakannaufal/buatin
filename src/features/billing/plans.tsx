@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api, message } from "@/components/api";
 import { Loading, Notice } from "@/components/ui";
+import { planFeatures } from "@/domain/admin";
 import { rupiah } from "@/domain/billing";
 import type { CommercialPlan } from "./types";
 
@@ -17,41 +18,50 @@ export function PlanComparison({
   onChoose?: (id: CommercialPlan["id"]) => void;
   busy?: boolean;
 }) {
-  const features: [string, string, string, string, string][] = [
-    ["Jenis website", "9", "9", "9", "9"],
-    [
-      "Markdown + manifest",
-      "Hingga 42 + 1",
-      "Hingga 42 + 1",
-      "Hingga 42 + 1",
-      "Hingga 42 + 1",
-    ],
-    ["Preview, source, ZIP", "Tersedia", "Tersedia", "Tersedia", "Tersedia"],
-    [
-      "Lanjutkan proses yang sama",
-      "Tanpa kuota tambahan",
-      "Tanpa kuota tambahan",
-      "Tanpa kuota tambahan",
-      "Tanpa kuota tambahan",
-    ],
-    [
-      "Riwayat revisi brief & perbandingan hasil",
-      "Tidak",
-      "Tidak",
-      "Tersedia",
-      "Tersedia",
-    ],
-    [
-      "Regenerasi dokumen terpilih",
-      "Tidak",
-      "Tidak",
-      "1 kuota per proses",
-      "1 kuota per proses",
-    ],
-    ["Preset brief pribadi", "Tidak", "Tidak", "50 preset", "50 preset"],
-    ["Template Markdown pribadi", "Tidak", "Tidak", "Tidak", "42 template"],
-    ["Antrekan beberapa proyek", "Tidak", "Tidak", "Tidak", "Hingga 10 aktif"],
-    ["Prioritas antrean", "Standar", "Standar", "Lebih tinggi", "Tertinggi"],
+  const baseFeatures = [
+    { label: "Jenis website", cell: () => "9" },
+    { label: "Markdown + manifest", cell: () => "Hingga 42 + 1" },
+    { label: "Preview, source, ZIP", cell: () => "Tersedia" },
+    { label: "Lanjutkan proses yang sama", cell: () => "Tanpa kuota tambahan" },
+    ...(
+      [
+        {
+          key: "revisions",
+          label: "Riwayat revisi brief & perbandingan hasil",
+          available: "Tersedia",
+        },
+        {
+          key: "regeneration",
+          label: "Regenerasi dokumen terpilih",
+          available: "1 kuota per proses",
+        },
+        {
+          key: "presets",
+          label: "Preset brief pribadi",
+          available: "50 preset",
+        },
+        {
+          key: "templates",
+          label: "Template Markdown pribadi",
+          available: "42 template",
+        },
+        {
+          key: "batch",
+          label: "Antrekan beberapa proyek",
+          available: "Hingga 10 aktif",
+        },
+      ] as const
+    ).map((feature) => ({
+      label: feature.label,
+      cell: (plan: CommercialPlan) =>
+        planFeatures(plan.id, plan.features)[feature.key]
+          ? feature.available
+          : "Tidak",
+    })),
+    {
+      label: "Prioritas antrean",
+      cell: (plan: CommercialPlan) => String(plan.priority ?? 0),
+    },
   ];
   return (
     <>
@@ -135,11 +145,11 @@ export function PlanComparison({
                 <td key={plan.id}>{plan.retentionDays} hari</td>
               ))}
             </tr>
-            {features.map(([label, ...values]) => (
+            {baseFeatures.map(({ label, cell }) => (
               <tr key={label}>
                 <th scope="row">{label}</th>
-                {values.map((value, index) => (
-                  <td key={index}>{value}</td>
+                {plans.map((plan) => (
+                  <td key={plan.id}>{cell(plan)}</td>
                 ))}
               </tr>
             ))}

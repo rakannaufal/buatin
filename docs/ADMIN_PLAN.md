@@ -1,7 +1,8 @@
 # Rencana panel admin Buatin
 
-Tanggal tinjauan: 21 Oktober 2026. Dokumen ini merupakan rencana implementasi,
-bukan pernyataan bahwa seluruh fitur di bawah sudah tersedia. Hosting, domain
+Tanggal tinjauan: 21 Oktober 2026. Dokumen ini menyimpan rancangan awal sebelum
+implementasi. Status akhir dan batas fitur ada di `ADMIN_GUIDE.md`, bukti pengujian
+ada di `VALIDATION.md`. Bagian kondisi sekarang di bawah merupakan baseline historis. Hosting, domain
 dan database produksi tetap menyusul; pengembangan memakai PostgreSQL lokal dan
 provider fixture untuk pengujian transaksi.
 
@@ -428,9 +429,10 @@ Jangan memulihkan seluruh DB secara otomatis untuk membatalkan fitur apabila
 transaksi baru sudah masuk; gunakan perbaikan maju atau rollback aplikasi yang
 kompatibel sambil mempertahankan catatan finansial.
 
-## 15. Batas pekerjaan saat ini
+## 15. Batas tahap perencanaan awal
 
-Dokumen ini tidak menambahkan voucher, suspend, refund atau halaman admin baru.
+Pada commit rencana awal, dokumen ini belum menambahkan voucher, suspend, refund
+atau halaman admin baru. Implementasi berikutnya dijelaskan pada `ADMIN_GUIDE.md`.
 Angka harga, batas grant/refund, tarif AI dan kebijakan retensi final perlu
 ditentukan sebelum fitur terkait diaktifkan; default aman adalah nonaktif.
 Hosting dan database produksi tidak dibuat dalam tahap perencanaan ini.

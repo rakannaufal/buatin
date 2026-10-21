@@ -7,6 +7,7 @@ import { db, json } from "./db";
 import { AppError } from "./errors";
 import { entitlementFor, requireFeature, closeFailedJob } from "./entitlements";
 import { billingPlans, checkout } from "./billing";
+import { billingQuote } from "./vouchers";
 import { paymentConfigured } from "./duitku";
 import { getEnv } from "./config";
 import { publicAuthReady } from "./challenge";
@@ -99,7 +100,11 @@ export async function saasApi(
           },
         }),
         db.subscription.findMany({
-          where: { userId: user.id, endsAt: { gt: new Date() } },
+          where: {
+            userId: user.id,
+            revokedAt: null,
+            endsAt: { gt: new Date() },
+          },
           orderBy: { startsAt: "asc" },
           include: { plan: { select: { name: true } } },
         }),
@@ -108,17 +113,38 @@ export async function saasApi(
         plans,
         entitlement,
         payments,
-        subscriptions,
+        subscriptions: subscriptions.map((period) => ({
+          ...period,
+          plan: { name: period.planName ?? period.plan.name },
+        })),
         paymentReady: paymentConfigured(),
         sandbox: getEnv().DUITKU_ENV === "sandbox",
       });
     }
     if (id === "checkout" && method === "POST") {
-      const input = z.object({ planId: z.enum(PLAN_IDS) }).parse(await body());
+      const input = z
+        .object({ planId: z.enum(PLAN_IDS), quote: z.unknown().optional() })
+        .strict()
+        .parse(await body());
       return reply(
-        { payment: await checkout(user, input.planId, keyFor(req)) },
+        {
+          payment: await checkout(user, input.planId, keyFor(req), input.quote),
+        },
         201,
       );
+    }
+    if (id === "quote" && method === "POST") {
+      await rateLimit(`voucher-quote:${user.id}`, 20, 300);
+      const input = z
+        .object({
+          planId: z.enum(PLAN_IDS),
+          code: z.string().max(32).default(""),
+        })
+        .strict()
+        .parse(await body());
+      return reply({
+        quote: await billingQuote(user.id, input.planId, input.code),
+      });
     }
     if (id && method === "GET") {
       await rateLimit(`billing-read:${user.id}`, 60, 60);
@@ -141,6 +167,10 @@ export async function saasApi(
         payment: {
           id,
           amount: payment.amount,
+          subtotal: payment.subtotal,
+          discount: payment.discount,
+          voucherCode:
+            (payment.voucherSnapshot as { code?: string } | null)?.code ?? null,
           planName: payment.planName,
           status: payment.status,
           expiresAt: payment.expiresAt,
@@ -503,6 +533,7 @@ export async function saasApi(
             createdAt: true,
             subscriptions: {
               where: {
+                revokedAt: null,
                 startsAt: { lte: new Date() },
                 endsAt: { gt: new Date() },
               },

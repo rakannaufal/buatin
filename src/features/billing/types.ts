@@ -4,6 +4,8 @@ export interface AccountEntitlement {
   limit: number;
   used: number;
   remaining: number;
+  baseRemaining?: number;
+  creditRemaining?: number;
   plannerLimit: number;
   plannerUsed: number;
   retentionDays: number;
@@ -24,11 +26,16 @@ export interface CommercialPlan {
   retentionDays: number;
   monthlyPrice: number | null;
   available: boolean;
+  features?: AccountEntitlement["features"];
+  priority?: number;
 }
 export interface PaymentSummary {
   id: string;
   planName: string;
   amount: number;
+  subtotal?: number;
+  discount?: number;
+  voucherCode?: string | null;
   status: string;
   createdAt: string;
   paidAt: string | null;

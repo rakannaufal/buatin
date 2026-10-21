@@ -1,205 +1,402 @@
 "use client";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { api, patch, message } from "@/components/api";
-import { Button, Notice } from "@/components/ui";
-import type { ProductionCheck } from "@/server/operations";
-type Report = {
-  checks: ProductionCheck[];
-  runtime: {
-    ok: boolean;
-    alerts: string[];
-    metrics: {
-      queued: number;
-      running: number;
-      freeDiskMb: number;
-      dispatchAgeSeconds: number;
-    };
-    ai: {
-      day: string;
-      requests: number;
-      tokens: number;
-      estimatedUsd: number;
-      budgetUsd: number;
-      requestLimit: number;
-      tokenLimit: number;
-    };
-  };
-  dataRequests: {
-    id: string;
-    kind: string;
-    status: string;
-    createdAt: string;
-    user: { name: string; email: string } | null;
-  }[];
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { formatDate } from "@/domain/billing";
+import {
+  ActionForm,
+  DataTable,
+  Field,
+  Filters,
+  DateFilters,
+  QueryState,
+  SectionHeading,
+  reason,
+  useAdminData,
+  type PageList,
+} from "./shared";
+type Job = {
+  id: string;
+  userId: string;
+  status: string;
+  done: number;
+  total: number;
+  errorCode: string | null;
+  llmRequestCount: number;
+  createdAt: string;
+  quotaRefundedAt: string | null;
 };
-export function OperationsPanel() {
-  const report = useQuery({
-    queryKey: ["operations"],
-    queryFn: () => api<Report>("/admin/operations"),
-    refetchInterval: 30000,
-  });
-  const update = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      patch(`/admin/data-requests/${encodeURIComponent(id)}`, { status }),
-    onSuccess: () => void report.refetch(),
-  });
-  if (report.isPending)
-    return <p role="status">Memuat pemeriksaan operasional...</p>;
-  if (report.error)
-    return <Notice tone="error">{message(report.error)}</Notice>;
-  const { checks, runtime, dataRequests } = report.data;
-  const gaps = checks.filter((check) => check.status !== "ready");
-  const labels: Record<string, string> = {
-    DEPENDENCY_UNHEALTHY: "Database atau worker bermasalah",
-    DISK_LOW: "Ruang penyimpanan menipis",
-    OUTBOX_STALLED: "Pengiriman antrean tertunda",
-    EMAIL_DELIVERY_FAILED: "Email gagal dikirim",
-    PAYMENT_REVIEW_REQUIRED: "Pembayaran perlu diperiksa",
-  };
+export function JobsAdmin() {
+  const query = useAdminData<PageList<Job>>("jobs");
   return (
-    <section
-      aria-labelledby="operations-checks-heading"
-      className="operations-section"
-    >
-      <div className="field-label-row">
-        <h2 id="operations-checks-heading">Prioritas peluncuran</h2>
-        <Button
-          variant="secondary"
-          busy={report.isFetching}
-          onClick={() => void report.refetch()}
-        >
-          Periksa ulang
-        </Button>
-      </div>
+    <>
+      <SectionHeading
+        section="jobs"
+        description="Tahap, penggunaan request dan pemulihan dengan snapshot/kuota asal."
+      />
+      <QueryState pending={query.isPending} error={query.error} />
+      {query.data && (
+        <>
+          <Filters
+            total={query.data.total}
+            page={query.data.page}
+            statuses={[
+              "queued",
+              "running",
+              "validating",
+              "cancel_requested",
+              "succeeded",
+              "partial",
+              "failed",
+              "cancelled",
+            ]}
+          />
+          <DataTable
+            items={query.data.items}
+            columns={[
+              {
+                label: "Job / akun",
+                cell: (job) => (
+                  <>
+                    <code>{job.id}</code>
+                    <small className="cell-sub">
+                      <Link href={`/admin/users/${job.userId}`}>
+                        {job.userId}
+                      </Link>
+                    </small>
+                  </>
+                ),
+              },
+              {
+                label: "Progres",
+                cell: (job) => (
+                  <>
+                    {job.status} ({job.done}/{job.total})
+                    <small className="cell-sub">
+                      {job.llmRequestCount} request;{" "}
+                      {job.quotaRefundedAt
+                        ? "kuota dikembalikan"
+                        : "reservasi asal"}
+                    </small>
+                    {job.errorCode && (
+                      <small className="field-error">{job.errorCode}</small>
+                    )}
+                  </>
+                ),
+              },
+              {
+                label: "Tindakan",
+                cell: (job) => {
+                  const action = [
+                    "queued",
+                    "running",
+                    "validating",
+                    "cancel_requested",
+                  ].includes(job.status)
+                    ? "cancel"
+                    : ["partial", "failed"].includes(job.status) &&
+                        !job.quotaRefundedAt
+                      ? "resume"
+                      : null;
+                  return action ? (
+                    <details>
+                      <summary>
+                        {action === "cancel" ? "Batalkan" : "Lanjutkan"}
+                      </summary>
+                      <ActionForm
+                        path={`/admin/jobs/${job.id}/${action}`}
+                        button={
+                          action === "cancel"
+                            ? "Minta pembatalan"
+                            : "Lanjutkan snapshot asal"
+                        }
+                        danger={action === "cancel"}
+                        build={(form) => ({ reason: reason(form) })}
+                      />
+                    </details>
+                  ) : (
+                    "-"
+                  );
+                },
+              },
+            ]}
+          />
+        </>
+      )}
+    </>
+  );
+}
+type Audit = {
+  id: string;
+  userId: string | null;
+  action: string;
+  targetType: string | null;
+  resourceId: string | null;
+  reason: string | null;
+  before: unknown;
+  after: unknown;
+  requestId: string | null;
+  createdAt: string;
+};
+export function AuditAdmin() {
+  const query = useAdminData<PageList<Audit>>("audit");
+  return (
+    <>
+      <SectionHeading
+        section="audit"
+        description="Jejak perubahan operator. Tidak dapat diedit atau dihapus melalui panel."
+      />
+      <QueryState pending={query.isPending} error={query.error} />
+      {query.data && (
+        <>
+          <Filters total={query.data.total} page={query.data.page} />
+          <DataTable
+            items={query.data.items}
+            columns={[
+              {
+                label: "Tindakan / waktu",
+                cell: (event) => (
+                  <>
+                    {event.action}
+                    <small className="cell-sub">
+                      {formatDate(event.createdAt)}
+                    </small>
+                  </>
+                ),
+              },
+              {
+                label: "Pelaku / target",
+                cell: (event) => (
+                  <>
+                    {event.userId ?? "Sistem"}
+                    <small className="cell-sub">
+                      {event.targetType} {event.resourceId}
+                    </small>
+                  </>
+                ),
+              },
+              {
+                label: "Rincian",
+                cell: (event) => (
+                  <details>
+                    <summary>{event.reason ?? "Lihat jejak"}</summary>
+                    <p>Request: {event.requestId ?? "Tidak tersedia"}</p>
+                    <strong>Sebelum</strong>
+                    <pre className="admin-audit-value">
+                      {JSON.stringify(event.before, null, 2)}
+                    </pre>
+                    <strong>Sesudah</strong>
+                    <pre className="admin-audit-value">
+                      {JSON.stringify(event.after, null, 2)}
+                    </pre>
+                  </details>
+                ),
+              },
+            ]}
+          />
+        </>
+      )}
+    </>
+  );
+}
+type Privacy = {
+  id: string;
+  kind: string;
+  status: string;
+  userId: string | null;
+  user: { name: string; email: string } | null;
+  version: number;
+  createdAt: string;
+  evidence: string | null;
+  note: string | null;
+};
+export function PrivacyAdmin() {
+  const query = useAdminData<PageList<Privacy>>("privacy");
+  return (
+    <>
+      <SectionHeading
+        section="privacy"
+        description="Export/penghapusan mengikuti runbook. Selesai hanya setelah pemenuhan diverifikasi."
+      />
+      <QueryState pending={query.isPending} error={query.error} />
+      {query.data && (
+        <>
+          <Filters
+            total={query.data.total}
+            page={query.data.page}
+            statuses={["open", "processing", "completed", "rejected"]}
+          />
+          <DataTable
+            items={query.data.items}
+            columns={[
+              {
+                label: "Permintaan",
+                cell: (item) => (
+                  <>
+                    {item.kind}
+                    <small className="cell-sub">
+                      {item.user?.email ?? "Akun dipseudonimkan"}
+                    </small>
+                    {formatDate(item.createdAt)}
+                  </>
+                ),
+              },
+              {
+                label: "Status",
+                cell: (item) => (
+                  <>
+                    {item.status}
+                    <small className="cell-sub">{item.note}</small>
+                  </>
+                ),
+              },
+              {
+                label: "Pemenuhan",
+                cell: (item) =>
+                  ["open", "processing"].includes(item.status) ? (
+                    <details>
+                      <summary>Tinjau permintaan</summary>
+                      <ActionForm
+                        path={`/admin/privacy/${item.id}`}
+                        button="Simpan peninjauan"
+                        danger
+                        build={(form) => ({
+                          version: item.version,
+                          reason: reason(form),
+                          status: form.get("status"),
+                          evidence: String(form.get("evidence") ?? ""),
+                        })}
+                      >
+                        <Field
+                          name="status"
+                          label="Status permintaan"
+                          options={(item.status === "open"
+                            ? ["processing", "rejected"]
+                            : ["completed", "rejected"]
+                          ).map((value) => ({ value, label: value }))}
+                        />
+                        <Field
+                          name="evidence"
+                          label="Referensi bukti pemenuhan"
+                          multiline
+                          max={1000}
+                          help="Wajib untuk selesai. Referensi internal, tanpa isi data pribadi."
+                        />
+                      </ActionForm>
+                    </details>
+                  ) : (
+                    (item.evidence ?? "-")
+                  ),
+              },
+            ]}
+          />
+        </>
+      )}
+    </>
+  );
+}
+export function AiUsageAdmin() {
+  const search = useSearchParams();
+  const query = useAdminData<
+    PageList<{
+      id: string;
+      userId: string | null;
+      model: string;
+      modelUsed: string | null;
+      task: string;
+      tokensIn: number | null;
+      tokensOut: number | null;
+      estimatedCostMicros: string | null;
+      pricingVersion: number | null;
+      inputRate: number | null;
+      outputRate: number | null;
+      mock: boolean;
+      status: string;
+      createdAt: string;
+    }>
+  >("ai");
+  return (
+    <>
+      <SectionHeading
+        section="ai"
+        description="Pemakaian dan estimasi biaya; tagihan final tetap dari provider."
+      />
       <p>
-        {gaps.length} pemeriksaan masih perlu dituntaskan. Hosting dan database
-        produksi disiapkan terpisah.
+        <Link className="text-button" href="/settings">
+          Pilihan model dan pemeriksaan koneksi
+        </Link>{" "}
+        ·{" "}
+        <Link className="text-button" href="/admin/settings">
+          Batas biaya dan operasi
+        </Link>
       </p>
-      {runtime.alerts.length > 0 && (
-        <Notice tone="error">
-          {runtime.alerts.map((alert) => labels[alert] ?? alert).join(". ")}
-        </Notice>
+      <QueryState pending={query.isPending} error={query.error} />
+      {query.data && (
+        <>
+          <Filters total={query.data.total} page={query.data.page}>
+            <Field
+              name="model"
+              label="ID model persis"
+              value={search.get("model") ?? ""}
+              max={160}
+            />
+            <DateFilters />
+          </Filters>
+          <DataTable
+            items={query.data.items}
+            columns={[
+              {
+                label: "Model / tugas",
+                cell: (item) => (
+                  <>
+                    {item.model}
+                    {item.modelUsed && (
+                      <small className="cell-sub">
+                        Provider: {item.modelUsed}
+                      </small>
+                    )}
+                    <small className="cell-sub">
+                      {item.task} - {item.mock ? "mock" : "nyata"}
+                    </small>
+                  </>
+                ),
+              },
+              {
+                label: "Akun",
+                cell: (item) =>
+                  item.userId ? (
+                    <Link href={`/admin/users/${item.userId}`}>
+                      {item.userId}
+                    </Link>
+                  ) : (
+                    "Sistem"
+                  ),
+              },
+              {
+                label: "Token input / output",
+                cell: (item) =>
+                  `${item.tokensIn ?? "belum diketahui"} / ${item.tokensOut ?? "belum diketahui"}`,
+              },
+              {
+                label: "Estimasi USD / status",
+                cell: (item) => (
+                  <>
+                    {item.estimatedCostMicros &&
+                    Number(item.estimatedCostMicros) > 0
+                      ? (Number(item.estimatedCostMicros) / 1000000).toFixed(6)
+                      : "Belum ada estimasi tarif"}
+                    <small className="cell-sub">{item.status}</small>
+                    <small className="cell-sub">
+                      {item.inputRate !== null && item.outputRate !== null
+                        ? `Tarif v${item.pricingVersion ?? 0}: $${item.inputRate} / $${item.outputRate} per 1 juta token input/output`
+                        : "Tarif belum tercatat"}
+                    </small>
+                  </>
+                ),
+              },
+            ]}
+          />
+        </>
       )}
-      <dl className="limits-list">
-        <div>
-          <dt>Antrean / proses aktif</dt>
-          <dd>
-            {runtime.metrics.queued} / {runtime.metrics.running}
-          </dd>
-        </div>
-        <div>
-          <dt>Disk aplikasi tersedia</dt>
-          <dd>{runtime.metrics.freeDiskMb.toLocaleString("id-ID")} MiB</dd>
-        </div>
-        <div>
-          <dt>Request AI nyata hari ini (UTC)</dt>
-          <dd>
-            {runtime.ai.requests} / {runtime.ai.requestLimit}
-          </dd>
-        </div>
-        <div>
-          <dt>Token ditagihkan / dicadangkan</dt>
-          <dd>
-            {runtime.ai.tokens.toLocaleString("id-ID")} /{" "}
-            {runtime.ai.tokenLimit.toLocaleString("id-ID")}
-          </dd>
-        </div>
-        <div>
-          <dt>Estimasi biaya AI hari ini</dt>
-          <dd>
-            {runtime.ai.budgetUsd
-              ? `$${runtime.ai.estimatedUsd.toFixed(4)} / $${runtime.ai.budgetUsd}`
-              : "Tarif / batas USD belum dikonfigurasi"}
-          </dd>
-        </div>
-      </dl>
-      <p className="muted">
-        Biaya memakai tarif operator dan cadangan untuk request tanpa usage.
-        Tagihan final mengikuti provider.
-      </p>
-      <div className="table-scroll">
-        <table className="projects-table">
-          <thead>
-            <tr>
-              <th>Prioritas</th>
-              <th>Kebutuhan</th>
-              <th>Tindakan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {gaps.map((check) => (
-              <tr key={check.id}>
-                <td>{check.priority}</td>
-                <td>
-                  <strong>{check.label}</strong>
-                  <small className="muted">
-                    {check.status === "manual"
-                      ? "Perlu verifikasi operator"
-                      : "Belum siap"}
-                  </small>
-                </td>
-                <td>{check.detail}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <h3>Permintaan data pengguna</h3>
-      <p className="muted">
-        Verifikasi dan penuhi permintaan sesuai runbook privasi sebelum menandai
-        selesai. Perubahan status tidak menghapus data atau mengirim salinan
-        otomatis.
-      </p>
-      {update.error && <Notice tone="error">{message(update.error)}</Notice>}
-      {!dataRequests.length ? (
-        <p>Belum ada permintaan yang menunggu.</p>
-      ) : (
-        <ul className="account-session-list">
-          {dataRequests.map((request) => (
-            <li key={request.id}>
-              <div>
-                <strong>
-                  {request.kind === "export"
-                    ? "Salinan data"
-                    : "Penghapusan data"}
-                </strong>
-                <p className="breakable-value">
-                  {request.user?.email ?? "Akun sudah dihapus"}
-                </p>
-                <small>
-                  {new Date(request.createdAt).toLocaleDateString("id-ID")} ·{" "}
-                  {request.status === "open" ? "Menunggu" : "Ditinjau"}
-                </small>
-              </div>
-              <div className="privacy-actions">
-                <Button
-                  variant="secondary"
-                  disabled={request.status === "processing"}
-                  busy={update.isPending && update.variables?.id === request.id}
-                  onClick={() =>
-                    update.mutate({ id: request.id, status: "processing" })
-                  }
-                >
-                  Tinjau
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Tandai selesai hanya setelah permintaan benar-benar dipenuhi dan buktinya dicatat sesuai runbook. Lanjutkan?",
-                      )
-                    )
-                      update.mutate({ id: request.id, status: "completed" });
-                  }}
-                >
-                  Tandai selesai
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    </>
   );
 }

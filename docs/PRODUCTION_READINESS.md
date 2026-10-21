@@ -22,6 +22,12 @@ publik yang sudah diluncurkan. Bukti eksekusi terbaru ada pada `VALIDATION.md`.
   hilang/berubah tanpa tinjauan menghentikan generasi, bukan fallback diam-diam.
 - CI, fixture mock terisolasi dari kunci nyata, pemeriksaan keamanan/skill/template
   dan prosedur verifikasi setelah perubahan.
+- Panel admin dengan izin owner/admin, reauth lima menit, undangan staf,
+  suspend/revokasi sesi, grant/kredit terbatas dan audit atomik.
+- Draft/publish paket, snapshot manfaat pembelian, voucher/reservasi atomic,
+  pencatatan refund penuh dan rekonsiliasi tanpa tombol lunas manual.
+- Konten reviewed/versioned, pengaturan situs/operasi, laporan privat,
+  tiket bantuan serta bukti penanganan permintaan privasi. Lihat `ADMIN_GUIDE.md`.
 
 ## P0: sebelum menerima pengguna publik
 
@@ -43,7 +49,9 @@ batas tercapai. Provider-side spending cap tetap diperlukan.
 
 ## P1: sebelum penjualan dan peluncuran penuh
 
-1. Tentukan harga paket dan kebijakan refund; sambungkan merchant Duitku produksi.
+1. Tinjau draft lalu publish harga/manfaat di `/admin/plans`. Tentukan kebijakan
+   voucher/refund, batas grant admin dan penanggung jawab keuangan; sambungkan
+   merchant Duitku produksi. Panel refund mencatat hasil, tidak mentransfer uang.
    Checkout tetap nonaktif selama paket tidak diaktifkan. Free dapat diluncurkan
    terlebih dahulu setelah seluruh P0 terpenuhi.
 2. Jalankan uji staging provider, email, Turnstile, scanner, storage, callback QRIS,

@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { AccountEntitlement } from "@/features/billing/types";
 import { AccountSecurity } from "./security";
 import { AccountPrivacy } from "./privacy";
+import { InvitationAcceptance } from "./invitation";
 export function AccountPage() {
   const query = useQuery({
     queryKey: ["account"],
@@ -33,6 +34,7 @@ export function AccountPage() {
   const { user, entitlement } = query.data;
   return (
     <>
+      <InvitationAcceptance />
       <div className="page-heading compact">
         <div>
           <h1>Akun Anda.</h1>

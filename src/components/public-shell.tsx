@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
-export function PublicShell({ children }: { children: React.ReactNode }) {
+import { connection } from "next/server";
+import { siteSettings } from "@/server/admin/policies";
+export async function PublicShell({ children }: { children: React.ReactNode }) {
+  await connection();
+  const { value: site } = await siteSettings();
   return (
     <div className="public-site">
       <a className="skip-link" href="#main-content">
@@ -20,13 +24,29 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </nav>
       </header>
-      <main id="main-content">{children}</main>
+      {site.announcement && (
+        <aside className="public-announcement" role="status">
+          {site.announcement}
+        </aside>
+      )}
+      <main id="main-content">
+        {children}
+        {site.faq && (
+          <section className="public-content">
+            <h2>Informasi layanan</h2>
+            <p className="preserve-lines">{site.faq}</p>
+          </section>
+        )}
+      </main>
       <footer className="public-footer">
         <Link className="brand" href="/">
           Buatin
         </Link>
         <span>Dari ide, jadi terarah.</span>
         <nav aria-label="Informasi layanan">
+          {site.supportEmail && (
+            <a href={`mailto:${site.supportEmail}`}>Bantuan</a>
+          )}
           <Link href="/privacy">Privasi</Link>
           <Link href="/terms">Ketentuan</Link>
           <Link href="/pricing">Paket</Link>

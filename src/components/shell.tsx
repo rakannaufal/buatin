@@ -15,6 +15,7 @@ import {
   UserRound,
   Library,
   Shield,
+  LifeBuoy,
 } from "lucide-react";
 import { Modal, cn } from "./ui";
 const subscribe = (callback: () => void) => {
@@ -49,6 +50,7 @@ export function Shell({
     { href: "/billing", label: "Paket & tagihan", icon: CreditCard },
     { href: "/library", label: "Pustaka pribadi", icon: Library },
     { href: "/account", label: "Akun", icon: UserRound },
+    { href: "/support", label: "Bantuan", icon: LifeBuoy },
     ...(["owner", "admin"].includes(user.role)
       ? [
           { href: "/admin", label: "Admin", icon: Shield },

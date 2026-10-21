@@ -5,6 +5,8 @@ import { AppError, errorCode } from "../server/errors";
 import { callLlm, checkModels } from "../server/llm";
 import { hash, userLock } from "../server/limits";
 import { refundQuota } from "../server/entitlements";
+import { activeUser } from "../server/admin/security";
+import { suspended } from "../domain/admin";
 import { lintOutput, manifestFor, type OutputFile } from "../domain/lint";
 import {
   ACTIVE_STATUSES,
@@ -16,9 +18,38 @@ export async function generateJob(id: string) {
   const expires = () =>
     new Date(Date.now() + getEnv().JOB_STALE_AFTER_SEC * 1000);
   const claimed = await db.$transaction(async (tx) => {
+    const target = await tx.job.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!target) return { count: 0 };
+    await userLock(tx, target.userId);
     const candidate = await tx.job.findUnique({ where: { id } });
     if (!candidate || candidate.status !== "queued") return { count: 0 };
-    await userLock(tx, candidate.userId);
+    const account = await tx.user.findUnique({
+      where: { id: candidate.userId },
+    });
+    if (!account || suspended(account)) {
+      await tx.job.update({
+        where: { id },
+        data: {
+          status: "cancelled",
+          errorCode: "ACCOUNT_SUSPENDED",
+          finishedAt: new Date(),
+        },
+      });
+      await tx.jobFile.updateMany({
+        where: { jobId: id, status: "pending" },
+        data: { status: "cancelled" },
+      });
+      await tx.project.update({
+        where: { id: candidate.projectId },
+        data: { status: "cancelled" },
+      });
+      if (candidate.llmRequestCount === 0)
+        await refundQuota(tx, candidate.userId, id, "suspended_before_ai");
+      return { count: 0 };
+    }
     if (
       await tx.job.count({
         where: {
@@ -56,6 +87,7 @@ export async function generateJob(id: string) {
     status: { in: ["running", "validating"] },
   };
   const check = async () => {
+    await activeUser(initial.userId);
     if (lost) throw new AppError("LEASE_LOST", 409);
     const job = await db.job.findUnique({
       where: { id },
@@ -318,6 +350,7 @@ export async function generateJob(id: string) {
         if (
           [
             "CANCELLED",
+            "ACCOUNT_SUSPENDED",
             "LEASE_LOST",
             "LLM_AUTH",
             "LLM_MODEL_MISSING",
@@ -425,6 +458,7 @@ export async function generateJob(id: string) {
         if (
           [
             "CANCELLED",
+            "ACCOUNT_SUSPENDED",
             "LEASE_LOST",
             "REQUEST_BUDGET",
             "LLM_AUTH",
@@ -567,6 +601,10 @@ export async function generateJob(id: string) {
         });
         if (
           ["LLM_AUTH", "LLM_MODEL_MISSING", "REQUEST_BUDGET"].includes(code) ||
+          (code === "ACCOUNT_SUSPENDED" &&
+            initial.llmRequestCount === 0 &&
+            (await tx.job.findUniqueOrThrow({ where: { id } }))
+              .llmRequestCount === 0) ||
           (code === "CANCELLED" &&
             initial.llmRequestCount === 0 &&
             (await tx.job.findUniqueOrThrow({ where: { id } }))

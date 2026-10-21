@@ -20,11 +20,16 @@ spesifikasi Markdown.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.
 - Hosting, database produksi dan domain HTTPS disiapkan kemudian. Kesiapan aplikasi dan prioritas ada di `docs/PRODUCTION_READINESS.md`.
 
-Admin dasar sudah tersedia; rencana pengembangan pengguna, harga, voucher,
-transaksi, izin, audit dan operasi dirinci di [Rencana panel admin](docs/ADMIN_PLAN.md).
-Dokumen tersebut membedakan fitur yang sudah ada dari fitur yang masih direncanakan.
+Panel admin menyediakan izin owner/admin, verifikasi ulang, pengguna/suspend/sesi,
+harga terversi, voucher, refund berbukti, kredit/grant, audit, kontrol AI, konten,
+privasi, bantuan dan laporan. Panduan penggunaan serta batas operasional:
+[Panduan admin](docs/ADMIN_GUIDE.md). Rancangan awal tersimpan di
+[Rencana panel admin](docs/ADMIN_PLAN.md).
 
 ## Paket dan fitur
+
+Tabel berikut adalah default awal. Kebijakan aktif ditampilkan pada website;
+publish admin dapat mengubah penawaran baru. Pembelian lama memakai snapshot.
 
 | Fitur                                   | Free           | Pro Starter | Pro Plus     | Pro Max   |
 | --------------------------------------- | -------------- | ----------- | ------------ | --------- |
@@ -68,7 +73,7 @@ Turnstile diverifikasi di server beserta hostname. Role tidak dapat dipilih pada
 Hanya kanal QRIS NQ/SQ yang dipilih operator dan aktif pada merchant. Tidak ada
 kartu, VA, atau autodebit. Isi `DUITKU_ENV=sandbox`, `DUITKU_MERCHANT_CODE`,
 `DUITKU_API_KEY`, `DUITKU_QRIS_METHOD`, `DUITKU_EXPIRY_MINUTES`. Kredensial sandbox
-dan produksi berbeda. Di `/admin`, tentukan harga berdasarkan biaya AI lalu aktifkan
+dan produksi berbeda. Di `/admin/plans`, susun draft, tinjau lalu publish harga berdasarkan biaya AI lalu aktifkan
 paket. Default harga null sehingga aplikasi tidak membuat tagihan dengan angka usulan.
 
 Callback publik HTTPS: `/api/billing/duitku/callback`, form-urlencoded dengan HMAC
@@ -124,7 +129,7 @@ produksi. Worker terpadu tanpa watch; restart `npm run dev` sesudah mengubah kod
 worker. Untuk menjalankan komponen secara terpisah: `npm run dev:web`,
 `npm run dev:worker`, dan `npm run mock`.
 
-Buka http://localhost:3000. Halaman publik di `/`, paket di `/pricing`, workspace di `/dashboard`. `APP_URL` harus cocok dengan URL browser, termasuk skema dan hostname, agar pemeriksaan Origin/session benar. Admin membuka `/settings` untuk memeriksa AI dan `/admin` untuk harga, akun, tagihan, serta pemakaian AI.
+Buka http://localhost:3000. Halaman publik di `/`, paket di `/pricing`, workspace di `/dashboard`. `APP_URL` harus cocok dengan URL browser, termasuk skema dan hostname, agar pemeriksaan Origin/session benar. Admin membuka `/settings` untuk memeriksa AI dan `/admin` untuk pengelolaan. Verifikasi ulang berlaku lima menit sebelum mutasi. Harga diterbitkan di `/admin/plans`; grant/kredit berbeda dari pembayaran dan refund uang.
 
 ### PostgreSQL yang sudah tersedia
 
