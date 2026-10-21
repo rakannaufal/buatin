@@ -1,7 +1,9 @@
-# Deployment awal: Vercel + Supabase + Railway worker
+# Deployment awal: Vercel + Supabase + worker terpisah
 
-Pilihan pengguna: Vercel untuk web, Supabase untuk PostgreSQL dan storage privat,
-Railway khusus worker AI. Satu URL HTTPS melayani semua pengguna. Browser hanya
+Pilihan pengguna: Vercel untuk web, Supabase untuk PostgreSQL dan storage privat.
+Provider worker AI ditunda setelah kendala login Railway; konfigurasi Railway
+di bawah tetap menjadi contoh. Fokus saat ini database dan build Vercel.
+Satu URL HTTPS melayani semua pengguna. Browser hanya
 mengakses API Buatin; kredensial database, Google secret dan S3 tetap di server.
 Tidak perlu menjalankan database di komputer pengguna.
 
@@ -13,11 +15,27 @@ production wajib memakai database, bucket, OAuth client serta secret terpisah.
 
 Project tujuan pengguna sudah tersedia: **buatin**, ref
 `oeznehkxknbgvbtunebu`, URL `https://oeznehkxknbgvbtunebu.supabase.co`, region
-`ap-south-1`. Pada 21 Oktober 2026, CLI mendeteksi `ACTIVE_HEALTHY` dan query
-metadata berhasil sebagai `postgres` pada PostgreSQL 17.11; izin membuat tabel
-dan schema terkonfirmasi melalui SELECT privilege. Schema `public`
-masih memiliki nol tabel; migration aplikasi belum diterapkan di project ini.
-Verifikasi tersebut membuktikan akses SQL operator, belum koneksi runtime hosting.
+`ap-south-1`, PostgreSQL 17.11. Pada 21 Oktober 2026, seluruh **12 migration**
+sudah diterapkan: **45 tabel aplikasi** dan satu tabel `_prisma_migrations` pada
+schema `public`. Semua 46 tabel mengaktifkan RLS; hak PUBLIC/anon/authenticated
+dicabut. Empat paket awal tersedia di database: Free, Pro Starter, Pro Plus dan
+Pro Max. Harga berbayar belum diisi dan checkout tetap nonaktif.
+
+Schema privat `pgboss` sudah berisi **13 tabel**, versi schema 46 dari pg-boss
+12.38.0. Antrean `plan`, `generate`, `reference` dan `maintenance` sudah dibuat
+dengan konfigurasi yang sama dengan worker. Role browser tidak memiliki USAGE
+schema ini. Worker cloud belum dijalankan; tidak ada heartbeat sehat buatan.
+
+Metadata kolom, constraint, index dan RLS cloud cocok dengan rehearsal Prisma;
+seluruh checksum migration cocok dengan file repository. Tidak ada akun, proyek
+atau pembayaran lokal yang disalin. Bukti ada di `VALIDATION.md`. Koneksi runtime
+web/worker dan deployment publik tetap harus dihubungkan.
+
+Advisor keamanan melaporkan enam warning `function_search_path_mutable` pada
+fungsi internal pg-boss bawaan library. Verifikasi izin menunjukkan nol EXECUTE
+untuk anon/authenticated, tanpa USAGE/CREATE schema antrean maupun CREATE schema
+public. Fungsi belum diubah dari library terkunci. Tinjau kembali saat upgrade
+pg-boss atau perubahan role; jangan membuka schema antrean kepada browser.
 
 1. Buka project tujuan di dashboard Supabase. Simpan password database di secret
    manager. Jangan memakai project lain yang berisi data tanpa meninjau isinya.
@@ -26,13 +44,14 @@ Verifikasi tersebut membuktikan akses SQL operator, belum koneksi runtime hostin
    bila endpoint direct hanya IPv6. Worker dapat memakai Direct atau **Session
    pooler**; transaction pooler tidak mempertahankan advisory lock worker.
 3. Di Vercel, isi `DATABASE_URL` dengan Transaction pooler (umumnya port 6543).
-   Di Railway worker, isi `DATABASE_URL` dengan Direct/Session agar Prisma worker
+   Di host worker, isi `DATABASE_URL` dengan Direct/Session agar Prisma worker
    tidak menambah transaksi pendek pada pool aplikasi Vercel. Isi
    `DATABASE_WORKER_URL` dengan Direct/Session di kedua environment. Semua URL
    wajib menuju project/database yang sama. Gunakan string persis dari Connect;
    username pooler biasanya menyertakan project ref, bukan hanya `postgres`.
-4. `DATABASE_DIRECT_URL` digunakan Prisma migration dan backup. Jalankan migration
-   dari Railway/jaringan yang mendukung endpoint direct. Untuk masalah IPv4/IPv6,
+4. `DATABASE_DIRECT_URL` digunakan Prisma migration dan backup. Untuk pembaruan
+   berikutnya, jalankan migration dari host/jaringan yang mendukung endpoint
+   direct; 12 migration awal sudah terdaftar. Untuk masalah IPv4/IPv6,
    periksa mode koneksi yang didukung Supabase; jangan mengganti host sembarangan
    atau mematikan verifikasi TLS. Koneksi lintas provider memakai TLS dan password.
 5. Pada **Data API settings**, nonaktifkan Data API bila tidak diperlukan dan
@@ -42,7 +61,7 @@ Verifikasi tersebut membuktikan akses SQL operator, belum koneksi runtime hostin
 
 Publishable/anon key tidak diperlukan pada arsitektur ini. URL project juga bukan
 connection string PostgreSQL. Masukkan URL koneksi lengkap dari **Connect** ke
-secret environment Vercel/Railway; jangan mengirim password atau service role key
+secret environment Vercel/worker; jangan mengirim password atau service role key
 melalui chat. CLI operator yang terautentikasi dapat mengelola schema, tetapi
 token CLI tersebut tidak boleh dijadikan kredensial runtime aplikasi.
 
@@ -53,6 +72,13 @@ pemilik migration atau role server yang memiliki izin/bypass RLS yang ditinjau.
 Jangan menggunakan role anon/authenticated sebagai user koneksi Prisma.
 Authorization per user tetap dilakukan oleh API Buatin, termasuk ownership dan
 role admin; RLS ini melindungi akses Data API yang tidak disengaja.
+
+Bootstrap pertama memakai Supabase CLI Management API yang sudah terautentikasi,
+karena connection string runtime belum tersedia. SQL migration asli dijalankan
+berurutan dalam transaksi dan riwayat Prisma dicatat dengan checksum file asli
+setelah seluruh SQL sukses. Guard menolak schema yang sudah berisi tabel.
+Bootstrap ini bukan jalur upgrade: gunakan `npm run db:migrate` untuk perubahan
+selanjutnya, jangan membuat ulang tabel atau mengubah checksum migration.
 
 Untuk memeriksa data, gunakan **Table Editor** atau **SQL Editor** privat Supabase.
 Tabel `User`, `Account`, `Session`, `Project`, `Job`, `Payment`, dan `AuditEvent`
@@ -81,11 +107,23 @@ SQL. Jangan membuka password DB/S3/service role pada browser atau Git.
 2. Isi variable dari `deploy/hosted.env.example` pada environment tujuan. `APP_URL`
    dan `BETTER_AUTH_URL` harus sama dengan origin HTTPS final, tanpa trailing slash.
    Jangan menghubungkan preview acak ke database produksi atau OAuth produksi.
-3. Deploy dengan build `npm run build:hosted`. Build hanya menghasilkan Prisma
-   client, worker typecheck/build dan Next; tidak menjalankan migration atau
-   membuat owner. Lakukan migration Railway sebelum membuka web kepada pengguna.
+3. Deploy dengan build `npm run build:hosted`. Build menghasilkan Prisma Client,
+   Next dan worker typecheck/build; tidak menjalankan migration atau membuat owner.
+   `npm run build` juga menghasilkan client terlebih dahulu, sehingga override
+   perintah default tetap tidak bergantung pada cache Prisma. Dua belas migration
+   awal sudah diterapkan; migration berikutnya perlu diselesaikan sebelum web dibuka.
 4. Runtime assets `templates`, `prompts`, `config` dan `skill-packs` disertakan
    melalui file tracing. Tidak ada data privat pada direktori `public`.
+
+Project Vercel dari screenshot pengguna adalah `buatin` pada team
+`rakannaufals-projects`. Deployment gagal memakai `main` commit `2adb968`, sebelum
+perbaikan hosted dan schema admin. Perbarui branch production `main` dengan commit
+terverifikasi; redeploy commit lama tidak mengambil perbaikan terbaru. Pastikan
+Install Command `npm ci --include=dev`, Build Command `npm run build:hosted` dan
+Node 24.x; hapus override dashboard yang bertentangan dengan `vercel.json`.
+Build memerlukan `DATABASE_URL` dan `BETTER_AUTH_SECRET` di secret environment.
+Jangan memakai placeholder fixture pada deployment. Build sukses belum membuktikan
+readiness database/worker; periksa `/api/health/ready` setelah runtime dihubungkan.
 
 Vercel Functions memiliki batas request/response buffered **4.5 MB** pada
 panduan yang diperiksa 21 Oktober 2026. Saat `VERCEL=1`, aplikasi otomatis
@@ -99,7 +137,7 @@ Pantau jumlah instance, pool Supabase, throughput, egress dan limit paket. Peker
 planner/generasi dijalankan worker; jangan memindahkannya ke callback OAuth,
 Vercel Cron, atau proses background yang hilang sesudah respons fungsi berakhir.
 
-## 4. Railway: worker tetap
+## 4. Contoh Railway: worker tetap
 
 1. Buat satu service dari repository yang sama. Gunakan Railpack; `railpack.json`
    memilih Node 24, instalasi lockfile, build dan start worker.

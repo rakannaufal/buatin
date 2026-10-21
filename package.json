@@ -10,7 +10,7 @@
     "dev": "sh scripts/dev.sh",
     "dev:web": "next dev --hostname 127.0.0.1",
     "dev:worker": "tsx watch src/worker/index.ts",
-    "build": "next build",
+    "build": "npm run db:generate && next build",
     "build:worker": "tsc -p tsconfig.worker.json",
     "build:hosted": "node --import tsx scripts/build-hosted.ts",
     "start": "next start --hostname 127.0.0.1",

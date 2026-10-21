@@ -1,13 +1,19 @@
 # Kesiapan produksi dan prioritas
 
 Target awal pada `DEPLOYMENT.md`: Vercel web, Supabase PostgreSQL/storage,
-Railway worker tetap. Akses SQL operator ke project Supabase `buatin` sudah
-diverifikasi; schema aplikasi belum dimigrasikan. Koneksi runtime hosting,
+worker tetap pada provider terpisah yang akan dipilih kemudian. Project Supabase
+`buatin` sudah berisi 45 tabel aplikasi,
+riwayat 12 migration dan 13 tabel antrean worker. RLS, checksum serta akses role
+browser sudah diverifikasi pada cloud. Koneksi runtime hosting,
 bucket dan kredensial Google produksi belum dihubungkan; layanan belum diluncurkan.
+Project Vercel `buatin` sudah diketahui dari screenshot, tetapi build lama
+masih memakai commit `main` sebelum perbaikan hosted.
 Bukti eksekusi terbaru ada pada `VALIDATION.md`.
 
 ## Sudah disiapkan dalam aplikasi
 
+- Schema Supabase nyata, empat paket awal dan empat antrean pg-boss. Data akun,
+  proyek serta pembayaran lokal tidak disalin; harga berbayar belum diaktifkan.
 - 9router dengan kunci privat, discovery model dan smoke beroutput terbatas.
   Model awal planner/writer: `kr/claude-haiku-4.5`; pilihan dapat diganti operator.
 - Reservasi request/token dan estimasi biaya harian dalam transaksi database,
@@ -36,7 +42,7 @@ Bukti eksekusi terbaru ada pada `VALIDATION.md`.
 
 | Kebutuhan                          | Tindakan dan bukti yang diperlukan                                                                                                                                                              |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hosting, domain, database produksi | Hubungkan Vercel, Supabase dan Railway worker sesuai `DEPLOYMENT.md`. Pisahkan staging/produksi, migration, HTTPS dan secrets; lindungi Data API serta koneksi worker.                          |
+| Hosting, domain, database produksi | Hubungkan runtime Vercel dan worker ke schema Supabase yang sudah tersedia sesuai `DEPLOYMENT.md`. Pisahkan staging/produksi, HTTPS dan secrets; verifikasi build commit terbaru dan readiness. |
 | Login Google                       | Buat OAuth web client, redirect `/api/auth/callback/google`, secret server dan audience publik. Uji akun baru/lama, email terverifikasi, cancel, pause serta penolakan MFA/staf.                |
 | Akun operator                      | Aktifkan dua faktor melalui Akun; simpan recovery codes. Jangan menggunakan akun/email bootstrap lokal sebagai identitas publik.                                                                |
 | Email dan perlindungan registrasi  | Isi Resend, pengirim/domain terverifikasi, Turnstile site/secret dan SUPPORT_EMAIL. Uji verifikasi/reset sampai email diterima.                                                                 |

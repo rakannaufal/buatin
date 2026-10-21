@@ -18,7 +18,7 @@ spesifikasi Markdown.
 - Pendaftaran publik dengan verifikasi email. Admin/owner mengelola layanan; seluruh proyek tetap diisolasi per akun.
 - Free sekali seumur hidup; Starter 3/minggu, Plus 10/minggu, Max 25/minggu. Harga belum ditentukan, checkout dinonaktifkan sampai dikonfigurasi.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.
-- Hosting, database produksi dan domain HTTPS disiapkan kemudian. Kesiapan aplikasi dan prioritas ada di `docs/PRODUCTION_READINESS.md`.
+- Schema Supabase produksi sudah diterapkan: 45 tabel aplikasi, 12 migration dan 13 tabel antrean. Koneksi runtime hosting, worker dan domain HTTPS belum diaktifkan. Kesiapan dan prioritas ada di `docs/PRODUCTION_READINESS.md`.
 
 Panel admin menyediakan izin owner/admin, verifikasi ulang, pengguna/suspend/sesi,
 harga terversi, voucher, refund berbukti, kredit/grant, audit, kontrol AI, konten,
@@ -90,7 +90,8 @@ berakhir dikirim tiga hari sebelumnya jika pengguna mengaktifkannya. Detail:
 
 ## Hosting untuk banyak pengguna
 
-Target awal: Vercel web, Supabase PostgreSQL/storage privat, Railway worker Node 24.
+Target awal: Vercel web, Supabase PostgreSQL/storage privat, worker Node 24 terpisah.
+Provider worker ditunda; konfigurasi Railway tetap tersedia sebagai contoh.
 Panduan deployment, penggunaan database online, environment produksi,
 Google OAuth serta verifikasi peluncuran ada di [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 Template variable tersedia di `deploy/hosted.env.example`. Jalur hosted memakai
@@ -98,6 +99,8 @@ Template variable tersedia di `deploy/hosted.env.example`. Jalur hosted memakai
 tidak memulai database pada komputer pengguna. `npm run check:hosted` menolak
 konfigurasi lokal atau produksi yang belum lengkap. Akun hosting, domain dan
 credential OAuth tetap harus dihubungkan sebelum layanan bisa dipakai publik.
+`npm run build` selalu menghasilkan Prisma Client sebelum kompilasi Next.js,
+termasuk pada instalasi bersih Vercel; build tidak menjalankan migration.
 
 ## Development: Node.js 24 + PostgreSQL native
 

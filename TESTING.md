@@ -43,6 +43,12 @@ koneksi direct/session, serta tidak mencetak nilai rahasia. Script hosted bukan
 test beban atau bukti provider. Integration/E2E juga menolak direct/worker URL
 yang menunjuk database non-loopback.
 
+Perubahan jalur build perlu diperiksa pada salinan repository bersih di luar
+workspace sumber: `npm ci --include=dev`, lalu `npm run build:hosted`. Gunakan
+variable fixture, tanpa `.env` sumber atau koneksi database produksi. Perintah
+`npm run build` menghasilkan Prisma Client sendiri sebelum Next.js; jangan
+mengandalkan client hasil development atau cache dari commit/schema lain.
+
 Unit memeriksa preferensi, rekomendasi, konflik stack, HEX/kontras, katalog skill,
 signature file serta batas input. Integration membuktikan persistence, version
 conflict, ownership, lampiran privat, parser, revisi/preset dan snapshot. E2E

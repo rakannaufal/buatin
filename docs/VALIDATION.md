@@ -1,5 +1,114 @@
 # Hasil verifikasi Buatin
 
+## Database dan perbaikan build Vercel - 21 Oktober 2026
+
+Screenshot pengguna menunjukkan deployment Vercel project `buatin`, team
+`rakannaufals-projects`, dari branch `main` commit `2adb968`. Commit itu belum
+memuat implementasi admin dan konfigurasi hosted pada `codex/admin-management`.
+Push berikutnya harus memperbarui `main` secara fast-forward, bukan sekadar
+redeploy commit lama. Provider worker pengganti ditunda sesuai arahan pengguna.
+
+Reproduksi pada instalasi `npm ci --include=dev` tanpa Prisma Client menghasilkan
+TS2305 (`PrismaClient`/`Prisma` tidak diekspor) dan TS18046 yang sama dengan
+screenshot pada `workflow.test.ts` baris 458/461. Reproduksi akhir dijalankan di
+`/private/tmp/buatin-vercel-build-0xkaygjp/source`, terpisah dari node_modules
+workspace. Percobaan build yang masih berada di bawah `.local` mendeteksi parent
+workspace/client dan tidak dipakai sebagai bukti reproduksi bersih.
+
+`npm run build` sekarang menghasilkan Prisma Client sebelum Next.js. Jalur hosted
+memanggil build tersebut, lalu kompilasi worker. Typecheck tetap ketat, semua test
+tetap diperiksa; tidak ada migration, pembuatan owner atau akses Supabase saat
+build. Salinan candidate menggunakan lockfile identik dan instalasi bersih yang
+sudah selesai, tanpa `.env` sumber atau client hasil development. Satu percobaan
+instalasi tambahan terhenti ENOSPC; hanya artefak test yang dibuat tugas ini
+dibersihkan sebelum pemeriksaan berhasil dilanjutkan.
+
+| Pemeriksaan                                  | Hasil aktual                                                                                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `npm run build:hosted` pada candidate bersih | Lulus: Prisma Client 7.10.1, Next.js 16.4.2 termasuk TypeScript/prerender, dan build worker                      |
+| `npm run lint`                               | Lulus tanpa warning                                                                                              |
+| `npm run typecheck`                          | Lulus                                                                                                            |
+| `npm test`                                   | 70 tes unit, 11 file, lulus                                                                                      |
+| `npm audit --audit-level=high`               | 0 vulnerabilities, termasuk dependency development                                                               |
+| `npm run format:check`                       | Semua file cocok dengan Prettier                                                                                 |
+| `npm run security:scan`                      | Lulus; 316 file source/config/dokumen diperiksa tanpa mencetak secret                                            |
+| `git diff --check`                           | Lulus                                                                                                            |
+| Smoke server hasil build                     | `/api/health/live` HTTP 200; `/api/health/ready` HTTP 503 saat DB fixture sengaja tidak tersedia                 |
+| Verifikasi ulang Supabase                    | 46 tabel public, 13 tabel queue; metadata dan checksum 12 migration tetap cocok                                  |
+| Izin schema/fungsi cloud                     | Nol EXECUTE fungsi queue untuk anon/authenticated; tanpa USAGE/CREATE pgboss atau CREATE public untuk kedua role |
+
+`supabase db advisors --linked --project-ref oeznehkxknbgvbtunebu --type security
+--level warn --fail-on error --output-format json` selesai dengan exit 0. Hasilnya
+enam warning `function_search_path_mutable` pada fungsi pg-boss bawaan, tanpa
+temuan error. Warning dicatat, tidak dianggap nol temuan. Schema antrean privat
+dan hak browser dicabut; fungsi belum dimodifikasi dari library. Tinjau ulang
+saat upgrade library atau pemberian role baru. Hasil read-only cloud tersimpan
+privat pada `.local/supabase-bootstrap-20261021/release-security-result.json`.
+
+Build memakai variable fixture dengan database sengaja tidak terjangkau; hasilnya
+membuktikan build tidak memerlukan query database. Ini belum membuktikan koneksi
+runtime Vercel, Google OAuth atau worker cloud. Integration/E2E tidak diulang
+untuk perubahan script build/dokumentasi; hasil commit `3444d1e` tetap berlaku
+sebagai bukti fixture sebelumnya. Tidak ada test dijalankan ke Supabase produksi.
+
+## Penerapan schema Supabase - 21 Oktober 2026
+
+Atas instruksi pengguna, schema diterapkan ke project **buatin**, ref
+`oeznehkxknbgvbtunebu`. Preflight Supabase CLI memverifikasi database `postgres`,
+role operator `postgres`, nol tabel `public`, nol tabel `pgboss` dan belum ada
+riwayat Prisma. Tidak ada data aplikasi cloud untuk dicadangkan sebelum bootstrap.
+Project lain tidak disentuh. Database dan `.env` sumber lokal dipertahankan.
+
+Rehearsal memakai database lokal baru
+`buatin_supabase_rehearsal_2fc958bd1df7`, dibuat melalui environment fixture mock
+terpisah. Tidak ada test suite, akun fixture atau inferensi AI yang dijalankan
+pada Supabase produksi. Verifikasi cloud hanya membaca metadata schema, konfigurasi
+paket/antrean dan jumlah row akun/proyek/pembayaran.
+
+| Pemeriksaan                      | Hasil aktual                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Bootstrap rehearsal              | 12 SQL migration berhasil dalam transaksi; guard menolak schema berisi tabel                       |
+| Kesetaraan rehearsal             | Tabel, RLS, kolom, constraint dan index sama dengan database fixture yang dimigrasikan Prisma      |
+| Prisma pada rehearsal            | `prisma migrate status`: up to date; `prisma migrate deploy`: no pending migrations                |
+| Kompatibilitas pg-boss rehearsal | Startup library 12.38.0 berhasil; empat antrean terbaca                                            |
+| Bootstrap Supabase nyata         | 45 tabel aplikasi dan `_prisma_migrations` dibuat; 12 migration selesai                            |
+| Checksum cloud                   | Seluruh 12 nama/checksum sama dengan file repository; finished, tanpa rollback, applied steps satu |
+| Kesetaraan cloud                 | Seluruh tabel, RLS, kolom, constraint dan index cocok dengan rehearsal                             |
+| Privasi tabel cloud              | RLS aktif pada 46 tabel public; nol hak tabel untuk PUBLIC/anon/authenticated                      |
+| Antrean cloud                    | 13 tabel schema `pgboss`, versi 46; `plan`, `generate`, `reference`, `maintenance` tersedia        |
+| Konfigurasi antrean              | Policy short, retry nol, expiry 28.800 detik dan retention 86.400 detik sesuai worker              |
+| Privasi antrean cloud            | Role anon dan authenticated tidak memiliki USAGE schema `pgboss`                                   |
+| Data awal                        | Empat paket, features/planner limit terisi; harga null dan checkout nonaktif                       |
+| Data pengguna                    | Nol akun, proyek dan pembayaran; tidak menyalin data laptop                                        |
+
+Penerapan memakai `supabase db query --linked --project-ref
+oeznehkxknbgvbtunebu --file ... --output-format json` melalui Management API yang
+terautentikasi. Seluruh SQL migration repository dijalankan sesuai urutan dalam
+satu transaksi. Dua wrapper BEGIN/COMMIT migration digabung ke transaksi luar;
+isi migration dan checksum file sumber tidak diubah. Struktur ledger mengikuti
+Prisma terpasang; riwayat dicatat setelah seluruh SQL berhasil. Pengujian engine
+Prisma pada rehearsal mengonfirmasi deployment berikutnya tidak mengulang migration.
+Cloud diverifikasi melalui metadata dan checksum, bukan koneksi langsung Prisma.
+
+Schema antrean berasal dari `getConstructionPlans('pgboss')` library terkunci,
+bukan salinan DDL buatan. Pembuatan antrean memakai opsi worker yang ada. Hak
+schema/table/function untuk browser dicabut; tidak ada worker, panggilan AI,
+pengiriman email atau heartbeat worker yang dijalankan pada cloud.
+
+Artefak privat SQL, manifest checksum dan hasil inspeksi berada di
+`.local/supabase-bootstrap-20261021/`, tidak disertakan ke Git. Jangan menjalankan
+ulang bootstrap pada schema terisi. Migration selanjutnya memakai
+`npm run db:migrate` dengan `DATABASE_DIRECT_URL` pada environment hosting.
+
+Koneksi runtime Vercel/worker belum dikonfigurasi pada checkout; project Vercel
+`buatin` sudah diketahui melalui screenshot berikutnya, origin final belum
+diverifikasi. Aplikasi tetap memerlukan connection string
+server pada secret environment hosting, bucket/S3, Google OAuth, email, Turnstile,
+scanner dan konfigurasi anggaran AI sesuai `DEPLOYMENT.md`. Schema sudah ada;
+hal ini belum membuktikan web publik, Google login atau worker cloud berfungsi.
+Pemeriksaan build dan unit terbaru dicatat pada bagian perbaikan Vercel; suite
+integration/E2E sebelumnya tetap tercatat pada bagian berikut.
+
 ## Hosting bersama dan Google login - 21 Oktober 2026
 
 Target: Vercel web, Supabase PostgreSQL/storage privat dan Railway worker Node 24.
@@ -66,9 +175,10 @@ Dua file diverifikasi, `attachmentVerified:true`. Uji upgrade menggunakan
 `buatin_admin_upgrade_718f1a9a98ad4c0b94abb09c2b85cd40`. Semua artefak tersebut
 privat dan tidak disertakan ke Git atau hosting.
 
-Query Supabase hanya memeriksa metadata: schema `public` memiliki nol tabel dan
+Pada pemeriksaan awal sebelum bootstrap yang dicatat terpisah di atas,
+query Supabase hanya memeriksa metadata: schema `public` memiliki nol tabel dan
 `_prisma_migrations` belum ada. Belum ada migration, seed, akun, perubahan data
-pengguna atau deployment cloud pada project itu. Akses SQL operator bukan bukti
+pengguna atau deployment cloud pada project itu saat pemeriksaan awal. Akses SQL operator bukan bukti
 connection string runtime Vercel/Railway sudah tersedia. Publishable/anon key
 tidak diperlukan untuk Prisma + Better Auth. Konfigurasi server database, S3,
 domain web, Google OAuth, email, Turnstile, scanner, backup luar host dan batas
