@@ -48,8 +48,32 @@ privat pada `.local/supabase-bootstrap-20261021/release-security-result.json`.
 Build memakai variable fixture dengan database sengaja tidak terjangkau; hasilnya
 membuktikan build tidak memerlukan query database. Ini belum membuktikan koneksi
 runtime Vercel, Google OAuth atau worker cloud. Integration/E2E tidak diulang
-untuk perubahan script build/dokumentasi; hasil commit `3444d1e` tetap berlaku
-sebagai bukti fixture sebelumnya. Tidak ada test dijalankan ke Supabase produksi.
+secara lokal untuk perubahan script build/dokumentasi; CI GitHub terbaru
+menjalankan suite lengkap seperti dicatat berikut. Tidak ada test dijalankan ke
+Supabase produksi.
+
+Push commit `a76426e` berhasil secara fast-forward ke `main` dan
+`codex/admin-management`; kedua ref remote diverifikasi menunjuk SHA yang sama.
+Workflow GitHub `Native validation` main, run `39578199291`, selesai dengan
+status **success**, diverifikasi melalui API jobs. Seluruh langkah wajib lulus:
+instalasi bersih, migration/upgrade, format, lint, typecheck, secret/skill/template
+scan, unit, build web/worker, integration, Chromium E2E, backup/restore dan audit.
+Fixture CI tetap terpisah dari Supabase produksi. Status integrasi
+Vercel untuk deployment `DKH1HDJV7qGwscNE6V27SrXgtzm9` adalah failure. Pengguna
+memberikan error pertama dari Build Logs:
+
+```text
+PrismaConfigEnvError: Cannot resolve environment variable: DATABASE_URL.
+Command "npm run build:hosted" exited with 1
+```
+
+Kegagalan cloud ini berasal dari environment hosting yang belum diisi. Database
+Supabase tetap sudah diterapkan. Operator perlu menyimpan Transaction pooler URI
+project tersebut sebagai `DATABASE_URL` pada environment Production Vercel,
+melengkapi `BETTER_AUTH_SECRET` acak minimal 32 karakter dan origin `APP_URL`,
+lalu redeploy. Password/URI tidak dikirim melalui chat atau dimasukkan ke Git.
+Connection string runtime belum tersedia pada tugas ini; deployment publik belum
+dinyatakan berhasil. Credential dummy tidak disimpan pada hosting.
 
 ## Penerapan schema Supabase - 21 Oktober 2026
 
