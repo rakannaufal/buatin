@@ -20,6 +20,10 @@ spesifikasi Markdown.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.
 - Hosting, database produksi dan domain HTTPS disiapkan kemudian. Kesiapan aplikasi dan prioritas ada di `docs/PRODUCTION_READINESS.md`.
 
+Admin dasar sudah tersedia; rencana pengembangan pengguna, harga, voucher,
+transaksi, izin, audit dan operasi dirinci di [Rencana panel admin](docs/ADMIN_PLAN.md).
+Dokumen tersebut membedakan fitur yang sudah ada dari fitur yang masih direncanakan.
+
 ## Paket dan fitur
 
 | Fitur                                   | Free           | Pro Starter | Pro Plus     | Pro Max   |
