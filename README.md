@@ -12,9 +12,9 @@ spesifikasi Markdown.
 
 ## Status dan batas
 
-- Default **MOCK_LLM=true**. Mock hanya fixture berlabel; bukan spesifikasi AI final.
+- **Template-based generation** — dokumen dihasilkan dari template terstruktur, bukan AI. Tidak memerlukan provider LLM untuk menghasilkan spesifikasi. Biaya operasional per generasi nol.
 - Katalog tetap 42 Markdown + manifest otomatis, maksimum 43 entri ZIP.
-- 42 template builtin terstruktur dengan checksum; kit original dapat dipakai bila sumber/haknya jelas. Hasil selalu perlu ditinjau manusia.
+- 42 template builtin terstruktur dengan checksum dan variabel; brief, preferensi, referensi dan plan diisi ke template secara deterministik. Kit original dapat dipakai bila sumber/haknya jelas. Hasil selalu perlu ditinjau manusia.
 - Pendaftaran publik dengan verifikasi email. Admin/owner mengelola layanan; seluruh proyek tetap diisolasi per akun.
 - Free sekali seumur hidup; Starter 3/minggu, Plus 10/minggu, Max 25/minggu. Harga belum ditentukan, checkout dinonaktifkan sampai dikonfigurasi.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.

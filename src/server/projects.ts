@@ -7,7 +7,7 @@ import { db, json } from "./db";
 import { getEnv } from "./config";
 import { AppError } from "./errors";
 import { userLock, hash, rateLimit } from "./limits";
-import { checkModels, llmConfig } from "./llm";
+import { llmConfig } from "./llm";
 import { catalog } from "../domain/catalog";
 import { editPlan } from "../domain/planner";
 import {
@@ -391,18 +391,25 @@ async function snapshotFor(
       pinned?.templateOverrides?.[entry.path] ??
       (await readTemplate(entry, pinned?.templateOverrides === undefined));
   }
+  const config = await llmConfig();
+  let writerPrompt = "";
+  try {
+    writerPrompt = await readFile(
+      path.join(process.cwd(), "prompts/generate-file.system.md"),
+      "utf8",
+    );
+  } catch {
+    // Prompt file not required for template-based generation
+  }
   return {
     brief: project.brief,
     webType: project.webType as WebType,
     briefVersion: project.briefVersion,
-    config: await llmConfig(),
+    config,
     catalog,
     templates,
-    promptVersion: `v1-${getEnv().TEMPLATE_SOURCE}`,
-    writerPrompt: await readFile(
-      path.join(process.cwd(), "prompts/generate-file.system.md"),
-      "utf8",
-    ),
+    promptVersion: `v2-template-${getEnv().TEMPLATE_SOURCE}`,
+    writerPrompt,
     plan,
     maxRequests: getEnv().MAX_LLM_CALLS_PER_JOB,
     maxFileRequests: getEnv().MAX_FILE_TOTAL_REQUESTS,
@@ -646,7 +653,6 @@ export async function startJob(
       return { id: active.id };
     });
   const prepared = await prepareJob(userId, projectId, planVersion);
-  await checkModels(prepared.snapshot.config);
   return db.$transaction(async (tx) => {
     await userLock(tx, userId);
     return createQueuedJob(tx, userId, prepared, key);
@@ -675,7 +681,6 @@ export async function startBatch(
   const prepared = await Promise.all(
     items.map((item) => prepareJob(userId, item.projectId, item.planVersion)),
   );
-  await checkModels(prepared[0].snapshot.config);
   return db.$transaction(
     async (tx) => {
       await userLock(tx, userId);
@@ -770,7 +775,6 @@ export async function regenerateJob(
       throw new AppError("IDEMPOTENCY_CONFLICT", 409);
     return { id: prior.resourceId, impacted };
   }
-  await checkModels(snapshot.config);
   const copied = source.files
     .filter(
       (file) => !impacted.includes(file.fileId) && file.status === "succeeded",
@@ -851,7 +855,6 @@ export async function resumeJob(
   await rateLimit(`resume:${userId}`, 5, 60);
   const job = await jobFor(userId, id);
   const snapshot = job.snapshot as unknown as Snapshot;
-  await checkModels(snapshot.config);
   const run = async (tx: Transaction) => {
     await userLock(tx, userId);
     const operation = `resume:${id}`,

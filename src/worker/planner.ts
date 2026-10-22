@@ -1,20 +1,11 @@
 import { db, json } from "../server/db";
-import { checkModels, callLlm } from "../server/llm";
 import { AppError, errorCode } from "../server/errors";
 import { getEnv } from "../server/config";
 import { userLock } from "../server/limits";
-import {
-  defaultPlanner,
-  extractJson,
-  plannerSchema,
-  resolvePlan,
-} from "../domain/planner";
-import type {
-  CatalogEntry,
-  LlmConfig,
-  PlannerOutput,
-  WebType,
-} from "../domain/types";
+import { resolvePlan } from "../domain/planner";
+import { deterministicPlan } from "../domain/deterministic-planner";
+import type { CatalogEntry, WebType } from "../domain/types";
+
 export async function processPlan(id: string) {
   const claimed = await db.planningTask.updateMany({
     where: { id, status: "queued" },
@@ -29,7 +20,7 @@ export async function processPlan(id: string) {
     brief: string;
     sourceBrief?: string;
     webType: WebType;
-    config: LlmConfig;
+    config: { mock: boolean };
     prompt: string;
     clarified: boolean;
     catalog: CatalogEntry[];
@@ -49,58 +40,28 @@ export async function processPlan(id: string) {
       );
   }, 10000);
   try {
-    await checkModels(snapshot.config);
-    let output: PlannerOutput = defaultPlanner(
-      snapshot.webType,
-      snapshot.brief,
-    );
-    let valid = false;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const result = await callLlm(
-        snapshot.config,
-        "plan",
-        snapshot.prompt,
-        {
-          task: "plan",
-          brief: snapshot.brief,
-          sourceBrief: snapshot.sourceBrief,
-          briefBoundary: crypto.randomUUID(),
-          webType: snapshot.webType,
-          projectContext: snapshot.projectContext,
-          catalog: snapshot.catalog.map((f) => ({
-            id: f.id,
-            purpose: f.purpose,
-            triggers: f.triggers,
-          })),
-          repair:
-            attempt > 0
-              ? "Previous output failed schema validation; return the exact JSON contract."
-              : undefined,
-        },
-        undefined,
-        undefined,
-        { userId: task.project.userId, resourceId: id },
-      );
-      try {
-        output = plannerSchema.parse(extractJson(result.content));
-        valid = true;
-        break;
-      } catch {
-        if (attempt === 2) break;
-      }
-    }
+    // Deterministic planning — no LLM calls needed
+    const output = deterministicPlan({
+      brief: snapshot.brief,
+      webType: snapshot.webType,
+      projectName: task.project.name,
+      entries: snapshot.catalog,
+    });
+
     const plan = resolvePlan(
       output,
       snapshot.brief,
       snapshot.webType,
       getEnv().MAX_DOC_FILES,
       snapshot.catalog,
-      !valid,
+      false,
     );
+
     const clarification =
       getEnv().CLARIFY_MODE !== "off" &&
       !snapshot.clarified &&
       plan.missing_info.filter((q) => q.impact === "high").length >= 3;
+
     await db.$transaction(async (tx) => {
       await userLock(tx, task.project.userId);
       const current = await tx.planningTask.updateMany({
@@ -131,8 +92,8 @@ export async function processPlan(id: string) {
           snapshot: json({
             templateOverrides: snapshot.templateOverrides,
             catalog: snapshot.catalog,
-            model: snapshot.config.planner,
-            prompt: snapshot.prompt,
+            model: "deterministic",
+            prompt: "template-based",
             projectContext: snapshot.projectContext,
           }),
         },

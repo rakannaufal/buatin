@@ -1,18 +1,21 @@
-import { db, json, type Transaction } from "../server/db";
-import { applyCustomization } from "../domain/customization-output";
+import { db, json } from "../server/db";
 import { getEnv } from "../server/config";
 import { AppError, errorCode } from "../server/errors";
-import { callLlm, checkModels } from "../server/llm";
 import { hash, userLock } from "../server/limits";
 import { refundQuota } from "../server/entitlements";
 import { activeUser } from "../server/admin/security";
 import { suspended } from "../domain/admin";
 import { lintOutput, manifestFor, type OutputFile } from "../domain/lint";
+import { renderTemplate } from "../domain/template-engine";
+import { resolveVariables } from "../domain/template-variables";
+import { applyCustomization } from "../domain/customization-output";
+import { resolvePreferences } from "../domain/preferences";
 import {
   ACTIVE_STATUSES,
   type Snapshot,
   type LintIssue,
 } from "../domain/types";
+
 export async function generateJob(id: string) {
   const owner = crypto.randomUUID();
   const expires = () =>
@@ -78,7 +81,6 @@ export async function generateJob(id: string) {
   });
   const version = initial.leaseVersion;
   const snapshot = initial.snapshot as unknown as Snapshot;
-  const cancellation = new AbortController();
   let lost = false;
   const fence = {
     id,
@@ -103,7 +105,9 @@ export async function generateJob(id: string) {
     if (job.cancelRequestedAt || job.status === "cancel_requested")
       throw new AppError("CANCELLED", 409);
   };
-  const fenced = async (tx: Transaction) => {
+  const fenced = async (
+    tx: Parameters<Parameters<typeof db.$transaction>[0]>[0],
+  ) => {
     await userLock(tx, initial.userId);
     const result = await tx.job.updateMany({
       where: fence,
@@ -114,9 +118,6 @@ export async function generateJob(id: string) {
       throw new AppError("LEASE_LOST", 409);
     }
   };
-  const cancelTimer = setInterval(() => {
-    void check().catch((error) => cancellation.abort(error));
-  }, 1000);
   const timer = setInterval(() => {
     void db.job
       .updateMany({
@@ -138,28 +139,52 @@ export async function generateJob(id: string) {
         );
       });
   }, getEnv().JOB_HEARTBEAT_SEC * 1000);
-  const budget = (fileId: string) => async () => {
-    await check();
-    await db.$transaction(async (tx) => {
-      await fenced(tx);
-      const jobCount = await tx.job.updateMany({
-        where: { ...fence, llmRequestCount: { lt: snapshot.maxRequests } },
-        data: { llmRequestCount: { increment: 1 } },
-      });
-      const fileCount = await tx.jobFile.updateMany({
-        where: {
-          jobId: id,
-          fileId,
-          attempts: { lt: snapshot.maxFileRequests },
-        },
-        data: { attempts: { increment: 1 } },
-      });
-      if (!jobCount.count || !fileCount.count)
-        throw new AppError("REQUEST_BUDGET", 409);
-    });
-  };
   try {
-    await checkModels(snapshot.config);
+    // Resolve preferences for template variables
+    const preferences = snapshot.projectContext
+      ? {
+          technology: snapshot.projectContext.preferences.technology,
+          additionalTechnology:
+            snapshot.projectContext.preferences.additionalTechnology,
+          palette: snapshot.projectContext.preferences.palette,
+          style: snapshot.projectContext.preferences.style,
+          modes: snapshot.projectContext.preferences.modes,
+          lockedTechnology:
+            snapshot.projectContext.preferences.lockedTechnology,
+          lockedStyle: snapshot.projectContext.preferences.lockedStyle,
+        }
+      : resolvePreferences(
+          {
+            schemaVersion: 1 as const,
+            technology: { mode: "auto" as const, choices: {}, additional: "" },
+            colors: {
+              mode: "auto" as const,
+              palette: [
+                { name: "Primary", hex: "#235C46" },
+                { name: "Secondary", hex: "#C5A16D" },
+              ],
+            },
+            style: { mode: "auto" as const, values: {} },
+            skills: { mode: "auto" as const, selected: [] },
+          },
+          snapshot.webType,
+        );
+
+    const variables = resolveVariables({
+      projectName: initial.project.name,
+      projectSlug: snapshot.plan.project_slug,
+      brief: snapshot.brief,
+      webType: snapshot.webType,
+      plan: snapshot.plan,
+      preferences,
+      skills: snapshot.projectContext?.skills ?? [],
+      references: snapshot.projectContext?.references ?? [],
+      catalog: snapshot.catalog,
+    });
+
+    await check();
+
+    // Generate all files from templates — no LLM calls needed
     for (const selected of snapshot.plan.selected) {
       await check();
       const entry = snapshot.catalog.find((f) => f.id === selected.id)!;
@@ -167,39 +192,7 @@ export async function generateJob(id: string) {
         where: { jobId_fileId: { jobId: id, fileId: entry.id } },
       });
       if (file.status === "succeeded") continue;
-      if (file.attempts >= snapshot.maxFileRequests) {
-        await db.$transaction(async (tx) => {
-          await fenced(tx);
-          await tx.jobFile.update({
-            where: { jobId_fileId: { jobId: id, fileId: entry.id } },
-            data: { status: "failed", errorCode: "REQUEST_BUDGET" },
-          });
-        });
-        continue;
-      }
-      const completed = await db.jobFile.findMany({ where: { jobId: id } });
-      const relevant = entry.context_from.filter(
-        (contextId) =>
-          snapshot.plan.selected.some((f) => f.id === contextId) &&
-          snapshot.catalog.find((f) => f.id === contextId)!.order < entry.order,
-      );
-      if (
-        relevant.some(
-          (contextId) =>
-            ["brief", "prd", "architecture"].includes(contextId) &&
-            completed.find((f) => f.fileId === contextId)?.status !==
-              "succeeded",
-        )
-      ) {
-        await db.$transaction(async (tx) => {
-          await fenced(tx);
-          await tx.jobFile.update({
-            where: { jobId_fileId: { jobId: id, fileId: entry.id } },
-            data: { status: "blocked", errorCode: "CONTEXT_UNAVAILABLE" },
-          });
-        });
-        continue;
-      }
+
       await db.$transaction(async (tx) => {
         await userLock(tx, initial.userId);
         await fenced(tx);
@@ -208,85 +201,39 @@ export async function generateJob(id: string) {
           data: { status: "running", errorCode: null },
         });
       });
+
       try {
-        const context = relevant.slice(0, 3).map((contextId) => ({
-          id: contextId,
-          content:
-            completed
-              .find((f) => f.fileId === contextId)
-              ?.content?.slice(0, 10000) ?? "",
-        }));
-        const input = {
-          task: "write",
-          brief: snapshot.brief,
-          briefBoundary: crypto.randomUUID(),
-          webType: snapshot.webType,
-          fileId: entry.id,
-          path: entry.path,
-          template: snapshot.templates[entry.id],
-          plan: snapshot.plan.selected.map((f) => ({ id: f.id, path: f.path })),
-          summary: snapshot.plan.summary,
-          assumptions: snapshot.plan.assumptions,
-          projectContext: snapshot.projectContext
-            ? {
-                ...snapshot.projectContext,
-                skills: snapshot.projectContext.skills.filter((skill) =>
-                  skill.documents.includes(entry.id),
-                ),
-              }
-            : undefined,
-          context,
-        };
-        const result = await callLlm(
-          snapshot.config,
-          "write",
-          snapshot.writerPrompt,
-          input,
-          budget(entry.id),
-          cancellation.signal,
-          { userId: initial.userId, resourceId: id },
-        );
-        let content = result.content;
-        if (result.finish_reason === "length") {
-          const next = await callLlm(
-            snapshot.config,
-            "write",
-            snapshot.writerPrompt,
-            {
-              ...input,
-              continuation: true,
-              lastText: content.slice(-2000),
-              instruction:
-                "Continue exactly where the previous output stopped; do not repeat content.",
-            },
-            budget(entry.id),
-            cancellation.signal,
-            { userId: initial.userId, resourceId: id },
-          );
-          if (!content.includes(next.content)) {
-            let overlap = 0;
-            for (
-              let size = Math.min(content.length, next.content.length, 4000);
-              size > 0;
-              size--
-            ) {
-              if (content.endsWith(next.content.slice(0, size))) {
-                overlap = size;
-                break;
-              }
-            }
-            content += next.content.slice(overlap);
-          }
-          result.finish_reason = next.finish_reason;
-          result.tokens_in =
-            result.tokens_in === null || next.tokens_in === null
-              ? null
-              : result.tokens_in + next.tokens_in;
-          result.tokens_out =
-            result.tokens_out === null || next.tokens_out === null
-              ? null
-              : result.tokens_out + next.tokens_out;
+        const template = snapshot.templates[entry.id];
+        if (!template) {
+          await db.$transaction(async (tx) => {
+            await fenced(tx);
+            await tx.jobFile.update({
+              where: { jobId_fileId: { jobId: id, fileId: entry.id } },
+              data: { status: "failed", errorCode: "TEMPLATE_MISSING" },
+            });
+          });
+          continue;
         }
+
+        const docVars: Record<string, unknown> = {
+          ...(variables as unknown as Record<string, unknown>),
+          skillsForDocument: variables.skills.filter((s) =>
+            s.documents.includes(entry.id),
+          ),
+          currentFileId: entry.id,
+          currentFilePath: entry.path,
+        };
+
+        let content = renderTemplate(template, docVars);
+
+        // Apply customization (appends locked preferences, skills, references)
+        content = applyCustomization(
+          content,
+          entry.id,
+          snapshot.projectContext,
+        );
+
+        // Append document list for index
         if (entry.id === "index")
           content +=
             "\n## Dokumen dalam paket\n\n" +
@@ -297,6 +244,8 @@ export async function generateJob(id: string) {
               )
               .join("\n") +
             "\n";
+
+        // Append read order for agents
         if (entry.id === "agents")
           content +=
             "\n## Urutan baca\n\n" +
@@ -305,19 +254,14 @@ export async function generateJob(id: string) {
               .map((f) => `- [${f.path}](${f.path})`)
               .join("\n") +
             "\n";
-        content = applyCustomization(
-          content,
-          entry.id,
-          snapshot.projectContext,
-        );
-        await check();
+
         const lint = lintOutput(
           [
             {
               id: entry.id,
               path: entry.path,
               content,
-              finishReason: result.finish_reason,
+              finishReason: "complete",
             },
           ],
           runtimeSecrets(),
@@ -325,6 +269,7 @@ export async function generateJob(id: string) {
           (issue) =>
             !["BROKEN_REFERENCE", "TRACEABILITY_GAP"].includes(issue.code),
         );
+
         await db.$transaction(async (tx) => {
           await fenced(tx);
           await tx.jobFile.update({
@@ -333,10 +278,10 @@ export async function generateJob(id: string) {
               status: "succeeded",
               content,
               checksum: hash(content),
-              modelUsed: result.model_used,
-              tokensIn: result.tokens_in,
-              tokensOut: result.tokens_out,
-              finishReason: result.finish_reason,
+              modelUsed: null,
+              tokensIn: null,
+              tokensOut: null,
+              finishReason: "complete",
               lint: json(lint),
             },
           });
@@ -347,18 +292,7 @@ export async function generateJob(id: string) {
         });
       } catch (error) {
         const code = errorCode(error);
-        if (
-          [
-            "CANCELLED",
-            "ACCOUNT_SUSPENDED",
-            "LEASE_LOST",
-            "LLM_AUTH",
-            "LLM_MODEL_MISSING",
-            "REQUEST_BUDGET",
-            "LLM_DAILY_LIMIT",
-            "LLM_PRICING_REQUIRED",
-          ].includes(code)
-        )
+        if (["CANCELLED", "ACCOUNT_SUSPENDED", "LEASE_LOST"].includes(code))
           throw error;
         await db.$transaction(async (tx) => {
           await fenced(tx);
@@ -369,6 +303,7 @@ export async function generateJob(id: string) {
         });
       }
     }
+
     await check();
     await db.job.updateMany({ where: fence, data: { status: "validating" } });
     const files = await db.jobFile.findMany({ where: { jobId: id } });
@@ -380,129 +315,17 @@ export async function generateJob(id: string) {
         content: f.content!,
         finishReason: f.finishReason,
       }));
-    const repairCodes = new Set([
-      "INVALID_MARKDOWN",
-      "META_WRAPPER",
-      "BROKEN_REFERENCE",
-      "UNSAFE_LINK",
-      "SECRET_DETECTED",
-    ]);
-    const initialIssues = lintOutput(outputs, runtimeSecrets());
-    const repairNotes: LintIssue[] = [];
-    const repairTargets = new Set(
-      initialIssues
-        .filter(
-          (issue) =>
-            repairCodes.has(issue.code) &&
-            issue.fileId &&
-            (issue.code !== "BROKEN_REFERENCE" ||
-              outputs.length === initial.total),
-        )
-        .map((issue) => issue.fileId),
-    );
-    for (const file of outputs.filter((output) =>
-      repairTargets.has(output.id),
-    )) {
-      await check();
-      try {
-        const result = await callLlm(
-          snapshot.config,
-          "fix",
-          snapshot.writerPrompt,
-          {
-            task: "fix",
-            fileId: file.id,
-            path: file.path,
-            content: file.content,
-            brief: snapshot.brief,
-            webType: snapshot.webType,
-            projectContext: snapshot.projectContext
-              ? {
-                  ...snapshot.projectContext,
-                  skills: snapshot.projectContext.skills.filter((skill) =>
-                    skill.documents.includes(file.id),
-                  ),
-                }
-              : undefined,
-            issues: initialIssues.filter((issue) => issue.fileId === file.id),
-            allowedPaths: outputs.map((output) => output.path),
-            instruction:
-              "Repair only the reported issues. Return the complete Markdown document. Do not invent test evidence.",
-          },
-          budget(file.id),
-          cancellation.signal,
-          { userId: initial.userId, resourceId: id },
-        );
-        file.content = applyCustomization(
-          result.content,
-          file.id,
-          snapshot.projectContext,
-        );
-        file.finishReason = result.finish_reason;
-        await db.$transaction(async (tx) => {
-          await fenced(tx);
-          await tx.jobFile.update({
-            where: { jobId_fileId: { jobId: id, fileId: file.id } },
-            data: {
-              content: file.content,
-              checksum: hash(file.content),
-              finishReason: result.finish_reason,
-              modelUsed: result.model_used,
-              tokensIn: null,
-              tokensOut: null,
-            },
-          });
-        });
-      } catch (error) {
-        const code = errorCode(error);
-        if (
-          [
-            "CANCELLED",
-            "ACCOUNT_SUSPENDED",
-            "LEASE_LOST",
-            "REQUEST_BUDGET",
-            "LLM_AUTH",
-            "LLM_DAILY_LIMIT",
-            "LLM_PRICING_REQUIRED",
-          ].includes(code)
-        )
-          throw error;
-        repairNotes.push({
-          code: "REPAIR_FAILED",
-          fileId: file.id,
-          message:
-            "Percobaan perbaikan otomatis belum berhasil; hasil asli perlu ditinjau.",
-          severity: "warning",
-          blocksExport: false,
-        });
-      }
-    }
-    const issues = [...lintOutput(outputs, runtimeSecrets()), ...repairNotes];
-    const models = new Set(files.map((f) => f.modelUsed).filter(Boolean));
-    if (models.size > 1)
-      issues.push({
-        code: "MODEL_CHANGED",
-        message:
-          "Model yang dilaporkan berbeda antar dokumen; alias tidak memastikan model upstream.",
-        severity: "warning",
-        blocksExport: false,
-      });
-    if (snapshot.promptVersion.endsWith("fallback"))
-      issues.push({
-        code: "FALLBACK_TEMPLATE",
-        message:
-          "Paket memakai kerangka template sementara. Tinjau sebelum digunakan.",
-        severity: "warning",
-        blocksExport: false,
-      });
-    if (snapshot.config.mock)
-      issues.push({
-        code: "MOCK_OUTPUT",
-        message:
-          "Mode mock: dokumen fixture pengujian, belum dihasilkan AI nyata.",
-        severity: "warning",
-        blocksExport: false,
-      });
+
+    const issues: LintIssue[] = lintOutput(outputs, runtimeSecrets());
+
+    issues.push({
+      code: "TEMPLATE_OUTPUT",
+      message:
+        "Dokumen dihasilkan dari template terstruktur, bukan AI. Tinjau sebelum digunakan.",
+      severity: "warning",
+      blocksExport: false,
+    });
+
     const missing = files
       .filter((f) => f.status !== "succeeded")
       .map((f) => f.fileId);
@@ -522,6 +345,7 @@ export async function generateJob(id: string) {
         missing,
         snapshot.plan.assumptions,
       ),
+      generationMode: "template" as const,
       customization: snapshot.projectContext
         ? {
             preferences: snapshot.projectContext.preferences,
@@ -600,24 +424,20 @@ export async function generateJob(id: string) {
           data: { status },
         });
         if (
-          ["LLM_AUTH", "LLM_MODEL_MISSING", "REQUEST_BUDGET"].includes(code) ||
-          (code === "ACCOUNT_SUSPENDED" &&
-            initial.llmRequestCount === 0 &&
-            (await tx.job.findUniqueOrThrow({ where: { id } }))
-              .llmRequestCount === 0) ||
-          (code === "CANCELLED" &&
-            initial.llmRequestCount === 0 &&
-            (await tx.job.findUniqueOrThrow({ where: { id } }))
-              .llmRequestCount === 0)
+          code === "ACCOUNT_SUSPENDED" &&
+          initial.llmRequestCount === 0 &&
+          (await tx.job.findUniqueOrThrow({ where: { id } }))
+            .llmRequestCount === 0
         ) {
-          await refundQuota(
-            tx,
-            initial.userId,
-            id,
-            code === "CANCELLED"
-              ? "cancelled_before_ai"
-              : "permanent_system_failure",
-          );
+          await refundQuota(tx, initial.userId, id, "permanent_system_failure");
+        }
+        if (
+          code === "CANCELLED" &&
+          initial.llmRequestCount === 0 &&
+          (await tx.job.findUniqueOrThrow({ where: { id } }))
+            .llmRequestCount === 0
+        ) {
+          await refundQuota(tx, initial.userId, id, "cancelled_before_ai");
         }
         await tx.auditEvent.create({
           data: {
@@ -631,9 +451,9 @@ export async function generateJob(id: string) {
     console.error(JSON.stringify({ event: "job.stopped", jobId: id, code }));
   } finally {
     clearInterval(timer);
-    clearInterval(cancelTimer);
   }
 }
+
 export function runtimeSecrets() {
   const env = getEnv();
   return [

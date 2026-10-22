@@ -1,17 +1,83 @@
-# Index
+# {{projectName}}
 
-## Ringkasan paket
+## Proyek
 
-Jelaskan nama/tujuan proyek, jenis website, lingkup spesifikasi, asumsi penting dan bahwa target belum otomatis dibangun atau diuji.
+| Aspek        | Detail                |
+| ------------ | --------------------- |
+| Nama         | {{projectName}}       |
+| Tipe         | {{webTypeLabel}}      |
+| Kompleksitas | {{complexity}}        |
+| Bahasa       | {{language}}          |
+| Rendering    | {{renderingStrategy}} |
 
-## Peta dokumen yang tersedia
+{{summary}}
 
-Daftar hanya file terpilih dengan path relatif yang benar, tujuan dan sumber kebenaran. Hindari tautan ke semua katalog bila file tersebut tidak disertakan.
+## Sumber Utama
 
-## Urutan baca dan keterkaitan
+### Teknologi
 
-Arahkan pembaca dari brief/PRD ke arsitektur/desain/aturan bisnis, keamanan, penerimaan, testing dan implementation plan. Jelaskan pemetaan REQ/AC/TEST/task serta dokumen opsional yang relevan.
+| Kategori             | Teknologi |
+| -------------------- | --------- |
+| {{#each technology}} | {{@key}}  | {{this}} |
+{{/each}}
 
-## Versi, keputusan dan status
+### Desain
 
-Catat versi/sumber skill yang tersedia, preferensi manual yang mengikat, asumsi, blocker, status tinjauan dan langkah berikutnya. Manifest adalah ringkasan pemeriksaan dokumen, bukan sertifikat kesiapan produksi.
+| Properti        | Nilai                |
+| --------------- | -------------------- |
+| Heading font    | {{headingFont}}      |
+| Body font       | {{bodyFont}}         |
+| Warna primer    | `{{primaryColor}}`   |
+| Warna sekunder  | `{{secondaryColor}}` |
+| Container width | {{containerWidth}}px |
+| Spacing         | {{spacing}}px        |
+
+### Fitur yang Dipilih
+
+{{#if hasAuth}}- Autentikasi
+{{/if}}{{#if hasPayments}}- Pembayaran
+{{/if}}{{#if hasSearch}}- Pencarian
+{{/if}}{{#if hasAdmin}}- Panel Admin
+{{/if}}{{#if hasCms}}- CMS
+{{/if}}{{#if hasUploads}}- Upload File
+{{/if}}{{#if hasNotifications}}- Notifikasi
+{{/if}}{{#if hasRealtime}}- Realtime
+{{/if}}{{#if hasBackgroundJobs}}- Background Jobs
+{{/if}}{{#if hasAnalytics}}- Analitik
+{{/if}}{{#if hasI18n}}- Internasionalisasi
+{{/if}}{{#if hasAiFeatures}}- AI Features
+{{/if}}{{#if hasMultitenancy}}- Multi-tenancy
+{{/if}}{{#if hasPwaOffline}}- PWA/Offline
+{{/if}}
+
+{{#if hasReferences}}
+### Referensi
+
+{{#each references}}- **{{this.name}}** ({{this.role}}): {{this.note | fallback "—"}}
+{{/each}}
+{{/if}}
+
+## Versi dan Status
+
+| Aspek        | Status                  |
+| ------------ | ----------------------- |
+| Spesifikasi  | Tersedia — perlu review |
+| Implementasi | Belum dimulai           |
+| Testing      | Belum dimulai           |
+| Deployment   | Belum dimulai           |
+
+{{#if assumptions}}
+### Asumsi
+
+{{#each assumptions}}- {{this}}
+{{/each}}
+{{/if}}
+
+{{#if missingInfo}}
+### Informasi yang Perlu Dikonfirmasi
+
+{{#each missingInfo}}- **{{this.question}}** — {{this.impact}}
+{{/each}}
+{{/if}}
+
+Paket spesifikasi ini adalah rencana dan rekomendasi. Website target belum dibangun, diuji, atau diterbitkan oleh generator.

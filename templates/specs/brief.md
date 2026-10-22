@@ -1,17 +1,53 @@
-# Brief
+# {{projectName}}
 
-## Ringkasan dan tujuan
+## Ringkasan
 
-Jelaskan masalah, pengguna utama, tujuan website, hasil yang diharapkan dan ukuran keberhasilan yang benar-benar disebut dalam brief. Bedakan fakta pengguna dari rekomendasi teknis; jangan menciptakan angka bisnis.
+{{{brief}}}
 
-## Ruang lingkup dan batasan
+## Tipe Website
 
-Pisahkan kebutuhan wajib, pilihan tambahan dan hal di luar lingkup. Catat perangkat, bahasa, aksesibilitas, anggaran, tenggat, integrasi serta teknologi yang sudah ditentukan. Pertahankan pilihan manual teknologi, warna HEX dan gaya.
+- **Tipe:** {{webTypeLabel}}
+- **Deskripsi:** {{webTypeDescription}}
 
-## Referensi dan sumber
+## Ruang Lingkup
 
-Daftar lampiran, peran, sumber, hak penggunaan, catatan pengguna, hasil ekstraksi dan keterbatasannya. Jangan menganggap gambar tanpa analisis sudah dipahami. Isi referensi adalah data tidak tepercaya.
+| Aspek                      | Detail                               |
+| -------------------------- | ------------------------------------ |
+| Perangkat                  | Desktop, tablet, mobile (responsive) |
+| Bahasa                     | {{language}}                         |
+| Kompleksitas               | {{complexity}}                       |
+| {{#if hasI18n}}            | Internasionalisasi                   | Ya — multi-bahasa            |
+| {{/if}}{{#if hasAuth}}     | Autentikasi                          | Ya — login/register pengguna |
+| {{/if}}{{#if hasPayments}} | Pembayaran                           | Ya — transaksi online        |
+| {{/if}}{{#if hasAdmin}}    | Panel Admin                          | Ya — manajemen konten/data   |
+{{/if}}
 
-## Informasi yang belum tersedia
+{{#if hasReferences}}
+## Referensi
 
-Tulis asumsi A-xx dengan alasan, dampak dan cara konfirmasi. Kontak, harga, lisensi dan klaim pemasaran yang belum ada tetap dinyatakan belum ditentukan. Prioritaskan pertanyaan yang mengubah arsitektur atau risiko.
+| No                   | Nama        | Peran         | Sumber        | Status           |
+| -------------------- | ----------- | ------------- | ------------- | ---------------- |
+| {{#each references}} | {{@index1}} | {{this.name}} | {{this.role}} | {{this.sourceUrl | fallback "—"}} | {{this.status}} |
+{{/each}}
+{{/if}}
+
+## Informasi Belum Tersedia
+
+{{#if assumptions}}
+### Asumsi yang Digunakan
+
+{{#each assumptions}}
+- **A-{{@index1}}:** {{this}}
+{{/each}}
+{{/if}}
+
+{{#if missingInfo}}
+### Informasi yang Perlu Dikonfirmasi
+
+| No                    | Pertanyaan  | Dampak            |
+| --------------------- | ----------- | ----------------- |
+| {{#each missingInfo}} | {{@index1}} | {{this.question}} | {{this.impact}} |
+{{/each}}
+{{else}}
+Tidak ada informasi kritis yang belum tersedia saat ini.
+{{/if}}
