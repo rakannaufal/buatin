@@ -82,13 +82,13 @@ Contoh:
         if (credentialAccount) {
           await tx.account.update({
             where: { id: credentialAccount.id },
-            data: { password: hashedPassword },
+            data: { password: hashedPassword, accountId: existing.id },
           });
         } else {
           await tx.account.create({
             data: {
               id: crypto.randomUUID(),
-              accountId: email,
+              accountId: existing.id,
               providerId: "credential",
               userId: existing.id,
               password: hashedPassword,
@@ -122,7 +122,7 @@ Contoh:
         await tx.account.create({
           data: {
             id: crypto.randomUUID(),
-            accountId: email,
+            accountId: userId,
             providerId: "credential",
             userId,
             password: hashedPassword,

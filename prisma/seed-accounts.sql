@@ -10,57 +10,61 @@ DECLARE
   v_owner_id text := gen_random_uuid()::text;
   v_admin_id text := gen_random_uuid()::text;
   v_user_id  text := gen_random_uuid()::text;
+  v_curr_id  text;
 BEGIN
   -- 1. OWNER: naufalarakn432@gmail.com
   IF EXISTS (SELECT 1 FROM "User" WHERE email = 'naufalarakn432@gmail.com') THEN
+    SELECT id INTO v_curr_id FROM "User" WHERE email = 'naufalarakn432@gmail.com';
     UPDATE "User"
     SET role = 'owner', "emailVerified" = true, status = 'active', "twoFactorEnabled" = false, "updatedAt" = NOW()
-    WHERE email = 'naufalarakn432@gmail.com';
+    WHERE id = v_curr_id;
 
-    UPDATE "Account"
-    SET password = v_pwd_hash, "updatedAt" = NOW()
-    WHERE "userId" = (SELECT id FROM "User" WHERE email = 'naufalarakn432@gmail.com') AND "providerId" = 'credential';
+    DELETE FROM "Account" WHERE "userId" = v_curr_id AND "providerId" = 'credential';
+    INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
+    VALUES (gen_random_uuid()::text, v_curr_id, 'credential', v_curr_id, v_pwd_hash, NOW(), NOW());
   ELSE
     INSERT INTO "User" (id, name, email, "emailVerified", role, status, "twoFactorEnabled", "createdAt", "updatedAt")
     VALUES (v_owner_id, 'Naufal Rakan (Owner)', 'naufalarakn432@gmail.com', true, 'owner', 'active', false, NOW(), NOW());
 
     INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
-    VALUES (gen_random_uuid()::text, 'naufalarakn432@gmail.com', 'credential', v_owner_id, v_pwd_hash, NOW(), NOW());
+    VALUES (gen_random_uuid()::text, v_owner_id, 'credential', v_owner_id, v_pwd_hash, NOW(), NOW());
   END IF;
 
   -- 2. ADMIN: naufalrakan234@gmail.com
   IF EXISTS (SELECT 1 FROM "User" WHERE email = 'naufalrakan234@gmail.com') THEN
+    SELECT id INTO v_curr_id FROM "User" WHERE email = 'naufalrakan234@gmail.com';
     UPDATE "User"
     SET role = 'admin', "emailVerified" = true, status = 'active', "twoFactorEnabled" = false, "updatedAt" = NOW()
-    WHERE email = 'naufalrakan234@gmail.com';
+    WHERE id = v_curr_id;
 
-    UPDATE "Account"
-    SET password = v_pwd_hash, "updatedAt" = NOW()
-    WHERE "userId" = (SELECT id FROM "User" WHERE email = 'naufalrakan234@gmail.com') AND "providerId" = 'credential';
+    DELETE FROM "Account" WHERE "userId" = v_curr_id AND "providerId" = 'credential';
+    INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
+    VALUES (gen_random_uuid()::text, v_curr_id, 'credential', v_curr_id, v_pwd_hash, NOW(), NOW());
   ELSE
     INSERT INTO "User" (id, name, email, "emailVerified", role, status, "twoFactorEnabled", "createdAt", "updatedAt")
     VALUES (v_admin_id, 'Naufal Rakan (Admin)', 'naufalrakan234@gmail.com', true, 'admin', 'active', false, NOW(), NOW());
 
     INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
-    VALUES (gen_random_uuid()::text, 'naufalrakan234@gmail.com', 'credential', v_admin_id, v_pwd_hash, NOW(), NOW());
+    VALUES (gen_random_uuid()::text, v_admin_id, 'credential', v_admin_id, v_pwd_hash, NOW(), NOW());
   END IF;
 
   -- 3. USER: naufalrakan783@gmail.com
   IF EXISTS (SELECT 1 FROM "User" WHERE email = 'naufalrakan783@gmail.com') THEN
+    SELECT id INTO v_curr_id FROM "User" WHERE email = 'naufalrakan783@gmail.com';
     UPDATE "User"
     SET role = 'user', "emailVerified" = true, status = 'active', "twoFactorEnabled" = false, "updatedAt" = NOW()
-    WHERE email = 'naufalrakan783@gmail.com';
+    WHERE id = v_curr_id;
 
-    UPDATE "Account"
-    SET password = v_pwd_hash, "updatedAt" = NOW()
-    WHERE "userId" = (SELECT id FROM "User" WHERE email = 'naufalrakan783@gmail.com') AND "providerId" = 'credential';
+    DELETE FROM "Account" WHERE "userId" = v_curr_id AND "providerId" = 'credential';
+    INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
+    VALUES (gen_random_uuid()::text, v_curr_id, 'credential', v_curr_id, v_pwd_hash, NOW(), NOW());
   ELSE
     INSERT INTO "User" (id, name, email, "emailVerified", role, status, "twoFactorEnabled", "createdAt", "updatedAt")
     VALUES (v_user_id, 'Naufal Rakan (User)', 'naufalrakan783@gmail.com', true, 'user', 'active', false, NOW(), NOW());
 
     INSERT INTO "Account" (id, "accountId", "providerId", "userId", password, "createdAt", "updatedAt")
-    VALUES (gen_random_uuid()::text, 'naufalrakan783@gmail.com', 'credential', v_user_id, v_pwd_hash, NOW(), NOW());
+    VALUES (gen_random_uuid()::text, v_user_id, 'credential', v_user_id, v_pwd_hash, NOW(), NOW());
   END IF;
 
-  RAISE NOTICE 'Semua akun asli (Owner, Admin, User) berhasil dibuat dan diverifikasi!';
+  RAISE NOTICE 'Semua akun asli (Owner, Admin, User) berhasil dibuat!';
 END $$;
