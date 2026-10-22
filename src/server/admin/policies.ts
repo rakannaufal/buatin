@@ -56,11 +56,21 @@ export async function controls(tx: Transaction = db) {
   };
 }
 export async function siteSettings(tx: Transaction = db) {
-  const record = await tx.setting.findUnique({ where: { key: "admin.site" } });
-  return {
-    version: record?.version ?? 0,
-    value: siteSchema.parse(record?.value ?? defaultSite),
-  };
+  try {
+    const record = await tx.setting.findUnique({
+      where: { key: "admin.site" },
+    });
+    return {
+      version: record?.version ?? 0,
+      value: siteSchema.parse(record?.value ?? defaultSite),
+    };
+  } catch (err) {
+    console.error("Failed to load site settings from db, using default:", err);
+    return {
+      version: 0,
+      value: defaultSite,
+    };
+  }
 }
 export async function assertServiceOpen(
   kind: "Signup" | "Checkout" | "Generation",
