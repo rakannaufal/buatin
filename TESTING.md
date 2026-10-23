@@ -47,6 +47,11 @@ mengonsumsi verification; GET sesudah probe tetap harus berhasil. Browser menola
 redirect OAuth ke domain tiruan dan tetap dapat mencoba lagi setelah network error.
 Smoke deployment memeriksa `appOrigin` persis domain tujuan, admin/settings/download
 serta cron anonim 401, dan HEAD callback 405. HTTP sehat pada alias lain tidak cukup.
+Fixture challenge memakai Site Key palsu di server loopback dan mengintersep
+skrip Turnstile; tidak menyelesaikan challenge provider nyata. Browser menguji
+error lalu sukses pada desktop/mobile, retry, dan token kedaluwarsa yang tetap
+memblokir request login. CI menjalankannya pada tahap mode request dengan
+`TURNSTILE_SITE_KEY=test-only-site`. Tanpa key fixture, skenario ini dilewati.
 Uji RLS beralih ke `pg_read_all_data` agar role non-pemilik tetap tidak dapat
 membaca row. Role fixture CI diberi keanggotaan role baca tersebut; ini hanya
 untuk database test terisolasi, bukan instruksi akses produksi.

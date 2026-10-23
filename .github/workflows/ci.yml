@@ -73,6 +73,7 @@ jobs:
           PROCESSING_MODE: request
           APP_URL: http://localhost:3101
           CRON_SECRET: test-only-cron-secret-not-for-production
+          TURNSTILE_SITE_KEY: test-only-site
         run: |
           npm start -- --port 3101 > .local/request-web.log 2>&1 &
           request_web_pid=$!
@@ -84,6 +85,7 @@ jobs:
           curl --fail --silent --show-error http://localhost:3101/api/health/ready
           npm run test:request
           npm run test:e2e -- tests/e2e/workspace.spec.ts --grep 'desktop:|mobile:'
+          npm run test:e2e -- tests/e2e/challenge.spec.ts
       - run: npm run db:backup
       - run: npm run test:backup
       - name: Dependency audit

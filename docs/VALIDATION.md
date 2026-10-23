@@ -81,6 +81,54 @@ Tidak ada migration baru, fixture produksi, pembelian hosting atau bypass guard.
   `@vercel/speed-insights` 2.0.0 (Apache-2.0), keduanya terkunci di lockfile.
   Commit dan perubahan tersebut dipertahankan. Instalasi paket sendiri belum
   membuktikan pengumpulan metrik pada domain produksi.
+- Commit aplikasi `c37a9272abe25040a7a4a0c1607ee183692a8ae2` telah didorong
+  ke `codex/admin-management`. Native validation run `39928432150`, job
+  `120330456977`, completed/success: seluruh tahap termasuk integration, browser,
+  recovery, request tanpa worker, backup/restore dan image Docker lulus.
+  SHA yang sama dipromosikan fast-forward ke protected main setelah CI sukses.
+- Native validation main run `39929811653`, job `120335004012`, juga
+  completed/success untuk SHA yang sama. Workflow `Deploy verified production`
+  run `39931002408` dipicu otomatis sesudah validasi tersebut.
+- Deploy run `39931002408`, job `120338970856`, completed/success. Deployment
+  `dpl_BLBo6PhfoN7BoMG2RyKttAtbf7ED` Ready/Production, gitSource main dan
+  validatedCommit cocok dengan `c37a927`, validationRun `39929811653`.
+  `npm run deploy:smoke -- https://bantuin.ai.id --scope=operations`: **19/19
+  lulus**, scopeReady true/publicLaunchAccepted false. Kontrak callback HEAD 405
+  dan endpoint privat anonim 401 teramati pada deployment tersebut.
+- HTTP root/www redirect 308 ke HTTPS apex; canonical, Open Graph, sitemap dan
+  robots memakai domain final. Public config menunjukkan googleReady true,
+  mock false, processingMode request, generationMode template dan
+  registrationReady false. Readiness 200 tidak membuktikan pengiriman email.
+- Browser produksi sempat menerima challenge error `600010`. Operator kemudian
+  menyelesaikan verifikasi langsung; widget Success dan redirect Google nyata
+  teramati. Sesudah persetujuan identitas dasar, dashboard menampilkan satu akun
+  biasa role user. Reload tetap membuka workspace, paket dan kuota termuat.
+  Pembacaan admin users dengan sesi itu ditolak FORBIDDEN. Tidak ada bypass MFA,
+  key pengujian atau fixture pada produksi. Matriks cloud dua akun belum diuji.
+- Screenshot operator juga mereproduksi pesan error widget yang tetap muncul
+  setelah Success. Regresi browser baru semula gagal tepat pada ekspektasi pesan
+  harus hilang; callback sukses kemudian memperbarui failed menjadi false.
+  Regresi lulus, termasuk retry dan pemblokiran token kosong/kedaluwarsa. Satu
+  percobaan awal perlu mempersempit locator alert ke main karena Next memiliki
+  route announcer sendiri; itu kegagalan locator fixture, bukan provider.
+- Setelah perbaikan widget, `npm run lint`, `npm run typecheck`, `npm test`
+  (145 test/21 file), build Next.js serta `npm run build:worker` lulus.
+  Regresi `tests/e2e/challenge.spec.ts` lulus pada dev fixture desktop/mobile,
+  kemudian lulus pada build produksi. Site Key palsu dan intersepsi skrip
+  hanya ada di fixture loopback. CI menambahkan regresi pada tahap mode request.
+- Percobaan build Next.js dalam sandbox tertahan saat kompilasi tanpa progres;
+  dihentikan terarah (143), kemudian build yang sama dengan akses proses/socket
+  lokal selesai sukses. Server fixture sudah dihentikan. Config Next yang
+  dihasilkan dipulihkan setelah memeriksa tidak ada perubahan lain; next-env
+  pengguna tetap dipertahankan.
+- `npm audit --omit=dev --audit-level=high`: nol kerentanan setelah perbaikan.
+  `npm run security:scan`: 370 file lulus, nilai rahasia tidak dicetak.
+  `npm run format:check`, typecheck setelah pemulihan config dan
+  `git diff --check` juga lulus.
+- Tinjauan lanjutan menemukan `verifyChallenge()` berjalan sebelum database rate
+  limit Better Auth. Percobaan yang ditolak challenge tidak mencapai limiter
+  tersebut; temuan dicatat sebagai P1-09. Tidak dilakukan burst pada produksi,
+  dan tidak ada klaim perlindungan DDoS atau perbaikan limiter telah terbukti.
 
 ## Profil request Vercel + Supabase - 23 Oktober 2026
 

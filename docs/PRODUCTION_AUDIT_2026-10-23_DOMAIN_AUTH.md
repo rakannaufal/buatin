@@ -7,9 +7,10 @@ Pembayaran nyata tetap ditunda. Login Google termasuk pekerjaan aktif.
 ## Putusan
 
 **Belum dapat dinyatakan siap untuk peluncuran publik.** Build yang berhasil dan
-readiness HTTP 200 membuktikan bagian tertentu dari runtime. Keduanya belum
-membuktikan callback Google nyata, pengiriman email, pemulihan data, kapasitas,
-atau seluruh perjalanan pengguna melalui storage cloud.
+readiness HTTP 200 membuktikan bagian tertentu dari runtime. Login Google nyata
+sampai dashboard dan sesi setelah reload sudah diamati pada satu akun biasa.
+Pengiriman email, pemulihan data, kapasitas dan seluruh perjalanan pengguna
+melalui storage cloud tetap belum terbukti.
 
 P0 berarti menghalangi fungsi inti yang sedang diaktifkan. P1 harus diselesaikan
 sebelum menerima pengguna publik. P2 diperlukan untuk peningkatan kapasitas dan
@@ -18,7 +19,7 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
 
 ## Temuan dan tindakan
 
-### P0-01: domain runtime sebelumnya berbeda dari domain pengguna
+### P0-01: domain runtime sebelumnya berbeda dari domain pengguna - ditutup
 
 - **Bukti:** root domain HTTPS 200, tetapi canonical, Open Graph, sitemap dan
   robots mengarah ke `https://buatin.vercel.app`. `src/server/auth.ts` memakai
@@ -28,12 +29,13 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
   `https://bantuin.ai.id`; www diarahkan 308 ke apex. Variable GitHub
   `PRODUCTION_URL` dan fallback workflow memakai origin yang sama. Public config
   kini menyertakan `appOrigin`; smoke menolak alias sehat dengan origin berbeda.
-- **Penutupan:** deployment baru harus menunjukkan canonical, sitemap, robots,
-  `appOrigin`, origin OAuth dan callback pada domain yang sama. Menyimpan env
-  saja belum memperbarui deployment yang telah berjalan. Bukti akhir berada di
-  `VALIDATION.md`.
+- **Bukti penutupan:** deployment `c37a927` Ready melalui CI main dan workflow
+  produksi yang sukses. Canonical, Open Graph, sitemap dan robots kini memakai
+  `https://bantuin.ai.id`; smoke menegaskan `appOrigin` cocok. HTTP dan www
+  redirect 308 ke origin HTTPS tersebut. Origin dan callback client Google juga
+  telah disimpan pada domain yang sama. Bukti akhir berada di `VALIDATION.md`.
 
-### P0-02: aktivasi Google memerlukan seluruh rantai provider
+### P0-02: rantai Google aktif; login akun biasa terverifikasi
 
 - **Bukti awal:** `googleReady:false`, credential Google dan Turnstile belum
   tersedia. Tombol sengaja tidak ditampilkan ketika konfigurasi belum lengkap.
@@ -47,11 +49,23 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
   dibuat, Managed, satu hostname `bantuin.ai.id`, tanpa pre-clearance. Kedua key
   disimpan sensitive di Production Vercel; metadata dibaca ulang. Transfer
   sementara terenkripsi dan pasangan key lokal dihapus setelah sukses.
-- **Belum terbukti:** konfigurasi baru pada deployment serta callback Google nyata
-  sampai cookie sesi dan dashboard. Kelulusan fixture tidak menutup bagian ini.
-- **Penutupan:** `googleReady:true`, challenge domain benar, redirect hanya ke
-  Google, akun biasa berhasil masuk, cancel/error aman, replay ditolak. Uji akun
-  baru dan lama secara terkontrol. Tidak ada permintaan akses Gmail atau Drive.
+- **Bukti runtime:** `googleReady:true`, `mock:false`, mode request. Tombol Google
+  tampil pada `/login`. Smoke operasi 19/19 lulus; scope operasi tetap menunda
+  pembuktian login publik sehingga hasil tersebut bukan kelulusan OAuth.
+- **Hambatan browser nyata:** widget dimuat, tetapi challenge di browser Codex
+  ditolak dengan `600010`. Dokumentasi resmi Cloudflare mengelompokkan `600*`
+  sebagai generic challenge failure/bot detection, berbeda dari error domain
+  tidak diizinkan `110200`. Belum dapat disimpulkan semua browser pengguna gagal.
+  Operator kemudian menyelesaikan challenge; widget menunjukkan Success dan
+  tombol login membuka `accounts.google.com` dengan callback domain final.
+  Challenge dan guard tidak dilewati atau diganti key pengujian.
+- **Bukti login nyata:** sesudah halaman persetujuan identitas dasar, dashboard
+  domain final menampilkan akun role user. Reload tetap membuka workspace dan
+  memuat paket/kuota. Pembacaan `/api/admin/users` dengan sesi tersebut ditolak
+  `FORBIDDEN`. Nama/email/foto adalah lingkup persetujuan; tanpa Gmail/Drive.
+- **Batas bukti:** satu akun biasa berhasil. Matriks akun baru/lama, cancel,
+  replay dan role/MFA lulus fixture, belum seluruhnya diulang pada cloud. Login
+  Google tidak membuktikan recovery email, backup atau journey dua akun.
 - **Batas operator:** akun owner/admin atau pengguna ber-MFA wajib memakai
   password/TOTP. Library terpasang belum menantang MFA aplikasi pada social login;
   larangan ini menjaga proteksi operator dan tidak boleh dihapus untuk smoke.
@@ -91,7 +105,7 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
   deadline diuji. Bukti operasional menunjukkan usia backlog tertua dan jumlah
   yang benar-benar dibersihkan. Jangan menjalankan fixture pada produksi.
 
-### P1-03: environment deployment sebelumnya tidak membatasi branch
+### P1-03: environment deployment sebelumnya tidak membatasi branch - diperbaiki
 
 - **Bukti cloud:** GitHub Environment `production` semula memiliki
   `deployment_branch_policy:null` dan tanpa protection rule. Proteksi main tidak
@@ -101,9 +115,11 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
   Main tetap memerlukan `verify`, strict, berlaku untuk admin, force push dan
   penghapusan branch dilarang. Jangan menambah branch terlindungi lain tanpa
   meninjau konsekuensi akses ke environment ini.
-- **Penutupan:** workflow produksi pada protected main berhasil memakai secret;
-  workflow branch biasa tidak diizinkan. Secret tetap project-scoped, tidak
-  dicetak. Token deploy berakhir 21 Januari 2027 dan perlu rotasi sebelumnya.
+- **Bukti:** workflow produksi `39931002408` pada protected main berhasil
+  memakai environment dan merilis SHA yang divalidasi. Policy baca ulang
+  membatasi environment ke protected branch; tidak dilakukan percobaan mengambil
+  secret dari branch biasa. Secret tetap project-scoped, tidak dicetak. Token
+  deploy berakhir 21 Januari 2027 dan perlu rotasi sebelumnya.
 
 ### P1-04: backup di luar host dan restore produksi belum dibuktikan
 
@@ -165,6 +181,23 @@ belum dilakukan; ketiadaan bukti tidak dianggap bukti kebocoran.
   runbook dan pemilik respons. Jadwal GitHub dapat terlambat; interval sepuluh
   menit bukan SLA. Readiness tidak memeriksa seluruh provider atau backup.
 
+### P1-09: batas autentikasi belum mencakup panggilan Turnstile
+
+- **Bukti source:** `src/app/api/auth/[...all]/route.ts` memanggil
+  `verifyChallenge()` sebelum `handlers.POST()`. Database rate limit Better Auth
+  berjalan di handler tersebut. Token tidak valid mengakhiri request sebelum
+  handler, sehingga percobaan ini belum dibatasi limiter autentikasi aplikasi.
+- **Dampak:** request social login dengan token palsu dapat memicu panggilan
+  Siteverify berulang dan memakai invocation/koneksi hosting. Perlindungan DDoS
+  platform belum diuji dan tidak menjadi bukti adanya batas aplikasi di tahap ini.
+- **Perbaikan:** tambahkan limiter persisten sebelum body/challenge untuk endpoint
+  publik yang mahal, memakai identitas jaringan dari proxy yang dipercaya.
+  Jangan mempercayai header IP arbitrer, menyimpan IP mentah di log, atau memakai
+  limiter memory yang terpisah di setiap instance Vercel.
+- **Penutupan:** regression membuktikan burst ditolak 429 sebelum request provider,
+  Origin salah tetap ditolak lebih awal, kegagalan provider tetap aman dan login
+  biasa tidak terkunci oleh key yang dapat dipalsukan. Uji hanya pada fixture.
+
 ### P2-01: kapasitas dan batas hosting belum terukur
 
 Pool Prisma web dibatasi tiga koneksi per instance, health pool satu. Banyak
@@ -197,6 +230,9 @@ Safari/Firefox atau perangkat fisik. Uji keyboard, jaringan lambat, expired sess
 offline dan reduced motion. Terapkan `LOADING_STRATEGY.md` per async boundary;
 hero/konten awal tetap langsung, skeleton tanpa delay buatan atau layout shift.
 Browser fixture Chromium desktop/mobile tidak membuktikan seluruh kondisi ini.
+Deployment preview terbaru juga berstatus Error, sementara rilis Production
+terverifikasi Ready. Belum ada staging cloud yang terbukti berjalan; jangan
+memakai konfigurasi atau data produksi sebagai fixture untuk menggantikannya.
 
 CSP sudah memuat pembatasan sumber, tetapi masih memakai `unsafe-inline` untuk
 kompatibilitas SSR; nonce/strict CSP dapat diperkuat terpisah. Tidak ditemukan
@@ -207,7 +243,7 @@ notice runtime action Node 20 dan migrasi runner; pembaruan action perlu diuji.
 
 | Kelompok                                                                                 | Kontrak dan proteksi                                                             | Hasil / perhatian                                                                                        |
 | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/`, `/pricing`, `/privacy`, `/terms`                                                    | Halaman publik SSR, metadata/sitemap                                             | HTTP 200; origin lama dan kontak kosong ditemukan; verifikasi ulang setelah deploy                       |
+| `/`, `/pricing`, `/privacy`, `/terms`                                                    | Halaman publik SSR, metadata/sitemap                                             | HTTP 200; metadata domain final terverifikasi; kontak layanan masih kosong                               |
 | `/dashboard`, `/projects/*`, `/jobs/*`, `/library`, `/account`, `/billing`, `/support/*` | Workspace dengan session, email verified, status akun                            | Fixture menguji alur inti; perjalanan cloud dua akun masih wajib                                         |
 | `/admin/*`                                                                               | Role server, status terkini, MFA operator                                        | Tidak cukup menyembunyikan menu; reauth/permission tetap wajib di API                                    |
 | `/api/public-config`, `/api/pricing`, `/api/site`                                        | Baca publik, tanpa credential server                                             | Site key dan origin memang publik; tidak menampilkan Client Secret atau storage key                      |
@@ -216,7 +252,7 @@ notice runtime action Node 20 dan migrasi runner; pembaruan action perlu diuji.
 | `/api/processing`                                                                        | POST saja, session, Origin tepat, body strict, lease dan deadline                | GET/HEAD 405; tidak menerima user ID untuk memilih akun lain                                             |
 | `/api/account/*`, `/api/presets/*`, `/api/templates/*`, `/api/support/*`                 | Session, ownership, validation dan rate limit                                    | Recovery/email serta penanganan privasi operasional masih perlu ditutup                                  |
 | `/api/admin/*`, `/api/settings/*`                                                        | Role/permission, MFA, reauth, reason, Idempotency-Key dan audit                  | Anonim 401; fixture mencakup owner terakhir/concurrency; operator nyata belum siap                       |
-| `/api/auth/*`                                                                            | Better Auth, database rate limit, trusted origin, state/PKCE, token verification | Bug HEAD callback diperbaiki; OAuth nyata menunggu chain provider lengkap                                |
+| `/api/auth/*`                                                                            | Better Auth, database rate limit, trusted origin, state/PKCE, token verification | HEAD callback 405; login Google akun biasa berhasil; limiter sebelum challenge masih kurang              |
 | `/api/cron/maintenance`                                                                  | GET ber-Bearer secret, constant-time, lease, bounded batch                       | Tanpa secret 401, HEAD 405; tidak dipanggil dengan secret untuk audit karena menghapus data nyata        |
 | `/api/billing/duitku/callback`                                                           | Signature merchant, idempotency/status keuangan                                  | Aktivasi dan settlement tetap ditunda; fixture bukan bukti payment nyata                                 |
 | Suffix asing / metode tidak didukung                                                     | `src/domain/api-routes.ts` dicocokkan sebelum dispatcher                         | Contoh suffix 404, metode salah 405, OPTIONS 204/Allow; seluruh API auth memakai kontrak library sendiri |
@@ -228,6 +264,19 @@ mengonsumsi state callback sekali pakai. Regression mereproduksi 302 saat seharu
 Integration membuktikan verification tidak berubah, cookie tidak dibuat dan GET
 callback setelah probe tetap berhasil. Tidak ada bukti kompromi akun dari temuan
 ini; dampak yang direproduksi adalah side effect pada state OAuth.
+
+### Perbaikan pesan challenge yang tertinggal
+
+Screenshot operator menunjukkan widget Success bersamaan dengan pesan merah
+"Verifikasi keamanan belum dapat dimuat". `error-callback` mengatur state failed,
+sedangkan callback sukses sebelumnya hanya mengirim token. Callback sukses kini
+juga membersihkan failed. Validasi token dan hostname di server tidak berubah.
+
+Regresi browser pada fixture mereproduksi pesan tertinggal sebelum perubahan,
+kemudian lulus setelah perbaikan. Cakupan mencakup error/sukses, retry, token
+kosong/kedaluwarsa dan viewport mobile. Skrip provider diintersep hanya pada
+fixture loopback dengan Site Key palsu; bukan cara melewati Turnstile produksi.
+Status rilis perbaikan dan pemeriksaan akhir dicatat di `VALIDATION.md`.
 
 ## Kontrol yang sudah tersedia
 
@@ -247,12 +296,16 @@ ini; dampak yang direproduksi adalah side effect pada state OAuth.
 
 ## Urutan penyelesaian
 
-1. Terapkan build dengan origin benar; lengkapi Turnstile dan smoke Google nyata.
-2. Benahi dispatcher email serverless, recovery dan enrollment MFA operator.
-3. Selaraskan retensi mode request dengan kebijakan, isi kontak pengelola.
-4. Buktikan dua akun pada cloud, backup/restore di luar host dan delivery alarm.
-5. Ukur kapasitas/performa, tinjau batas hosting sebelum membuka penjualan.
+1. Benahi limiter sebelum challenge, dispatcher email serverless, recovery dan
+   enrollment MFA operator.
+2. Selaraskan retensi mode request dengan kebijakan, isi kontak pengelola.
+3. Buktikan dua akun pada cloud, backup/restore di luar host dan delivery alarm.
+4. Ukur kapasitas/performa, tinjau batas hosting sebelum membuka penjualan.
 
 Perintah, jumlah test, kegagalan fixture/sandbox, commit dan hasil deployment
 tercatat di `VALIDATION.md`. Temuan terbuka tidak berubah menjadi lulus hanya
 karena deployment berstatus Ready.
+
+Rujukan diagnosis challenge:
+[Cloudflare Turnstile error codes](https://developers.cloudflare.com/turnstile/troubleshooting/client-side-errors/error-codes/),
+dibaca 23 Oktober 2026. Dokumentasi provider bukan bukti callback aplikasi.

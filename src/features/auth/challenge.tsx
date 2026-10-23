@@ -34,7 +34,10 @@ export function Challenge({
     onToken("");
     const widget = window.turnstile.render(container.current, {
       sitekey: siteKey,
-      callback: onToken,
+      callback: (token) => {
+        setFailed(false);
+        onToken(token);
+      },
       "expired-callback": () => onToken(""),
       "error-callback": () => {
         onToken("");
