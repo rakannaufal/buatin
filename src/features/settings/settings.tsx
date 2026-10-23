@@ -19,6 +19,7 @@ type Settings = {
   planner: string;
   writer: string;
   workerReady: boolean;
+  processingMode: "request" | "worker";
   workerAt: string | null;
   limits: { brief: number; documents: number; concurrency: number };
 };
@@ -95,7 +96,9 @@ export function SettingsPage() {
                   data.workerReady ? "status-dot" : "status-dot status-warning"
                 }
               />
-              Worker {data.workerReady ? "terhubung" : "belum terhubung"}
+              {data.processingMode === "request"
+                ? "Pemrosesan Vercel bertahap"
+                : `Worker ${data.workerReady ? "terhubung" : "belum terhubung"}`}
             </span>
             <Button
               variant="secondary"

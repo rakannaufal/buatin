@@ -1,3 +1,5 @@
+import { needsProcessing } from "@/domain/processing";
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -25,6 +27,30 @@ export async function api<T>(
       value.error?.code ?? "REQUEST_FAILED",
       response.status,
     );
+  }
+  // Continuation is an authenticated POST. GET/HEAD never start server work.
+  if (
+    (!options.method || options.method === "GET") &&
+    response.headers.get("X-Processing-Mode") === "request" &&
+    needsProcessing(path, value)
+  ) {
+    await api("/processing", {
+      method: "POST",
+      body: "{}",
+      signal: options.signal,
+    });
+    const refreshed = await fetch(`/api${path}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...options.headers },
+      cache: "no-store",
+    });
+    if (!refreshed.ok)
+      throw new ApiError(
+        "Pembaruan status gagal. Coba kembali.",
+        "REFRESH_FAILED",
+        refreshed.status,
+      );
+    return (await refreshed.json()) as T;
   }
   return value as T;
 }

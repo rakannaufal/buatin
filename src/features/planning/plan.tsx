@@ -101,7 +101,8 @@ export function PlanPage({ id }: { id: string }) {
         <section className="panel planning-pending">
           <Loading label="Membaca brief dan menyusun pilihan dokumen..." />
           <p className="muted">
-            Halaman boleh ditutup. Rencana akan tersimpan di workspace.
+            Biarkan halaman terbuka sampai rencana siap. Jika terputus, buka
+            kembali untuk melanjutkan.
           </p>
         </section>
       ) : project?.tasks[0]?.status === "failed" ? (

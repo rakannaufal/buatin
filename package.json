@@ -48,7 +48,9 @@
     "test:backup": "node --import tsx scripts/check-backup.ts",
     "security:history": "node --import tsx scripts/security-history.ts",
     "deploy:smoke": "node --import tsx scripts/check-deployment.ts",
-    "backup:download": "node --import tsx scripts/download-backup.ts"
+    "backup:download": "node --import tsx scripts/download-backup.ts",
+    "test:request": "vitest run tests/request --maxWorkers=1",
+    "test:assets": "node scripts/check-hosted-assets.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1154.0",

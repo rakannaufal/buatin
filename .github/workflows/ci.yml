@@ -43,6 +43,7 @@ jobs:
       - run: npm test
       - run: npm run build:worker
       - run: npm run build
+      - run: npm run test:assets
       - name: Start local services
         run: |
           mkdir -p .local
@@ -67,6 +68,22 @@ jobs:
           done
           npm run test:recovery
       - run: npm run backup:key
+      - name: Verify bounded Vercel processing without a worker
+        env:
+          PROCESSING_MODE: request
+          APP_URL: http://localhost:3101
+          CRON_SECRET: test-only-cron-secret-not-for-production
+        run: |
+          npm start -- --port 3101 > .local/request-web.log 2>&1 &
+          request_web_pid=$!
+          trap 'kill -TERM "$request_web_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://localhost:3101/api/health/ready; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --show-error http://localhost:3101/api/health/ready
+          npm run test:request
+          npm run test:e2e -- tests/e2e/workspace.spec.ts --grep 'desktop:|mobile:'
       - run: npm run db:backup
       - run: npm run test:backup
       - name: Dependency audit

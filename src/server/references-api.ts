@@ -23,7 +23,10 @@ import { requireWorkerReady, workerScannerReady } from "./worker-status";
 const reply = (value: unknown, status = 200) =>
   Response.json(value, {
     status,
-    headers: { "Cache-Control": "private, no-store" },
+    headers: {
+      "Cache-Control": "private, no-store",
+      "X-Processing-Mode": getEnv().PROCESSING_MODE,
+    },
   });
 const versionHeader = (req: NextRequest) =>
   z.coerce.number().int().positive().parse(req.headers.get("x-brief-version"));
@@ -83,7 +86,9 @@ export async function customizationApi(
           .then(() => true)
           .catch(() => false)),
       visionAvailable: env.MOCK_LLM !== "true" && Boolean(env.LLM_VISION_MODEL),
-      binaryScanAvailable: localApp() || (await workerScannerReady()),
+      binaryScanAvailable:
+        env.PROCESSING_MODE !== "request" &&
+        (localApp() || (await workerScannerReady())),
     });
   }
   if (resource !== "projects" || !projectId || action !== "attachments")
@@ -133,6 +138,17 @@ export async function customizationApi(
         "INVALID_REFERENCE",
         400,
         "Pilih PNG, JPG, WebP, PDF, DOCX, TXT atau MD dengan isi yang sesuai.",
+      );
+    if (
+      !detected.image &&
+      !detected.mime.startsWith("text/") &&
+      (getEnv().PROCESSING_MODE === "request" ||
+        (!localApp() && !(await workerScannerReady())))
+    )
+      throw new AppError(
+        "REFERENCE_SCANNER_REQUIRED",
+        503,
+        "PDF/DOCX belum tersedia tanpa pemindai keamanan. Gunakan PNG, JPG, WebP, TXT atau MD.",
       );
     if (
       data.length >

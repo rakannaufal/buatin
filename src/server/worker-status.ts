@@ -33,6 +33,7 @@ export async function scannerExecutableAvailable() {
 }
 
 export async function workerScannerReady() {
+  if (getEnv().PROCESSING_MODE === "request") return false;
   const heartbeat = await db.setting.findUnique({ where: { key: "worker" } });
   const age = heartbeat ? Date.now() - heartbeat.updatedAt.getTime() : Infinity;
   const value = heartbeat?.value;
@@ -47,6 +48,8 @@ export async function workerScannerReady() {
 }
 
 export async function requireWorkerReady(tx: Transaction = db) {
+  // Request processing uses this transaction's database; no persistent worker is required.
+  if (getEnv().PROCESSING_MODE === "request") return;
   const worker = await tx.setting.findUnique({
     where: { key: "worker" },
     select: { updatedAt: true },

@@ -4,6 +4,7 @@
   "installCommand": "npm ci --include=dev",
   "buildCommand": "npm run build:hosted",
   "regions": ["sin1"],
+  "crons": [{ "path": "/api/cron/maintenance", "schedule": "17 1 * * *" }],
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 300

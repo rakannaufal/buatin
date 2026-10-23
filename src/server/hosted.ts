@@ -2,6 +2,7 @@ import { getEnv } from "./config";
 import { publicAuthReady } from "./challenge";
 import { googleAuthReady } from "./google-auth";
 import { directDatabaseUrl, workerDatabaseUrl } from "./database-config";
+import { supabaseStorageConfigured } from "./supabase-storage";
 
 const loopback = (host: string) =>
   ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "[::]"].includes(host);
@@ -13,6 +14,14 @@ export function hostedConfigurationIssues(
   const issues: string[] = [];
   const release = scope === "release" || scope === "operations";
   const app = new URL(env.APP_URL);
+  if (
+    release &&
+    env.PROCESSING_MODE === "request" &&
+    env.CRON_SECRET.length < 32
+  )
+    issues.push(
+      "CRON_SECRET: isi minimal 32 karakter acak untuk maintenance harian Vercel.",
+    );
   if (
     app.protocol !== "https:" ||
     loopback(app.hostname) ||
@@ -28,6 +37,12 @@ export function hostedConfigurationIssues(
   ] as const) {
     if (scope === "web" && name !== "DATABASE_URL") continue;
     if (scope === "worker" && name === "DATABASE_DIRECT_URL") continue;
+    if (
+      env.PROCESSING_MODE === "request" &&
+      name === "DATABASE_WORKER_URL" &&
+      scope !== "worker"
+    )
+      continue;
     try {
       const url = new URL(value);
       if (
@@ -75,6 +90,7 @@ export function hostedConfigurationIssues(
       issues.push("AI: isi tarif konservatif dan batas estimasi USD harian.");
   }
   if (
+    env.REFERENCE_STORAGE !== "supabase" &&
     (release || env.REFERENCE_STORAGE === "s3") &&
     (env.REFERENCE_STORAGE !== "s3" ||
       !env.REFERENCE_S3_BUCKET ||
@@ -85,6 +101,10 @@ export function hostedConfigurationIssues(
   )
     issues.push(
       "STORAGE: web dan worker memerlukan bucket S3-compatible privat yang sama.",
+    );
+  if (env.REFERENCE_STORAGE === "supabase" && !supabaseStorageConfigured())
+    issues.push(
+      "STORAGE: lengkapi SUPABASE_URL dan server key untuk bucket privat.",
     );
   if (
     release &&

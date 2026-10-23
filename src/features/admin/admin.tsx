@@ -12,6 +12,8 @@ type Overview = {
     tokensOut: number | null;
   };
   readiness: {
+    processingMode: "request" | "worker";
+    processing: boolean;
     worker: boolean;
     payment: boolean;
     publicAuth: boolean;
@@ -54,10 +56,14 @@ export function AdminPage() {
               <strong>{query.data.readiness.emailFailures}</strong>
             </div>
           </div>
-          <Notice tone={query.data.readiness.worker ? "info" : "error"}>
-            Worker{" "}
-            {query.data.readiness.worker ? "terhubung" : "belum terhubung"}. AI{" "}
-            {query.data.readiness.mock ? "mock" : "nyata"}. QRIS{" "}
+          <Notice tone={query.data.readiness.processing ? "info" : "error"}>
+            Pemrosesan{" "}
+            {query.data.readiness.processingMode === "request"
+              ? "Vercel bertahap"
+              : query.data.readiness.worker
+                ? "terhubung"
+                : "belum terhubung"}
+            . AI {query.data.readiness.mock ? "mock" : "nyata"}. QRIS{" "}
             {query.data.readiness.payment ? "terkonfigurasi" : "belum siap"}.
             Pendaftaran publik{" "}
             {query.data.readiness.publicAuth ? "siap" : "belum siap"}.

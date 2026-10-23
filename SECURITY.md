@@ -1,5 +1,24 @@
 # Keamanan Buatin
 
+## Profil Vercel tanpa worker
+
+`PROCESSING_MODE=request` memakai POST continuation yang memeriksa sesi, status
+akun, Origin dan rate limit. Resource dipilih server hanya untuk akun tersebut;
+body tidak menerima user ID atau resource milik akun lain. Lease persisten,
+fencing dan checkpoint mencegah duplicate output/quota setelah timeout. GET/HEAD
+workspace tidak menjalankan proses. Worker persisten menolak mode request.
+
+Storage Supabase menggunakan key server di environment, bucket privat yang
+diperiksa sebelum write, serta download melalui ownership API. Publishable/anon
+key tidak mencukupi. PDF/DOCX ditolak sebelum penyimpanan pada profil ini;
+parser image/text tetap berjalan terisolasi tanpa secret. Tidak ada scanner atau
+heartbeat worker buatan. Lihat `docs/VERCEL_SUPABASE_FREE.md`.
+
+GET mesin `/api/cron/maintenance` merupakan pengecualian eksplisit terhadap
+route baca: mutation retensi hanya dengan Bearer `CRON_SECRET` acak, perbandingan
+digest constant-time, lease global dan batch terbatas. Cookie bukan otorisasi.
+HEAD 405 tidak memulai retensi. Cron tidak menggantikan backup atau delivery email.
+
 ## Batas kepercayaan
 
 API memeriksa sesi terverifikasi, Origin untuk mutation, ownership, rate limit,
@@ -117,8 +136,10 @@ rekonsiliasi. Gunakan cap provider serta alert eksternal untuk biaya sebenarnya.
 Backup database dan lampiran menggunakan snapshot, checksum serta AES-256-GCM;
 key terpisah mode 0600. Folder incomplete dan hasil inspeksi restore bersifat
 privat. Restore membuat database baru; tidak menimpa sumber secara otomatis.
-Readiness memeriksa database/migration dan worker dengan timeout, HTTP 503 jika
-dependency bermasalah; liveness hanya memeriksa proses web. Lihat `docs/OPERATIONS.md`.
+Readiness memeriksa database/migration serta dependency sesuai mode, dengan timeout.
+Mode worker memerlukan heartbeat sehat; mode request tidak memerlukannya. HTTP
+503 berarti dependency wajib bermasalah; liveness hanya memeriksa proses web.
+Lihat `docs/OPERATIONS.md` dan `docs/VERCEL_SUPABASE_FREE.md`.
 
 ## Pelaporan
 
@@ -135,9 +156,9 @@ remove MFA. Use audited staff invitations for other privileged accounts.
 
 Exact API path/method contracts run before dispatch. Private browser query caches
 are bound to the workspace session and discarded across login/logout. Uploads on
-Vercel require shared private S3 storage; a publishable Supabase key is not a
-server database or S3 credential. New queued work checks worker readiness before
-quota reservation. Cancellation refunds also check actual output checkpoints.
+Vercel require shared private Supabase or S3 storage; a publishable Supabase key
+is not a server database or storage credential. New queued work checks processing
+readiness before quota reservation. Cancellation refunds also check actual output checkpoints.
 
 Main-branch auto deployment is disabled. The production workflow accepts only a
 successful validation for the current main SHA. Protect its GitHub environment

@@ -45,6 +45,7 @@ import { siteSettings } from "@/server/admin/policies";
 import { reasonSchema } from "@/domain/admin";
 import { supportApi } from "@/server/admin/support";
 import { googleAuthReady } from "@/server/google-auth";
+import { processUserWork } from "@/server/request-processing";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const typeSchema = z.enum([
@@ -84,7 +85,10 @@ async function body(req: NextRequest): Promise<unknown> {
 const reply = (value: unknown, status = 200) =>
   Response.json(value, {
     status,
-    headers: { "Cache-Control": "private, no-store" },
+    headers: {
+      "Cache-Control": "private, no-store",
+      "X-Processing-Mode": getEnv().PROCESSING_MODE,
+    },
   });
 async function dispatch(
   req: NextRequest,
@@ -112,6 +116,7 @@ async function dispatch(
     if (resource === "public-config" && method === "GET")
       return reply({
         generationMode: "template",
+        processingMode: getEnv().PROCESSING_MODE,
         mock: getEnv().MOCK_LLM === "true",
         turnstileSiteKey: getEnv().TURNSTILE_SITE_KEY,
         registrationReady: publicAuthReady(),
@@ -140,6 +145,13 @@ async function dispatch(
         "Origin permintaan tidak diizinkan.",
       );
     await rateLimit(`api:${user.id}`, 300, 60);
+    if (resource === "processing" && method === "POST") {
+      z.object({})
+        .strict()
+        .parse(await body(req));
+      await rateLimit(`processing:${user.id}`, 40, 60);
+      return reply(await processUserWork(user.id));
+    }
     if (["admin", "settings"].includes(resource) && adminRole(user.role))
       checkOperatorMfa(user);
     const actor = {
@@ -221,9 +233,10 @@ async function dispatch(
           limit: usage.limit,
           entitlement: usage,
           mock: getEnv().MOCK_LLM === "true",
-          workerReady: Boolean(
-            worker && Date.now() - worker.updatedAt.getTime() < 30000,
-          ),
+          processingMode: getEnv().PROCESSING_MODE,
+          workerReady:
+            getEnv().PROCESSING_MODE === "request" ||
+            Boolean(worker && Date.now() - worker.updatedAt.getTime() < 30000),
         });
       }
       if (method === "POST") {
@@ -517,7 +530,8 @@ async function dispatch(
             quotaRefundedAt: job.quotaRefundedAt,
             sourceJobId: job.sourceJobId,
             generationMode: "template",
-            workerReady: (await readiness()).worker,
+            processingMode: getEnv().PROCESSING_MODE,
+            workerReady: (await readiness()).processing,
             mock: snapshot.config.mock,
             plan: snapshot.plan,
             files: snapshot.plan.selected.map((selected) => {
@@ -561,9 +575,10 @@ async function dispatch(
           version: models?.version ?? 0,
           planner: config.planner,
           writer: config.writer,
-          workerReady: Boolean(
-            worker && Date.now() - worker.updatedAt.getTime() < 30000,
-          ),
+          processingMode: getEnv().PROCESSING_MODE,
+          workerReady:
+            getEnv().PROCESSING_MODE === "request" ||
+            Boolean(worker && Date.now() - worker.updatedAt.getTime() < 30000),
           workerAt: worker?.updatedAt,
           limits: {
             brief: getEnv().MAX_BRIEF_CHARS,

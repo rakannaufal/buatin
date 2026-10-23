@@ -1,4 +1,9 @@
-# Deployment awal: Vercel + Supabase + worker terpisah
+# Deployment awal: Vercel + Supabase
+
+Profil aktif yang diminta pengguna: Vercel dan Supabase gratis, pemrosesan
+template bertahap tanpa worker persisten. Ikuti `VERCEL_SUPABASE_FREE.md` untuk
+environment, storage Supabase, cron dan batas dukungan. Bagian worker/S3 berikut
+dipertahankan sebagai alternatif masa depan, bukan kebutuhan profil aktif.
 
 Pilihan pengguna: Vercel untuk web, Supabase untuk PostgreSQL dan storage privat.
 Provider worker AI ditunda setelah kendala login Railway; konfigurasi Railway
@@ -88,6 +93,10 @@ SQL. Jangan membuka password DB/S3/service role pada browser atau Git.
 
 ## 2. Supabase Storage
 
+Profil aktif memakai `REFERENCE_STORAGE=supabase` dan server key melalui adapter
+HTTPS. Gunakan langkah lengkap di `VERCEL_SUPABASE_FREE.md`. Langkah S3 berikut
+hanya berlaku untuk alternatif worker persisten.
+
 1. Buat bucket privat, misalnya `buatin-references`; jangan aktifkan public bucket.
 2. Pada S3 configuration, generate **S3 Access Key ID** dan **Secret Access Key**.
    Keduanya bukan anon/publishable key dan bukan Google OAuth credential.
@@ -134,8 +143,9 @@ unduh file individual; dokumen tidak dipotong diam-diam.
 
 Tidak ada janji bahwa autoscaling Vercel menyediakan kapasitas DB tak terbatas.
 Pantau jumlah instance, pool Supabase, throughput, egress dan limit paket. Pekerjaan
-planner/generasi dijalankan worker; jangan memindahkannya ke callback OAuth,
-Vercel Cron, atau proses background yang hilang sesudah respons fungsi berakhir.
+planner/generasi mode request berjalan dalam POST continuation dengan checkpoint,
+bukan proses background sesudah respons. Mode worker memakai host persisten.
+Jangan memindahkan generasi ke callback OAuth atau cron maintenance.
 
 ## 4. Contoh Railway: worker tetap
 
@@ -198,7 +208,9 @@ provider Google tidak dikonfigurasi pada dashboard Supabase Auth.
 
 ## 6. Environment dan aktivasi
 
-Template: `deploy/hosted.env.example`. Variable berikut wajib dipenuhi:
+Template: `deploy/hosted.env.example`. Untuk profil aktif ikuti tabel di
+`VERCEL_SUPABASE_FREE.md`; tabel berikut mencakup peluncuran lengkap alternatif
+worker serta aktivasi login/pembayaran yang saat ini ditunda.
 
 | Kelompok         | Variable/kebutuhan                                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------ |

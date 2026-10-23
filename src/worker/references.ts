@@ -1,4 +1,4 @@
-import { fork, execFile } from "node:child_process";
+import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -8,6 +8,7 @@ import { db } from "../server/db";
 import { getEnv } from "../server/config";
 import { readReference, writeReference } from "../server/reference-storage";
 import { userLock } from "../server/limits";
+import { suspended } from "../domain/admin";
 
 interface Parsed {
   ok: boolean;
@@ -66,11 +67,17 @@ export async function processReference(id: string) {
         throw new Error("REFERENCE_SCANNER_REQUIRED");
     }
     const parsed = await new Promise<Parsed>((resolve, reject) => {
-      const child = fork(path.resolve("scripts/parse-reference.mjs"), [], {
-        execArgv: ["--max-old-space-size=192"],
-        stdio: ["ignore", "ignore", "ignore", "ipc"],
-        env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" },
-      });
+      // Keep the isolated parser outside Turbopack; next.config.ts traces its files.
+      const { fork } = process.getBuiltinModule("node:child_process");
+      const child = fork(
+        path.join(process.cwd(), "scripts", "parse-reference.mjs"),
+        [],
+        {
+          execArgv: ["--max-old-space-size=192"],
+          stdio: ["ignore", "ignore", "ignore", "ipc"],
+          env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" },
+        },
+      );
       const timer = setTimeout(() => {
         child.kill("SIGKILL");
         reject(new Error("REFERENCE_PARSE_TIMEOUT"));
@@ -101,6 +108,11 @@ export async function processReference(id: string) {
     await db.$transaction(
       async (tx) => {
         await userLock(tx, attachment.project.userId);
+        const account = await tx.user.findUnique({
+          where: { id: attachment.project.userId },
+        });
+        if (!account || suspended(account))
+          throw new Error("ACCOUNT_SUSPENDED");
         const current = await tx.projectAttachment.findFirst({
           where: {
             id,

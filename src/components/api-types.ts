@@ -42,6 +42,7 @@ export interface ReferenceView {
 export interface JobView {
   id: string;
   workerReady?: boolean;
+  processingMode?: "worker" | "request";
   project: { id: string; name: string; webType: string };
   status: string;
   total: number;

@@ -11,6 +11,8 @@ import { processReference } from "./references";
 import { deliverEmails } from "../server/email";
 import { maintainBilling } from "../server/billing";
 import { scannerExecutableAvailable } from "../server/worker-status";
+if (getEnv().PROCESSING_MODE === "request")
+  throw new Error("Persistent worker cannot run in PROCESSING_MODE=request.");
 const lock = new Client({
   connectionString: workerDatabaseUrl(),
   connectionTimeoutMillis: 10000,

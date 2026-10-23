@@ -30,6 +30,13 @@ and actual performance after relevant changes; do not invent target-site results
 
 ## Git delivery
 
+For Vercel/Supabase request processing, follow `docs/VERCEL_SUPABASE_FREE.md`.
+Keep continuations authenticated, user-scoped and bounded, with persistent leases,
+fencing and quota-safe checkpoints. Never fabricate worker health. Keep binary
+documents disabled without a scanner. Verify the isolated parser and native
+dependencies from traced deployment files, not only a full development install.
+Cron retention is not backup; preserve separate recovery and public-launch gates.
+
 After completing user-requested changes and passing the relevant checks, commit
 and push the changes to the configured GitHub remote unless the user requests
 otherwise. Stage only reviewed project files. Never commit secrets, local data,

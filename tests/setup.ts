@@ -1,7 +1,8 @@
 import { beforeAll, expect } from "vitest";
 
 beforeAll(async () => {
-  if (!expect.getState().testPath?.includes("/integration/")) return;
+  const path = expect.getState().testPath ?? "";
+  if (!path.includes("/integration/") && !path.includes("/request/")) return;
   const local = (host: string) =>
     ["localhost", "127.0.0.1", "[::1]"].includes(host);
   const app = new URL(process.env.APP_URL || "http://localhost:3000");

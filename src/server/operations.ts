@@ -11,6 +11,7 @@ import { controls, siteSettings } from "./admin/policies";
 import { googleAuthReady } from "./google-auth";
 import { hostedConfigurationIssues } from "./hosted";
 import { workerScannerReady } from "./worker-status";
+import { supabaseStorageConfigured } from "./supabase-storage";
 import type { ReleaseScope } from "../domain/release-scope";
 
 export type ProductionCheck = {
@@ -147,12 +148,18 @@ export async function productionChecks(
   add(
     "scanner",
     "P0",
-    scanner,
-    "Pemindai PDF/DOCX",
-    "Heartbeat worker harus melaporkan executable ClamAV-compatible tersedia. Pembaruan signature dan uji file bersih/berbahaya tetap wajib.",
+    env.PROCESSING_MODE === "request" || scanner,
+    env.PROCESSING_MODE === "request"
+      ? "PDF/DOCX dinonaktifkan"
+      : "Pemindai PDF/DOCX",
+    env.PROCESSING_MODE === "request"
+      ? "Mode Vercel menolak PDF/DOCX sebelum penyimpanan. PNG/JPG/WebP/TXT/MD tetap diperiksa dalam parser terisolasi."
+      : "Heartbeat worker harus melaporkan executable ClamAV-compatible tersedia. Pembaruan signature dan uji file bersih/berbahaya tetap wajib.",
   );
   let storage = false;
-  if (env.REFERENCE_STORAGE === "s3")
+  if (env.REFERENCE_STORAGE === "supabase")
+    storage = supabaseStorageConfigured();
+  else if (env.REFERENCE_STORAGE === "s3")
     storage = Boolean(
       env.REFERENCE_S3_BUCKET &&
       env.REFERENCE_S3_ACCESS_KEY &&

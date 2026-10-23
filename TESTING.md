@@ -1,5 +1,13 @@
 # Pengujian Buatin
 
+Profil tanpa worker diuji terpisah dengan `npm run test:request` pada web fixture
+`PROCESSING_MODE=request` dan database loopback. CI menjalankannya setelah worker
+test dihentikan. Cakupan: Origin/ownership, GET/HEAD tanpa mutation, lease akun/job,
+checkpoint dan recovery task, idempotency kuota, kegagalan permanen satu slice,
+pembatalan dengan output, parser TXT/MD, penolakan PDF serta cron bersecret/retensi.
+Cron fixture memakai `test-only-cron-secret-not-for-production`; jangan gunakan
+nilai tersebut pada hosting. UI desktop/mobile menjalankan journey sampai ZIP.
+
 Gunakan Node.js 24, PostgreSQL lokal, `MOCK_LLM=true`, web dan worker lokal.
 Prasyarat setup ada di README. Jangan arahkan test ke database produksi.
 
@@ -48,6 +56,11 @@ workspace sumber: `npm ci --include=dev`, lalu `npm run build:hosted`. Gunakan
 variable fixture, tanpa `.env` sumber atau koneksi database produksi. Perintah
 `npm run build` menghasilkan Prisma Client sendiri sebelum Next.js; jangan
 mengandalkan client hasil development atau cache dari commit/schema lain.
+
+Sesudah build, `npm run test:assets` menyalin hanya file parser/dependency yang
+tercatat pada trace ke direktori sementara terisolasi. Parser harus mengubah
+JPEG menjadi WebP tanpa EXIF menggunakan paket tersebut. Ini menangkap dependency
+native/transitif yang tersedia saat development tetapi hilang saat deploy.
 
 Unit memeriksa preferensi, rekomendasi, konflik stack, HEX/kontras, katalog skill,
 signature file serta batas input. Integration membuktikan persistence, version

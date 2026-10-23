@@ -7,6 +7,7 @@ export const apiRoutes: ReadonlyArray<readonly [string, string]> = [
   ["public-config", "GET"],
   ["site", "GET"],
   ["session", "GET"],
+  ["processing", "POST"],
   ["account", "GET PATCH"],
   ["account/sessions", "GET"],
   ["account/sessions/:id", "DELETE"],

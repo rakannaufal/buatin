@@ -4,6 +4,8 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1),
   DATABASE_DIRECT_URL: z.string().default(""),
   DATABASE_WORKER_URL: z.string().default(""),
+  PROCESSING_MODE: z.enum(["worker", "request"]).optional(),
+  CRON_SECRET: z.string().default(""),
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(30).default(10),
   DATABASE_WORKER_POOL_MAX: z.coerce.number().int().min(1).max(20).default(5),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -101,7 +103,13 @@ const schema = z.object({
     .min(1024)
     .max(104857600)
     .default(26214400),
-  REFERENCE_STORAGE: z.enum(["local", "s3"]).default("local"),
+  REFERENCE_STORAGE: z.enum(["local", "s3", "supabase"]).default("local"),
+  SUPABASE_URL: z.union([z.url(), z.literal("")]).default(""),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().default(""),
+  SUPABASE_STORAGE_BUCKET: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9_-]{0,62}$/)
+    .default("buatin-references"),
   REFERENCE_STORAGE_DIR: z.string().default(".local/references"),
   REFERENCE_SCANNER_PATH: z.string().default(""),
   REFERENCE_SCANNER_HEALTH_PATH: z.string().default(""),
@@ -139,7 +147,13 @@ const schema = z.object({
   TZ: z.string().default("Asia/Jakarta"),
 });
 export function getEnv() {
-  const env = schema.parse(process.env);
+  const parsed = schema.parse(process.env);
+  const env = {
+    ...parsed,
+    PROCESSING_MODE:
+      parsed.PROCESSING_MODE ??
+      (process.env.VERCEL === "1" ? "request" : "worker"),
+  };
   if (process.env.VERCEL !== "1") return env;
   // Buffered Vercel Function payloads are limited to 4.5 MB; leave headroom.
   const payloadBytes = 3 * 1048576;

@@ -95,6 +95,13 @@ export function JobPage({ id }: { id: string }) {
           eksternal memakai fixture pengujian.
         </Notice>
       )}
+      {active && job.processingMode === "request" && (
+        <Notice tone="info">
+          Biarkan halaman proses atau dashboard terbuka sampai selesai. Progres
+          disimpan per file; jika halaman ditutup, buka kembali untuk
+          melanjutkan tanpa memakai kuota baru.
+        </Notice>
+      )}
       {query.isError && (
         <Notice tone="error">
           Pembaruan status gagal. Menampilkan data terakhir yang tersimpan.{" "}

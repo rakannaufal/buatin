@@ -594,6 +594,10 @@ export async function saasApi(
         usage: { ...usage._sum, attempts: usage._count._all },
         plans,
         readiness: {
+          processingMode: getEnv().PROCESSING_MODE,
+          processing:
+            getEnv().PROCESSING_MODE === "request" ||
+            Boolean(worker && Date.now() - worker.updatedAt.getTime() < 30000),
           worker: Boolean(
             worker && Date.now() - worker.updatedAt.getTime() < 30000,
           ),

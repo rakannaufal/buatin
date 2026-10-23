@@ -5,11 +5,19 @@ import { userLock } from "../server/limits";
 import { resolvePlan } from "../domain/planner";
 import { deterministicPlan } from "../domain/deterministic-planner";
 import type { CatalogEntry, WebType } from "../domain/types";
+import { suspended } from "../domain/admin";
 
 export async function processPlan(id: string) {
+  const requestMode = getEnv().PROCESSING_MODE === "request";
+  const claimedAt = new Date();
+  const fence = {
+    id,
+    status: "running",
+    ...(requestMode ? { heartbeatAt: claimedAt } : {}),
+  };
   const claimed = await db.planningTask.updateMany({
     where: { id, status: "queued" },
-    data: { status: "running", heartbeatAt: new Date() },
+    data: { status: "running", heartbeatAt: claimedAt },
   });
   if (!claimed.count) return;
   const task = await db.planningTask.findUniqueOrThrow({
@@ -27,18 +35,20 @@ export async function processPlan(id: string) {
     projectContext?: import("../domain/project-context").ProjectContext;
     templateOverrides?: Record<string, string>;
   };
-  const timer = setInterval(() => {
-    void db.planningTask
-      .updateMany({
-        where: { id, status: "running" },
-        data: { heartbeatAt: new Date() },
-      })
-      .catch(() =>
-        console.error(
-          JSON.stringify({ event: "plan.heartbeat.failed", taskId: id }),
-        ),
-      );
-  }, 10000);
+  const timer = requestMode
+    ? undefined
+    : setInterval(() => {
+        void db.planningTask
+          .updateMany({
+            where: fence,
+            data: { heartbeatAt: requestMode ? claimedAt : new Date() },
+          })
+          .catch(() =>
+            console.error(
+              JSON.stringify({ event: "plan.heartbeat.failed", taskId: id }),
+            ),
+          );
+      }, 10000);
   try {
     // Deterministic planning — no LLM calls needed
     const output = deterministicPlan({
@@ -64,8 +74,13 @@ export async function processPlan(id: string) {
 
     await db.$transaction(async (tx) => {
       await userLock(tx, task.project.userId);
+      const account = await tx.user.findUnique({
+        where: { id: task.project.userId },
+      });
+      if (!account || suspended(account))
+        throw new AppError("ACCOUNT_SUSPENDED", 403);
       const current = await tx.planningTask.updateMany({
-        where: { id, status: "running" },
+        where: fence,
         data: { heartbeatAt: new Date() },
       });
       if (!current.count) return;
@@ -117,7 +132,7 @@ export async function processPlan(id: string) {
     const code = errorCode(error);
     await db.$transaction(async (tx) => {
       const failed = await tx.planningTask.updateMany({
-        where: { id, status: "running" },
+        where: fence,
         data: { status: "failed", errorCode: code },
       });
       if (!failed.count) return;
@@ -141,6 +156,6 @@ export async function processPlan(id: string) {
     if (!(error instanceof AppError))
       console.error(JSON.stringify({ event: "plan.failed", taskId: id, code }));
   } finally {
-    clearInterval(timer);
+    if (timer) clearInterval(timer);
   }
 }

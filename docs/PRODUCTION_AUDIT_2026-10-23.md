@@ -1,5 +1,33 @@
 # Audit operasional 23 Oktober 2026
 
+## Pembaruan profil gratis
+
+Keputusan terbaru: hanya Vercel + Supabase. Mode request memakai POST continuation,
+lease/checkpoint database dan storage Supabase privat. Kebutuhan host worker pada
+catatan terdahulu tidak berlaku untuk profil aktif. PDF/DOCX ditutup sampai ada
+scanner; template, gambar dan TXT/MD tetap didukung. Tidak ada provisioning berbayar.
+
+Prioritas aktual sebelum peluncuran:
+
+1. **P0 - Validasi rilis dan runtime.** CI SHA yang sama, build hosted, smoke origin
+   publik dan readiness DB/processing wajib lulus. Environment mode request dan
+   storage sudah disimpan pada Production; deploy baru masih harus diverifikasi.
+   Jangan menyatakan build atau bucket read-only membuktikan alur privat cloud.
+2. **P1 - Backup/restore dan monitoring.** Cron harian hanya retensi batch terbatas;
+   bukan backup. Belum ada bukti backup off-host/restore produksi. Pantau maintenance,
+   error rate, pemakaian DB/storage, expiry lease dan backlog. Aktivasi alert tetap
+   memerlukan tujuan/operator yang benar.
+3. **P1 - Login dan MFA operator (ditunda).** Tetap wajib sebelum membuka akses
+   publik. Jangan melewati ownership/Origin/MFA untuk mempermudah pengujian cloud.
+   Payment nonaktif sampai aktivasi merchant dan harga ditinjau.
+4. **P2 - Batas gratis dan kapasitas.** Ukur staging, concurrent user, pool dan
+   throughput. Tab harus terbuka untuk continuation. Tidak ada SLA background,
+   scanner persisten atau kapasitas tak terbatas. Hobby hanya personal/nonkomersial;
+   penggunaan komersial memerlukan paket sesuai ketentuan provider.
+
+Runbook aktif: `VERCEL_SUPABASE_FREE.md`. Bukti aktual: `VALIDATION.md`.
+Bagian berikut merupakan riwayat audit sebelum profil request diterapkan.
+
 Status: **belum layak dibuka untuk pengguna publik**. Penundaan login publik,
 MFA enrollment dan payment gateway mengikuti keputusan pengguna. Proteksi akses
 tetap aktif. Kelulusan fixture/build bukan bukti aktivasi provider atau kapasitas.

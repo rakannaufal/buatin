@@ -31,6 +31,9 @@ test("desktop: login, brief, plan, persistent job, safe preview, ZIP, delete", a
   await expect(page).toHaveURL(/\/jobs\//);
   await page.reload();
   await expect(
+    page.getByRole("heading", { name: "Dokumen siap ditinjau." }),
+  ).toBeVisible({ timeout: 90000 });
+  await expect(
     page.getByRole("link", { name: /Lihat hasil|Buka hasil|Tinjau hasil/ }),
   ).toBeVisible({ timeout: 90000 });
   await page

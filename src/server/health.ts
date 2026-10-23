@@ -12,13 +12,20 @@ const pool = new Pool({
 pool.on("error", () =>
   console.error(JSON.stringify({ event: "health.database.connection.failed" })),
 );
-export type Readiness = { ok: boolean; database: boolean; worker: boolean };
+export type Readiness = {
+  ok: boolean;
+  database: boolean;
+  worker: boolean;
+  processing: boolean;
+  processingMode: "request" | "worker";
+};
 let pending: Promise<Readiness> | undefined;
 let expires = 0;
 export function readiness(): Promise<Readiness> {
   if (pending && Date.now() < expires) return pending;
   expires = Date.now() + 1000;
   pending = (async () => {
+    const processingMode = getEnv().PROCESSING_MODE;
     try {
       // Prisma stores UTC timestamps without a zone; pg otherwise assumes local time.
       const result = await pool.query<{
@@ -37,9 +44,16 @@ export function readiness(): Promise<Readiness> {
         Date.now() - row.worker_at.getTime() >= 0 &&
         Date.now() - row.worker_at.getTime() < 30000,
       );
-      return { ok: database && worker, database, worker };
+      const processing = database && (processingMode === "request" || worker);
+      return { ok: processing, database, worker, processing, processingMode };
     } catch {
-      return { ok: false, database: false, worker: false };
+      return {
+        ok: false,
+        database: false,
+        worker: false,
+        processing: false,
+        processingMode,
+      };
     }
   })();
   return pending;

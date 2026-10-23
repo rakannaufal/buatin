@@ -341,3 +341,11 @@ Worker terhenti: checkpoint berhasil tetap tersimpan. Sesudah lease 15 menit ked
 - **Kuota habis:** resume job yang sama tidak memakai kuota baru. Free tidak reset; Pro reset Senin 00.00 WIB. Pembayaran/perubahan paket tidak mereset pemakaian minggu berjalan.
 
 Source tidak diberi lisensi publik otomatis. Pastikan hak penggunaan template/provider sebelum redistribusi.
+
+# Profil hosting aktif
+
+Vercel + Supabase gratis memakai pemrosesan template bertahap tanpa worker.
+Setup dan batas dukungan: [panduan profil gratis](docs/VERCEL_SUPABASE_FREE.md).
+Biarkan workspace terbuka selama proses; buka kembali untuk melanjutkan checkpoint.
+Login publik/payment tetap memerlukan aktivasi terpisah. Hobby hanya untuk
+penggunaan yang memenuhi ketentuan personal/nonkomersial Vercel.

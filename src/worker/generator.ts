@@ -16,10 +16,15 @@ import {
   type LintIssue,
 } from "../domain/types";
 
-export async function generateJob(id: string) {
+export async function generateJob(
+  id: string,
+  slice?: { maxFiles: number; budgetMs: number },
+) {
+  const deadline = Date.now() + (slice?.budgetMs ?? Infinity);
+  let processed = 0;
   const owner = crypto.randomUUID();
   const expires = () =>
-    new Date(Date.now() + getEnv().JOB_STALE_AFTER_SEC * 1000);
+    new Date(Date.now() + (slice ? 120 : getEnv().JOB_STALE_AFTER_SEC) * 1000);
   const claimed = await db.$transaction(async (tx) => {
     const target = await tx.job.findUnique({
       where: { id },
@@ -196,6 +201,24 @@ export async function generateJob(id: string) {
         where: { jobId_fileId: { jobId: id, fileId: entry.id } },
       });
       if (file.status === "succeeded") continue;
+      // A failed checkpoint is retried only by explicit resume, which resets it to pending.
+      if (slice && file.status === "failed") continue;
+
+      if (slice && (processed >= slice.maxFiles || Date.now() >= deadline)) {
+        await db.$transaction(async (tx) => {
+          await fenced(tx);
+          await tx.job.update({
+            where: { id },
+            data: {
+              status: "queued",
+              leaseOwner: null,
+              leaseExpiresAt: null,
+            },
+          });
+        });
+        return;
+      }
+      processed++;
 
       await db.$transaction(async (tx) => {
         await userLock(tx, initial.userId);
@@ -462,5 +485,7 @@ export function runtimeSecrets() {
     env.TURNSTILE_SECRET_KEY,
     env.REFERENCE_S3_ACCESS_KEY,
     env.REFERENCE_S3_SECRET_KEY,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+    env.CRON_SECRET,
   ].filter((value): value is string => Boolean(value));
 }

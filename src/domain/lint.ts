@@ -10,7 +10,7 @@ export interface OutputFile {
 }
 export function hasSecret(content: string, secrets: string[] = []) {
   return (
-    /\b(?:sk-[A-Za-z0-9_-]{24,}|ghp_[A-Za-z0-9]{30,}|AKIA[A-Z0-9]{16})\b/.test(
+    /\b(?:sk-[A-Za-z0-9_-]{24,}|sb_secret_[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|AKIA[A-Z0-9]{16})\b/.test(
       content,
     ) ||
     /\b[a-f0-9]{32}:[a-f0-9]{128}\b/i.test(content) ||

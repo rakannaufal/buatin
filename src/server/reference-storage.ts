@@ -18,9 +18,17 @@ import { getEnv } from "./config";
 import { AppError } from "./errors";
 import { db } from "./db";
 import { userLock } from "./limits";
+import {
+  supabaseStorageConfigured,
+  putSupabaseReference,
+  getSupabaseReference,
+  deleteSupabaseReference,
+  listSupabaseReferences,
+} from "./supabase-storage";
 
 export function referenceStorageConfigured() {
   const env = getEnv();
+  if (env.REFERENCE_STORAGE === "supabase") return supabaseStorageConfigured();
   if (env.REFERENCE_STORAGE === "s3")
     return Boolean(
       env.REFERENCE_S3_BUCKET &&
@@ -97,6 +105,8 @@ function s3() {
 }
 export async function writeReference(key: string, data: Buffer) {
   if (!validKey(key)) throw new AppError("INVALID_STORAGE_KEY", 400);
+  if (getEnv().REFERENCE_STORAGE === "supabase")
+    return putSupabaseReference(key, data);
   if (getEnv().REFERENCE_STORAGE === "s3") {
     const client = s3();
     try {
@@ -120,6 +130,8 @@ export async function writeReference(key: string, data: Buffer) {
 }
 export async function readReference(key: string) {
   if (!validKey(key)) throw new AppError("INVALID_STORAGE_KEY", 400);
+  if (getEnv().REFERENCE_STORAGE === "supabase")
+    return getSupabaseReference(key);
   if (getEnv().REFERENCE_STORAGE !== "s3") {
     const file = path.join(localDirectory(), key);
     if (
@@ -163,6 +175,8 @@ export async function readReference(key: string) {
 }
 export async function removeReference(key: string) {
   if (!validKey(key)) return;
+  if (getEnv().REFERENCE_STORAGE === "supabase")
+    return deleteSupabaseReference(key);
   if (getEnv().REFERENCE_STORAGE === "s3") {
     const client = s3();
     try {
@@ -183,13 +197,64 @@ export async function removeReference(key: string) {
       },
     );
 }
-export async function cleanupReferenceStorage() {
+export async function cleanupReferenceStorage(deadline = Infinity) {
   const known = new Set(
     (await db.projectAttachment.findMany({ select: { storageKey: true } })).map(
       (item) => item.storageKey,
     ),
   );
   const cutoff = Date.now() - 3600000;
+  if (getEnv().REFERENCE_STORAGE === "supabase") {
+    if (Number.isFinite(deadline)) {
+      const state = await db.setting.findUnique({
+        where: { key: "storage.sweep" },
+      });
+      const offsetValue = (state?.value as { offset?: number } | undefined)
+        ?.offset;
+      const offset =
+        typeof offsetValue === "number" &&
+        Number.isSafeInteger(offsetValue) &&
+        offsetValue >= 0
+          ? offsetValue
+          : 0;
+      const objects = await listSupabaseReferences(offset);
+      for (const item of objects) {
+        if (Date.now() >= deadline) break;
+        if (
+          validKey(item.key) &&
+          !known.has(item.key) &&
+          item.modified < cutoff
+        )
+          await removeReference(item.key);
+      }
+      await db.setting.upsert({
+        where: { key: "storage.sweep" },
+        create: {
+          key: "storage.sweep",
+          value: { offset: objects.length === 100 ? offset + 100 : 0 },
+        },
+        update: {
+          value: { offset: objects.length === 100 ? offset + 100 : 0 },
+        },
+      });
+      return;
+    }
+    // Delete after listing so offset pagination cannot skip objects after removals.
+    const orphaned: string[] = [];
+    for (let offset = 0; offset < 10000; offset += 100) {
+      const objects = await listSupabaseReferences(offset);
+      for (const item of objects)
+        if (
+          validKey(item.key) &&
+          !known.has(item.key) &&
+          item.modified < cutoff
+        )
+          orphaned.push(item.key);
+      if (objects.length < 100) break;
+    }
+    for (const key of orphaned) await removeReference(key);
+    return;
+  }
   if (getEnv().REFERENCE_STORAGE === "s3") {
     const client = s3();
     try {
@@ -255,7 +320,7 @@ function snapshotReferenceIds(snapshot: unknown) {
     : [];
 }
 
-export async function cleanupDetachedReferences() {
+export async function cleanupDetachedReferences(deadline = Infinity) {
   const cutoff = new Date(Date.now() - 3600000);
   const candidates = await db.projectAttachment.findMany({
     where: {
@@ -273,6 +338,7 @@ export async function cleanupDetachedReferences() {
     ]),
   );
   for (const [projectId, userId] of projects) {
+    if (Date.now() >= deadline) break;
     await db.$transaction(async (tx) => {
       await userLock(tx, userId);
       const [revisions, jobs, tasks] = await Promise.all([

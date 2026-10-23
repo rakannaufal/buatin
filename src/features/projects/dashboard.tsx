@@ -30,8 +30,15 @@ export function Dashboard() {
         limit: number;
         mock: boolean;
         workerReady: boolean;
+        processingMode: "request" | "worker";
         entitlement: AccountEntitlement;
       }>(`/projects?page=${page}`),
+    refetchInterval: (q) =>
+      q.state.data?.projects.some((p) =>
+        ["planning", "generating"].includes(p.status),
+      )
+        ? 3000
+        : false,
   });
   const data = query.data;
   const projects =
@@ -79,7 +86,7 @@ export function Dashboard() {
           </small>
         </div>
         <div className="overview-service">
-          <span>Status worker</span>
+          <span>Status pemrosesan</span>
           <strong className="service-text">
             <i
               className={
@@ -89,9 +96,9 @@ export function Dashboard() {
             {data?.workerReady ? "Siap memproses" : "Belum terhubung"}
           </strong>
           <small>
-            {data?.mock
-              ? "Mock aktif. Belum memakai AI nyata."
-              : "AI melalui 9router"}
+            {data?.processingMode === "request"
+              ? "Bertahap selama workspace terbuka"
+              : "Worker latar belakang"}
           </small>
         </div>
       </section>

@@ -1,5 +1,64 @@
 # Hasil verifikasi Buatin
 
+## Profil request Vercel + Supabase - 23 Oktober 2026
+
+Bagian ini menggantikan kebutuhan worker pada catatan anggaran/deployment lama.
+Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
+
+- `npm test`: 144 test, 21 file lulus.
+- `npm run lint` dan `npm run typecheck`: lulus.
+- `npm run test:request`: enam test lulus pada dev fixture loopback tanpa worker,
+  mencakup ownership/Origin/metode, checkpoint/recovery, quota/cancellation,
+  parser privat, penolakan PDF serta cron/retensi.
+- Journey workspace desktop dan mobile: dua test lulus. Test kini menunggu
+  seluruh dokumen selesai sebelum membuka hasil; link partial sebelumnya dapat
+  muncul saat slice pertama selesai dan menyebabkan race pada test.
+- Regression kegagalan enam file pertama berhasil direproduksi: slice mengulang
+  checkpoint gagal tanpa maju. Mode slice kini melewati checkpoint gagal sampai
+  explicit resume meresetnya; test partial sampai selesai lulus.
+- `npm run test:migrations`: rehearsal database baru lulus; dua pembayaran
+  historis dan manfaat asli dipertahankan.
+- `npm audit --omit=dev --audit-level=high`: nol kerentanan.
+- `npm run security:scan`: 367 file lulus. `security:history`: 588 objek ditinjau,
+  dua kecocokan legacy revoked, nol kecocokan belum ditinjau.
+- `skills:verify`: lima pack ditinjau lulus, tanpa eksekusi upstream.
+  `templates:verify`: 42 template lulus.
+- Supabase Storage nyata, pemeriksaan read-only memakai server key: autentikasi
+  berhasil, bucket sesuai dan privat, limit 20 MiB, MIME application/octet-stream.
+  Ini belum membuktikan upload/download melalui fungsi Vercel.
+- Login Vercel CLI berhasil setelah pengguna menyelesaikan verifikasi akun.
+  Environment Production untuk mode request, adapter storage Supabase, URL/bucket,
+  key server dan secret cron disimpan; nilai secret tidak dicetak atau di-commit.
+- Instalasi bersih `npm ci --include=dev --no-audit` berhasil. Build pertama
+  mereproduksi kegagalan bundling `child_process.fork` oleh Turbopack; perubahan
+  path saja tetap gagal. Parser kini diluncurkan lewat builtin Node runtime dan
+  disertakan secara eksplisit pada tracing. Hasil build ulang dicatat berikutnya.
+
+- Build hosted final dan build worker: lulus pada salinan source dengan instalasi
+  bersih sebelumnya. Percobaan instalasi salinan kedua gagal `ENOSPC`; salinan
+  belum lengkap dihapus, build diulang pada salinan bersih pertama. Tidak ada
+  artefak pengguna yang dibersihkan.
+- `npm run test:assets`: lulus, 145 file trace disalin terisolasi; parser JPEG
+  menghasilkan WebP tanpa EXIF. Tracing mencakup sharp, @img, detect-libc, semver,
+  yauzl, pend dan buffer-crc32. Ini membuktikan paket parser lokal, bukan upload
+  melalui fungsi Vercel yang sudah live.
+- `npm run test:integration`: 58 test, sembilan file lulus pada production fixture.
+- `npm run test:e2e`: 18/19 lulus pada run pertama; satu failure bersamaan dengan
+  `ENOSPC` dari Playwright. Setelah cache fixture milik tugas dibersihkan, test
+  Max private template/batch diulang tanpa perubahan aplikasi dan lulus.
+- `npm run test:recovery`: SIGKILL, lease expiry, worker baru, resume 42/42 dan
+  checkpoint lama tetap utuh: lulus.
+- `npm run test:backup`: backup terenkripsi dan restore ke database baru lulus;
+  dua blob diperiksa, lampiran fixture identik. Key fixture yang sudah ada
+  dipertahankan; `backup:key` menolak menimpanya dengan EEXIST.
+- Enam test request diulang pada build produksi final tanpa worker: lulus.
+  Journey workspace desktop/mobile build final: dua test lulus (13,3 detik).
+  Lint akhir lulus. Secret scan akhir mencakup 368 file dan lulus.
+
+Masih menunggu CI SHA rilis serta deployment/smoke cloud. Login publik,
+enrollment MFA dan payment tetap ditunda. Mock tidak membuktikan provider nyata
+atau kapasitas. Backup/restore lokal bukan bukti off-host produksi.
+
 ## Batas anggaran hosting awal - 23 Oktober 2026
 
 - Pengguna menolak paket Render US$25/bulan dan meminta gratis pada tahap awal.
