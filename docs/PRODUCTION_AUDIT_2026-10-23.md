@@ -13,8 +13,11 @@ Prioritas aktual sebelum peluncuran:
    dipromosikan ke main dan deployment Production Ready. Smoke publik 14/14,
    readiness 200, mode request dan mock false. Proteksi main tetap aktif.
    Alur privat cloud belum diuji melalui akun produksi; bukti bucket read-only
-   dan fixture tidak menggantikannya. CD otomatis menunggu izin token khusus
-   proyek pada GitHub Environment production; deploy manual berhasil.
+   dan fixture tidak menggantikannya. Token khusus proyek selama 90 hari sudah
+   diizinkan, tetapi Vercel menolak pembuatannya melalui CLI OAuth (403,
+   `Cannot create tokens for this app.`). GitHub Environment production belum
+   memiliki secret Vercel; penyelesaian melalui dashboard menunggu login operator.
+   Deploy manual berhasil; CD otomatis belum aktif.
 2. **P1 - Backup/restore dan monitoring.** Cron harian hanya retensi batch terbatas;
    bukan backup. Belum ada bukti backup off-host/restore produksi. Pantau maintenance,
    error rate, pemakaian DB/storage, expiry lease dan backlog. Workflow monitor

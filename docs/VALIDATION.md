@@ -34,8 +34,30 @@ Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
   hosting atau penyimpanan secret tambahan. Run `39910384926` completed/success
   untuk SHA `fd240bb`; delivery alert gangguan belum diuji.
 - Deployment ini dijalankan manual melalui API resmi Vercel memakai CLI login
-  operator. CD GitHub masih memerlukan izin token khusus proyek, bukan salinan
-  token CLI akun. Automatic Git deployment main tetap nonaktif.
+  operator. Automatic Git deployment main tetap nonaktif.
+
+### Koneksi deployment otomatis
+
+- Pengguna mengizinkan token khusus proyek Buatin selama 90 hari, disimpan
+  terenkripsi pada GitHub Environment `production`. Token CLI akun tidak disalin.
+- Permintaan resmi Vercel dengan `projectId` dan expiry 90 hari ditolak HTTP 403:
+  `Cannot create tokens for this app.`. Pemeriksaan daftar token memastikan token
+  bernama `buatin-github-production-deploy` belum ada; secret `VERCEL_*` pada
+  environment production juga belum ada. Tidak ada tanggal expiry yang aktif.
+- Run deploy `39910789451` gagal pada step `Deploy the validated commit`. Log
+  mengonfirmasi `VERCEL_TOKEN must be configured in the protected production
+environment.`. Required Native validation pada main `fd240bb` tetap sukses
+  (run `39910003059`); CI branch dokumentasi `af36c05` sukses (`39910651700`).
+- Pemeriksaan ulang `npm run deploy:smoke -- https://buatin-kappa.vercel.app
+--scope=operations` lulus 14/14, readiness 200, private projects 401,
+  `publicLaunchAccepted:false`. Ini memeriksa deployment yang sudah aktif,
+  bukan bukti workflow deploy otomatis berhasil.
+- Dashboard token dibuka untuk penyelesaian melalui UI; browser Codex memerlukan
+  login operator. Scope proyek dan expiry harus diperiksa sebelum token dibuat.
+  Jangan menggantinya dengan token akun atau scope lebih luas tanpa izin baru.
+- Perubahan dokumentasi ini: Prettier pada dua dokumen dan `git diff --check`
+  lulus; `npm run security:scan` lulus untuk 368 file. Tidak ada perubahan
+  aplikasi atau migration; suite aplikasi tidak diulang untuk catatan ini.
 
 ### Bukti fixture dan build
 
