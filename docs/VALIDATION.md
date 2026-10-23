@@ -130,6 +130,32 @@ Tidak ada migration baru, fixture produksi, pembelian hosting atau bypass guard.
   tersebut; temuan dicatat sebagai P1-09. Tidak dilakukan burst pada produksi,
   dan tidak ada klaim perlindungan DDoS atau perbaikan limiter telah terbukti.
 
+### Rilis perbaikan pesan widget
+
+- Commit `c051ec67fb28c3e0f078a35826b5b552c42d12cc` dipush ke
+  `codex/admin-management`. Native validation `39934260838`, job `120349803971`,
+  completed/success, termasuk regresi challenge pada tahap mode request.
+- Sebelum promosi, API GitHub mengonfirmasi verify/strict/enforce-admins aktif,
+  force push dan deletion nonaktif, serta environment hanya protected branch.
+  Main masih `c37a927`; pemeriksaan ancestor dan fetch terbaru berhasil.
+  SHA `c051ec6` kemudian dipush fast-forward ke main tanpa bypass proteksi.
+- Native validation main `39935608936`, job `120354274203`,
+  completed/success untuk SHA `c051ec6`; seluruh tahap termasuk integration,
+  E2E, recovery, mode request/challenge, backup fixture dan Docker selesai.
+- Deployment otomatis `39936591073`, job `120357523875`, completed/success.
+  `dpl_8hG3EBksrZo5Ys83GtFJhWoBSMRk` Ready/Production; gitSource main,
+  validatedCommit `c051ec6` dan validationRun `39935608936` cocok.
+- `npm run deploy:smoke -- https://bantuin.ai.id --scope=operations`
+  sesudah rilis lulus **19/19**. Probe terpisah menunjukkan appOrigin domain
+  final, googleReady true, mock false, processingMode request,
+  generationMode template dan registrationReady false.
+- Sesi Google yang sudah diuji tetap membuka dashboard setelah reload pada
+  deployment baru; paket/kuota termuat. Ini tidak mengulang seluruh matriks
+  akun baru/lama, recovery email atau perjalanan cloud dua akun.
+- Scope operasi tetap publicLaunchAccepted false. Bukti Google nyata tidak
+  menutup temuan email, retensi, operator, backup dan alarm pada audit. Catatan
+  susulan ini hanya memperbarui bukti; commit runtime yang dirilis `c051ec6`.
+
 ## Profil request Vercel + Supabase - 23 Oktober 2026
 
 Bagian ini menggantikan kebutuhan worker pada catatan anggaran/deployment lama.
