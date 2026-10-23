@@ -1,5 +1,19 @@
 # Hasil verifikasi Buatin
 
+## Batas anggaran hosting awal - 23 Oktober 2026
+
+- Pengguna menolak paket Render US$25/bulan dan meminta gratis pada tahap awal.
+  Worker Render belum dibuat; tidak ada pembelian atau provisioning berbayar.
+- Dokumentasi resmi Render, Oracle Always Free/FAQ dan Vercel Terms diperiksa.
+  Render tidak menyediakan worker gratis. Oracle menjadi kandidat VM persisten,
+  dengan batas kapasitas/idle reclamation serta verifikasi kartu. Akun dan image
+  ARM belum diuji; tidak ada klaim alternatif gratis sudah berjalan.
+- Permintaan informasi ketersediaan akun Oracle/kebutuhan tanpa kartu dikirim.
+  Tidak ada perubahan aplikasi, database, kredensial atau deployment dalam
+  pembaruan anggaran ini. Rincian dan sumber: `PRODUCTION_AUDIT_2026-10-23.md`.
+- Prettier kedua laporan, `git diff --check` dan secret scan 358 file lulus.
+  Pengujian aplikasi tidak diulang untuk perubahan laporan saja.
+
 ## Aktivasi mode produksi dan redeploy - 23 Oktober 2026
 
 Bagian ini menggantikan status konfigurasi/consent pada catatan sebelumnya.

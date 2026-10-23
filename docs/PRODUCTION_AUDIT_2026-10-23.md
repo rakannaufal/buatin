@@ -34,9 +34,36 @@ penghapusan branch dilarang. Commit harus lulus CI pada branch sebelum fast-forw
    Akun Render sudah login dan consent identitas/email disetujui pengguna.
    Formulir `buatin-worker` disiapkan memakai repository publik, Dockerfile
    `deploy/worker.Dockerfile`, branch main, Singapore, 1 CPU/2 GB RAM.
-   Harga dashboard US$25/bulan; persetujuan biaya berulang dan secret server
-   langsung di dashboard masih diperlukan. Service belum dibuat. Region/key S3,
+   Harga dashboard US$25/bulan ditolak pengguna: anggaran awal harus gratis.
+   Service belum dibuat; jangan menerapkan blueprint berbayar tanpa izin baru.
+   Opsi yang dinilai sesuai arsitektur saat ini adalah VM Oracle Always Free
+   untuk worker/scanner, dengan database/storage tetap Supabase. Akun, kapasitas
+   region dan kompatibilitas image ARM belum diverifikasi. Region/key S3,
    koneksi DB Direct/Session, auth secret bersama dan kontak perlu dilengkapi.
+
+### Batas opsi gratis
+
+Dokumentasi provider diperiksa pada 23 Oktober 2026:
+
+- [Render Free](https://render.com/docs/free) tidak mendukung Background Worker.
+  Web service gratis tidur setelah 15 menit tanpa trafik; bukan pengganti worker
+  persisten hanya dengan mengganti tipe service atau menambah ping buatan.
+- [Oracle Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+  mencantumkan jatah A1 2 OCPU/12 GB RAM pada tenancy gratis. Ketersediaan shape
+  tergantung home region; instance idle bisa ditarik kembali. Alokasi harus
+  diperiksa terhadap seluruh resource akun sebelum provisioning. Ini kandidat,
+  bukan bukti host sudah tersedia atau image worker ARM sudah lulus.
+- [Pendaftaran Oracle](https://www.oracle.com/cloud/free/faq/) memerlukan
+  verifikasi kartu, dapat menahan otorisasi sementara, tanpa SLA Always Free.
+  Jangan mengaktifkan Pay As You Go atau memakai resource di luar jatah gratis
+  untuk melewati kekurangan kapasitas tanpa persetujuan baru.
+- [Vercel Hobby](https://vercel.com/legal/terms) dibatasi untuk penggunaan pribadi
+  atau nonkomersial. Peluncuran SaaS komersial memerlukan peninjauan hosting;
+  menunda payment tidak dengan sendirinya menjadikan penggunaan nonkomersial.
+
+Keputusan provider pengganti menunggu ketersediaan akun Oracle atau kebutuhan
+tanpa kartu. Jangan menghapus scanner, ownership atau guard kesiapan agar layanan
+terlihat sehat pada host yang tidak mendukung kebutuhannya.
 
 ## P1: ketahanan data dan operasi
 
