@@ -7,10 +7,11 @@ const loopback = (host: string) =>
   ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "[::]"].includes(host);
 
 export function hostedConfigurationIssues(
-  scope: "release" | "web" | "worker" = "release",
+  scope: "release" | "operations" | "web" | "worker" = "release",
 ) {
   const env = getEnv();
   const issues: string[] = [];
+  const release = scope === "release" || scope === "operations";
   const app = new URL(env.APP_URL);
   if (
     app.protocol !== "https:" ||
@@ -74,7 +75,7 @@ export function hostedConfigurationIssues(
       issues.push("AI: isi tarif konservatif dan batas estimasi USD harian.");
   }
   if (
-    (scope === "release" || env.REFERENCE_STORAGE === "s3") &&
+    (release || env.REFERENCE_STORAGE === "s3") &&
     (env.REFERENCE_STORAGE !== "s3" ||
       !env.REFERENCE_S3_BUCKET ||
       !env.REFERENCE_S3_ACCESS_KEY ||
@@ -86,7 +87,7 @@ export function hostedConfigurationIssues(
       "STORAGE: web dan worker memerlukan bucket S3-compatible privat yang sama.",
     );
   if (
-    scope === "release" &&
+    release &&
     (!env.SUPPORT_EMAIL ||
       /@(?:localhost\.test|example\.com)$/.test(env.SUPPORT_EMAIL))
   )

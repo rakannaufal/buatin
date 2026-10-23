@@ -11,6 +11,7 @@ import { controls, siteSettings } from "./admin/policies";
 import { googleAuthReady } from "./google-auth";
 import { hostedConfigurationIssues } from "./hosted";
 import { workerScannerReady } from "./worker-status";
+import type { ReleaseScope } from "../domain/release-scope";
 
 export type ProductionCheck = {
   id: string;
@@ -44,6 +45,7 @@ async function backupState() {
 }
 export async function productionChecks(
   provider = false,
+  scope: ReleaseScope = "full",
 ): Promise<ProductionCheck[]> {
   const env = getEnv();
   const policy = await controls().catch(() => null);
@@ -72,7 +74,9 @@ export async function productionChecks(
     "Domain dan HTTPS",
     "Hubungkan domain HTTPS ke service web sesuai docs/DEPLOYMENT.md.",
   );
-  const hostingIssues = hostedConfigurationIssues();
+  const hostingIssues = hostedConfigurationIssues(
+    scope === "operations" ? "operations" : "release",
+  );
   add(
     "hosting-config",
     "P0",

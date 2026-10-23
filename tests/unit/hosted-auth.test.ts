@@ -149,6 +149,17 @@ it("rejects a local deployment and accepts complete hosted configuration without
   };
   for (const [key, value] of Object.entries(values)) vi.stubEnv(key, value);
   expect(hostedConfigurationIssues()).toEqual([]);
+  vi.stubEnv("GOOGLE_CLIENT_SECRET", "");
+  vi.stubEnv("RESEND_API_KEY", "");
+  expect(hostedConfigurationIssues("operations")).toEqual([]);
+  expect(
+    hostedConfigurationIssues().some((issue) => issue.startsWith("AUTH:")),
+  ).toBe(true);
+  expect(
+    hostedConfigurationIssues().some((issue) => issue.startsWith("GOOGLE:")),
+  ).toBe(true);
+  vi.stubEnv("GOOGLE_CLIENT_SECRET", "test-only-google-client-secret");
+  vi.stubEnv("RESEND_API_KEY", values.RESEND_API_KEY);
   vi.stubEnv("DATABASE_WORKER_URL", "postgresql://fixture@localhost/buatin");
   expect(hostedConfigurationIssues()).toEqual([
     "DATABASE_WORKER_URL: gunakan PostgreSQL produksi, bukan loopback.",

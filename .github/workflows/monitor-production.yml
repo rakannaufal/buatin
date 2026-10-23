@@ -1,0 +1,26 @@
+name: Production runtime monitor
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: production-monitor
+  cancel-in-progress: false
+jobs:
+  runtime:
+    if: github.event_name == 'workflow_dispatch' || vars.MONITOR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit
+      - name: Check runtime and route boundaries
+        env:
+          APP_URL: ${{ vars.PRODUCTION_URL || 'https://buatin-kappa.vercel.app' }}
+        run: npm run deploy:smoke -- --scope=operations

@@ -1,5 +1,51 @@
 # Hasil verifikasi Buatin
 
+## Penyelesaian operasional dan proteksi main - 23 Oktober 2026
+
+Bagian ini menggantikan angka/status terdahulu yang berubah. Login/provider auth,
+enrollment MFA dan payment gateway ditunda atas permintaan pengguna; keamanan
+route, ownership dan MFA yang sudah aktif tidak dinonaktifkan.
+
+- `npm test`: 138 tes dalam 19 file lulus.
+- Pemeriksaan akhir `npm run format:check`, `npm run lint`,
+  `npm run typecheck`, `npm run security:scan` dan `git diff --check` lulus.
+- `npm run test:integration`: 57 tes dalam 9 file lulus sebelum penambahan satu
+  regresi isolasi scanner. Setelah penambahan, file `customization.test.ts`
+  dijalankan ulang: 5/5 lulus. Suite penuh terbaru menunggu CI.
+- `npm run test:e2e`: 19 tes Chromium desktop/mobile lulus.
+- `npm run test:migrations`: upgrade mempertahankan invoice/manfaat/ledger.
+- `npm run build:hosted` dan `npm run build:worker` lulus. Instalasi/build bersih
+  terakhir: `/private/tmp/buatin-production-build-1792724401010`, memakai
+  `npm ci --include=dev --no-audit` lalu `npm run build:hosted`, tanpa `.env` atau
+  cache workspace. Kehabisan disk pada percobaan sebelumnya selesai setelah
+  menghapus hanya snapshot build sementara milik pengujian ini.
+- `npm run test:recovery`: SIGKILL, lease 31 detik, worker baru, resume 42/42,
+  checkpoint tetap. Ini fixture; bukan bukti failover host cloud.
+- `npm run db:backup` dan `npm run test:backup`: backup terenkripsi, restore
+  database UUID baru, dua file dan checksum lampiran lulus. Download S3 memakai
+  mock; backup/restore off-host sesungguhnya belum diuji.
+- `npm audit --omit=dev --audit-level=high`: nol vulnerability. `tsx` kini runtime
+  dependency agar bootstrap worker tetap tersedia setelah pruning.
+- Secret scan 358 file lulus; history scan 548 blob, dua kecocokan legacy yang
+  dicabut, nol temuan belum ditinjau. Lima skill pack/42 template terverifikasi.
+- HTTP build fixture: 13 kontrak route lulus. Public config sengaja menggagalkan
+  gate produksi karena `mock:true`; hasil ini tidak menyatakan produksi siap.
+- Proteksi GitHub `main` diterapkan dan dibaca ulang melalui API: `verify` dari
+  GitHub Actions app 15368 wajib, strict/up-to-date, admin ikut aturan,
+  force push dan penghapusan branch dilarang. PUT/GET berhasil HTTP 200.
+
+Docker daemon lokal tidak tersedia; image ClamAV/PostgreSQL 17 harus dibangun
+dan diuji oleh step CI sebelum commit diterima ke `main`. Belum ada bukti
+signature update, EICAR atau readiness scanner pada Render.
+
+Cloud terakhir: 12 migration Supabase selesai dan bucket privat tersedia;
+heartbeat worker/receipt backup aplikasi belum ada. Produksi masih pricing/session
+500, readiness 503, kontrak route lama dan `mock:true`. Repository/environment
+GitHub produksi belum memiliki secret deployment Vercel. Persetujuan menghubungkan
+Vercel/Render sudah ada; koneksi akun yang dapat digunakan belum tersedia.
+Jangan menyimpulkan akar error runtime tanpa log. Lihat
+`PRODUCTION_AUDIT_2026-10-23.md` untuk prioritas penutupan.
+
 ## Perbaikan audit produksi - 23 Oktober 2026
 
 Bagian ini memperbarui status terdahulu. Lingkungan pengujian: Node 24,

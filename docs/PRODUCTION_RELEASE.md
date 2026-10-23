@@ -101,3 +101,63 @@ nol request AI tidak berarti generator template belum menghasilkan dokumen.
 
 Hasil fixture lokal, mock S3, atau build tidak membuktikan layanan cloud siap.
 Aktivasi provider, akses runtime dan pengujian pemulihan nyata tetap release gate.
+
+## Penundaan login/payment dan kesiapan operasional
+
+Sesuai keputusan pengguna, login publik, enrollment MFA dan payment gateway
+ditunda. Proteksi sesi/ownership/role/Origin/MFA tetap diterapkan. Tidak ada akun
+bypass atau sesi development pada layanan publik. Pemeriksaan default tetap penuh.
+
+```sh
+npm run check:hosted -- --scope=operations
+npm run check:production -- --scope=operations
+npm run deploy:smoke -- https://deployment-origin --scope=operations
+```
+
+Workflow deployment memakai scope operasional. Database, worker, storage, scanner,
+backup, mode mock dan kontrak route tetap menjadi penghambat. Output mencantumkan
+penundaan; `scopeReady` bukan izin peluncuran publik. HTTP smoke tidak membuktikan
+OAuth, pengiriman email atau settlement. Login harus diselesaikan sebelum pengguna
+diberi akses layanan privat.
+
+## Worker dengan scanner
+
+`deploy/render-worker-docker.yaml` merupakan alternatif lengkap dari Blueprint
+native: Node 24, ClamAV, PostgreSQL client 17, tini dan user non-root. Startup
+mengunduh signature, pembaruan berjalan setiap dua jam. Probe menolak daily
+signature kosong, hilang, timestamp masa depan atau berumur 48 jam ke atas.
+Kegagalan pembaruan tidak melewati scanning. Gambar mempertahankan validasi aplikasi.
+
+Pilihan instance `standard` memberi ruang memori scanner; periksa harga Render
+sebelum membuat service. File ini tidak membuat service atau langganan melalui
+push. Satu replica, koneksi session/direct dan S3 privat bersama tetap diperlukan.
+Image tidak memasukkan `.env`, `.local`, `.git` atau secret; build tidak menjalankan
+migration. Environment login/payment tidak wajib untuk menjalankan worker inti;
+pengiriman email nyata ditangani pada aktivasi login berikutnya.
+
+CI membangun image dan memeriksa executables. Uji dokumen bersih/EICAR, koneksi
+Supabase, signature update dan heartbeat nyata tetap wajib setelah host tersedia.
+
+## Pemulihan backup luar host
+
+```sh
+npm run backup:download -- <backup-id> <private-destination>
+npm run backup:verify -- <downloaded-directory> --restore
+```
+
+Downloader memerlukan `BACKUP_S3_*`, receipt `COMPLETE.json`, nama unik yang aman,
+ukuran dan SHA-256 semua objek. Batas unduhan 10 GiB, receipt 1 MiB/10.000 entri;
+direktori privat, file 0600. Kegagalan menyisakan `.partial`, tidak menimpa backup
+lama atau memperbarui receipt database. Key tidak ikut diunduh. SHA-256 tidak
+menggantikan autentikasi AES-GCM dengan key terpisah. Restore menggunakan PostgreSQL
+latihan, bukan database produksi; target baru UUID dibuat oleh script.
+
+## Monitoring di luar host
+
+Workflow `Production runtime monitor` tersedia manual. Jadwal sepuluh menit aktif
+setelah variable repository `MONITOR_ENABLED=true`; aktifkan setelah origin sehat.
+`PRODUCTION_URL` menentukan origin. Kegagalan probe membuat workflow gagal; atur
+notifikasi Actions operator, lakukan latihan gangguan. Jadwal GitHub dapat
+terlambat dan bukan SLA uptime. Workflow melengkapi `ops:check` di host; alert
+backup/storage/antrean tetap memerlukan pemeriksaan internal. Tidak ada pengiriman
+data pengguna atau secret ke endpoint alert.

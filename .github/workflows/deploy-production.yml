@@ -34,4 +34,4 @@ jobs:
       - name: Verify public runtime
         env:
           APP_URL: ${{ vars.PRODUCTION_URL || 'https://buatin-kappa.vercel.app' }}
-        run: npm run deploy:smoke
+        run: npm run deploy:smoke -- --scope=operations

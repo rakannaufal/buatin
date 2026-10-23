@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { spawn } from "node:child_process";
 import { hostedConfigurationIssues } from "../src/server/hosted";
+import { releaseScope } from "../src/domain/release-scope";
 
 const mode = process.argv[2];
 if (!["web", "worker", "check"].includes(mode)) {
@@ -10,7 +11,11 @@ if (!["web", "worker", "check"].includes(mode)) {
 let issues: string[];
 try {
   issues = hostedConfigurationIssues(
-    mode === "check" ? "release" : (mode as "web" | "worker"),
+    mode === "check"
+      ? releaseScope(process.argv) === "operations"
+        ? "operations"
+        : "release"
+      : (mode as "web" | "worker"),
   );
 } catch {
   console.error(

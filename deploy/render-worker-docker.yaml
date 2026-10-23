@@ -1,0 +1,38 @@
+# Review provider pricing before creating the service; this file creates nothing by itself.
+services:
+  - type: worker
+    name: buatin-worker
+    runtime: docker
+    region: singapore
+    plan: standard
+    numInstances: 1
+    autoDeployTrigger: checksPass
+    dockerfilePath: ./deploy/worker.Dockerfile
+    dockerContext: .
+    envVars:
+      - key: MOCK_LLM
+        value: "false"
+      - key: ADMIN_REQUIRE_2FA
+        value: "true"
+      - key: APP_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_WORKER_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: REFERENCE_STORAGE
+        value: s3
+      - key: REFERENCE_S3_ENDPOINT
+        sync: false
+      - key: REFERENCE_S3_REGION
+        sync: false
+      - key: REFERENCE_S3_BUCKET
+        value: buatin-references
+      - key: REFERENCE_S3_ACCESS_KEY
+        sync: false
+      - key: REFERENCE_S3_SECRET_KEY
+        sync: false

@@ -131,3 +131,15 @@ Release validation also runs `npm run security:history`; the baseline contains
 fingerprints of revoked legacy credentials only. Current source must pass the
 separate scanner without that baseline. Never add a new secret to the baseline
 instead of revoking it. See `docs/PRODUCTION_RELEASE.md` for provider activation.
+
+Operations scope regressions live in `tests/unit/deployment-checks.test.ts`:
+dependency, mock, route and private-access blockers remain active; malformed,
+redirected and false-health responses fail. `tests/unit/worker-status.test.ts`
+checks scanner health failure, isolated environment and missing/stale signatures.
+Native CI builds the worker Docker image and checks bundled PostgreSQL/ClamAV;
+an image without downloaded signatures must fail scanner health.
+
+Remote download tests reject traversal, duplicate names, ID/size mismatches and
+corrupted bytes, preserving private file permissions. They use mocked S3;
+real off-host restore remains a separate provider exercise. Full setup commands
+and scope limitations are in `docs/PRODUCTION_RELEASE.md`.

@@ -104,6 +104,7 @@ const schema = z.object({
   REFERENCE_STORAGE: z.enum(["local", "s3"]).default("local"),
   REFERENCE_STORAGE_DIR: z.string().default(".local/references"),
   REFERENCE_SCANNER_PATH: z.string().default(""),
+  REFERENCE_SCANNER_HEALTH_PATH: z.string().default(""),
   REFERENCE_PARSE_TIMEOUT_MS: z.coerce
     .number()
     .int()

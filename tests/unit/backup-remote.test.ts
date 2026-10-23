@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, rm, readFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
@@ -24,7 +24,7 @@ vi.mock("../../src/server/db", () => ({
   db: { setting: { upsert: receipt } },
   json: (value: unknown) => value,
 }));
-import { archiveBackup } from "../../src/server/backup-remote";
+import { archiveBackup, downloadBackup } from "../../src/server/backup-remote";
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.clearAllMocks();
@@ -72,6 +72,69 @@ it("writes completion and shared receipt only after every encrypted object round
     });
     expect([...objects.keys()].at(-1)).toMatch(/\/COMPLETE.json$/);
     expect(receipt).toHaveBeenCalledOnce();
+    const downloaded = await downloadBackup(
+      path.basename(directory),
+      path.join(root, "downloads"),
+    );
+    for (const name of [
+      "envelope.json",
+      "manifest.json.enc",
+      "database.dump.enc",
+    ]) {
+      expect(await readFile(path.join(downloaded.directory, name))).toEqual(
+        await readFile(path.join(directory, name)),
+      );
+      expect(
+        (await stat(path.join(downloaded.directory, name))).mode & 0o077,
+      ).toBe(0);
+    }
+    expect(receipt).toHaveBeenCalledOnce();
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+it("rejects traversal, duplicate names, excess size and corruption during disaster recovery", async () => {
+  const { root, directory } = await fixture();
+  const id = path.basename(directory);
+  const valid = {
+    version: 1,
+    id,
+    completedAt: new Date().toISOString(),
+    files: ["envelope.json", "manifest.json.enc", "database.dump.enc"].map(
+      (name) => ({ name, bytes: 40, sha256: "a".repeat(64) }),
+    ),
+  };
+  try {
+    await expect(downloadBackup("../invalid", root)).rejects.toThrow(
+      "Invalid backup ID",
+    );
+    for (const value of [
+      { ...valid, files: [...valid.files, valid.files[0]] },
+      {
+        ...valid,
+        files: valid.files.map((file, index) =>
+          index ? file : { ...file, name: "../escape" },
+        ),
+      },
+      { ...valid, id: `${id}wrong` },
+    ]) {
+      send.mockResolvedValue({
+        Body: Readable.from(Buffer.from(JSON.stringify(value))),
+      });
+      await expect(downloadBackup(id, root)).rejects.toThrow();
+    }
+    send.mockImplementation(async ({ input }) => ({
+      Body: Readable.from(
+        input.Key.endsWith("COMPLETE.json")
+          ? JSON.stringify(valid)
+          : Buffer.alloc(40),
+      ),
+    }));
+    await expect(downloadBackup(id, root, 100)).rejects.toThrow(
+      "download limit",
+    );
+    await expect(downloadBackup(id, root)).rejects.toThrow("checksum mismatch");
+    expect(receipt).not.toHaveBeenCalled();
   } finally {
     await rm(root, { recursive: true, force: true });
   }

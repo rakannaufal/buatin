@@ -1,6 +1,9 @@
 import * as referenceStorage from "../../src/server/reference-storage";
 import { beforeAll, afterAll, describe, expect, it, vi } from "vitest";
 import { randomBytes } from "node:crypto";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import path from "node:path";
+import { tmpdir } from "node:os";
 import sharp from "sharp";
 import { db } from "../../src/server/db";
 import { getEnv } from "../../src/server/config";
@@ -463,6 +466,44 @@ describe("customization persistence and private references", () => {
       await db.projectAttachment.findUnique({ where: { id: detached.id } }),
     ).toBeNull();
     await removeReference(detached.storageKey);
+  });
+  it("does not pass application credentials to the document scanner", async () => {
+    const draft = await project();
+    const directory = await mkdtemp(
+      path.join(tmpdir(), "buatin-scan-isolation-"),
+    );
+    const storageKey = `${crypto.randomUUID()}.blob`;
+    const data = pdfFixture(1, "");
+    await writeReference(storageKey, data);
+    const file = await db.projectAttachment.create({
+      data: {
+        projectId: draft.id,
+        name: "isolated.pdf",
+        mime: "application/pdf",
+        storageKey,
+        bytes: data.length,
+      },
+    });
+    try {
+      const scanner = path.join(directory, "scanner");
+      await writeFile(
+        scanner,
+        '#!/bin/sh\ntest "$1" = "--no-summary" && test -f "$2" && test -z "$DATABASE_URL" && test -z "$BETTER_AUTH_SECRET" && test -z "$NINEROUTER_API_KEY"\n',
+        { mode: 0o700 },
+      );
+      vi.stubEnv("REFERENCE_SCANNER_PATH", scanner);
+      vi.stubEnv("NINEROUTER_API_KEY", "test-only-must-not-reach-scanner");
+      await processReference(file.id);
+      expect(
+        await db.projectAttachment.findUniqueOrThrow({
+          where: { id: file.id },
+        }),
+      ).toMatchObject({ status: "ready", errorCode: "OCR_REQUIRED" });
+    } finally {
+      vi.unstubAllEnvs();
+      await rm(directory, { recursive: true, force: true });
+      await removeReference(storageKey);
+    }
   });
   it("fails closed on public scanner errors, blocks rejected plans and recovers scanned PDFs with manual notes", async () => {
     const draft = await project();

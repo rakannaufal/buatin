@@ -43,7 +43,17 @@ export async function processReference(id: string) {
           await promisify(execFile)(
             getEnv().REFERENCE_SCANNER_PATH,
             ["--no-summary", input],
-            { timeout: 20000, maxBuffer: 4096 },
+            {
+              timeout: 20000,
+              maxBuffer: 4096,
+              env: {
+                NODE_ENV: "production",
+                PATH: process.env.PATH || "/usr/bin:/bin",
+                CLAMAV_DATABASE_DIR:
+                  process.env.CLAMAV_DATABASE_DIR || "/var/lib/clamav",
+                TMPDIR: process.env.TMPDIR || "/tmp",
+              },
+            },
           );
         } catch {
           throw new Error("REFERENCE_SCAN_FAILED");

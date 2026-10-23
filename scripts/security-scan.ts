@@ -33,6 +33,9 @@ const runtimeKeys = [
   "REFERENCE_S3_SECRET_KEY",
   "BACKUP_S3_ACCESS_KEY",
   "BACKUP_S3_SECRET_KEY",
+  "VERCEL_TOKEN",
+  "RENDER_API_KEY",
+  "GH_TOKEN",
 ];
 const secrets = runtimeKeys
   .map((key) => {
@@ -76,9 +79,10 @@ async function scan(directory: string) {
     }
     if (
       !entry.isFile() ||
-      !/\.(?:[cm]?[jt]sx?|json|md|ya?ml|toml|sql|txt|example)$/.test(
+      (!/\.(?:[cm]?[jt]sx?|json|md|ya?ml|toml|sql|txt|example|sh|Dockerfile)$/.test(
         entry.name,
-      ) ||
+      ) &&
+        entry.name !== "Dockerfile") ||
       entry.name === "package-lock.json"
     )
       continue;

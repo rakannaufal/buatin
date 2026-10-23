@@ -71,6 +71,21 @@ jobs:
       - run: npm run test:backup
       - name: Dependency audit
         run: npm audit --omit=dev --audit-level=high
+      - name: Build worker with ClamAV and PostgreSQL tools
+        run: |
+          docker build --tag buatin-worker:ci --file deploy/worker.Dockerfile .
+          docker run --rm --entrypoint pg_dump buatin-worker:ci --version
+          docker run --rm --entrypoint clamscan buatin-worker:ci --version
+          docker run --rm --entrypoint node \
+            -e DATABASE_URL=postgresql://fixture@127.0.0.1:5432/fixture \
+            -e BETTER_AUTH_SECRET=ci-only-worker-image-secret-not-for-production \
+            buatin-worker:ci --import tsx --input-type=module \
+            -e 'const {db} = await import("./src/server/db.ts"); await db.$disconnect();'
+          set +e
+          docker run --rm --entrypoint node buatin-worker:ci scripts/reference-scanner.mjs --health
+          scanner_status=$?
+          set -e
+          test "$scanner_status" -eq 2
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

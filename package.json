@@ -47,7 +47,8 @@
     "ops:check": "node --import tsx scripts/check-production.ts --runtime",
     "test:backup": "node --import tsx scripts/check-backup.ts",
     "security:history": "node --import tsx scripts/security-history.ts",
-    "deploy:smoke": "node --import tsx scripts/check-deployment.ts"
+    "deploy:smoke": "node --import tsx scripts/check-deployment.ts",
+    "backup:download": "node --import tsx scripts/download-backup.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1154.0",
@@ -76,6 +77,7 @@
     "remark-gfm": "4.0.1",
     "sharp": "0.35.5",
     "tailwind-merge": "3.7.0",
+    "tsx": "4.23.15",
     "yauzl": "3.4.0",
     "zod": "4.6.7"
   },
@@ -95,7 +97,6 @@
     "prettier": "3.9.10",
     "prisma": "7.10.1",
     "tailwindcss": "4.3.3",
-    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.0",
     "vitest": "5.0.5"

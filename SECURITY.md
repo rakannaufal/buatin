@@ -147,3 +147,12 @@ email, OAuth, scanner, payment provider, off-host backup, or restore drill.
 The current-source scanner rejects credential hashes and non-loopback database
 password URLs. Historical revoked findings use fingerprint-only baselines and
 remain explicitly reported; source scans never apply historical exceptions.
+
+Operations-only release checks explicitly defer login/provider enrollment and
+payment activation. They never disable session, ownership, role, Origin or MFA
+enforcement and never certify a public launch. Default full checks retain these
+blockers. The worker image runs as a non-root user; scanner probes and ClamAV
+children receive no application secrets. Missing/stale signatures fail closed.
+Off-host recovery validates bounded receipts, safe unique file names, sizes and
+hashes before publishing a local encrypted bundle. AES-GCM/key checks remain
+mandatory before restore.
