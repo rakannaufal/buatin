@@ -1,5 +1,79 @@
 # Hasil verifikasi Buatin
 
+## Audit domain dan aktivasi Google - 23 Oktober 2026
+
+Laporan rinci: `PRODUCTION_AUDIT_2026-10-23_DOMAIN_AUTH.md`. Audit dimulai dari
+source `45f64eb` dan production `fd240bb`. Pembayaran nyata tetap ditunda.
+Tidak ada migration baru, fixture produksi, pembelian hosting atau bypass guard.
+
+### Bukti domain dan konfigurasi cloud
+
+- HTTPS `bantuin.ai.id` dan www valid. Root, login, privacy, terms, liveness dan
+  readiness HTTP 200. HTTP root redirect 308 ke HTTPS. CSP, HSTS, nosniff dan
+  frame denial tersedia. Canonical/og:url/sitemap/robots pada deployment lama
+  ternyata masih menunjuk `https://buatin.vercel.app`.
+- Production Vercel `APP_URL` dan `BETTER_AUTH_URL` diperbarui ke
+  `https://bantuin.ai.id`, respons 200. www diset redirect 308 ke apex, respons 200. GitHub variable `PRODUCTION_URL` diperbarui ke origin yang sama, respons 204. Efek env baru harus dibuktikan setelah deployment baru.
+- Endpoint anonim project/admin users/settings/download/cron 401; processing GET
+  dan pricing POST 405; OPTIONS 204; suffix asing 404. Cron bersecret tidak
+  dipanggil untuk audit karena menjalankan penghapusan retensi nyata.
+- `/api/site` 200 dengan supportEmail kosong. `/privacy` masih menyebut penyiapan
+  lokal. Source mengonfirmasi email hanya dikirim worker dan retensi request belum
+  mencakup seluruh janji kebijakan; keduanya dicatat sebagai temuan terbuka.
+- GitHub Environment production semula tanpa pembatasan branch. Policy diubah
+  menjadi protected_branches true/custom_branch_policies false; GET baru
+  mengonfirmasi rule branch_policy aktif. Proteksi main tetap wajib dipertahankan.
+
+### Provider Google dan Turnstile
+
+- Operator masuk ke akun pemilik Google Cloud, menyetujui pembuatan branding dan
+  OAuth web client pada `bantuin-512507`. Client `Buatin production web` memakai
+  origin `https://bantuin.ai.id` dan callback
+  `https://bantuin.ai.id/api/auth/callback/google`. Client ID/Secret disimpan
+  sebagai sensitive environment Production Vercel; metadata diverifikasi.
+- Branding homepage, privacy, terms dan authorized domain disimpan; UI menunjukkan
+  Branding changes saved. Sesudah persetujuan publikasi, Audience menunjukkan
+  **In production**, External. Tidak ada akses Gmail/Drive yang diminta.
+- Operator membuat dan login akun Cloudflare langsung. Widget `Buatin production`
+  dibuat setelah persetujuan Create: Managed, satu hostname domain final,
+  pre-clearance nonaktif. Daftar widget mengonfirmasi konfigurasi tersebut.
+- Site Key dan Secret Key disimpan sensitive pada Production Vercel; metadata
+  dibaca ulang. Kedua transfer browser-ke-host memakai RSA-OAEP SHA-256; ciphertext
+  dan pasangan key sementara dihapus sesudah storage sukses. Nilai tidak dicetak
+  atau dimasukkan ke repository. DNS tidak dipindahkan.
+- Konfigurasi provider tersimpan belum membuktikan Google callback/sesi nyata;
+  hasil runtime setelah deployment dicatat terpisah. Owner/admin dan akun MFA
+  tetap tidak menggunakan social login untuk menghindari bypass TOTP aplikasi.
+
+### Reproduksi, regression dan build
+
+- Baseline `npm test`: 144 test/21 file lulus. Regression HEAD callback mereproduksi
+  respons 302 ketika seharusnya 405; regression domain/private boundary juga gagal
+  sebelum perbaikan. HEAD kini 405 dan OPTIONS 204 tanpa memanggil callback.
+- `npm test` sesudah perubahan: **145 test/21 file lulus** dengan default mode
+  worker fixture. Percobaan unit pada env request tidak cocok dengan empat
+  asumsi worker suite; pengulangan memakai mode yang tepat lulus.
+- `npm run lint` dan `npm run typecheck`: lulus. `npm run build` dengan dist
+  terpisah serta `npm run build:worker`: lulus, tanpa koneksi DB produksi.
+- Google OAuth + route contracts: **9 integration test/2 file lulus**, termasuk
+  state/PKCE, issuer/audience/expiry, email verified, linking, replay, suspend,
+  role/MFA, signup pause, RLS fixture, serta HEAD/OPTIONS yang tidak mengubah
+  verification/cookie. Diulang pada build produksi: sembilan lulus.
+- `npm run test:request`: **6 test lulus** pada dev fixture, kemudian enam lulus
+  pada build produksi tanpa worker. Google browser: **3 test lulus**, termasuk
+  keyboard/mobile/error/retry/redirect domain palsu; diulang pada build produksi,
+  tiga lulus.
+- Percobaan request dan full integration di sandbox ditolak EPERM untuk socket
+  loopback sebelum test berjalan (enam/59 skipped). Request diulang dengan akses
+  loopback dan lulus. Full suite worker belum diulang lokal pada profil ini;
+  required CI tetap menjalankan suite lengkap dengan worker terisolasi.
+- Fixture memakai database baru khusus loopback dengan 12 migration, mock dan
+  kredensial provider palsu. Konfigurasi Next yang dihasilkan fixture dipulihkan
+  dari snapshot; perubahan next-env milik pengguna dipertahankan dan tidak di-stage.
+- `npm audit --omit=dev --audit-level=high`: nol kerentanan. `security:history`:
+  644 objek, dua kecocokan legacy revoked, nol belum ditinjau. `skills:verify`:
+  lima pack lulus, tanpa eksekusi upstream. `templates:verify`: 42 lulus.
+
 ## Profil request Vercel + Supabase - 23 Oktober 2026
 
 Bagian ini menggantikan kebutuhan worker pada catatan anggaran/deployment lama.
@@ -941,3 +1015,15 @@ DB inspeksi: `speckit_restore_1792497815463`, dipertahankan untuk inspeksi.
   beserta semua backup. Rotasi dan enkripsi backup off-site perlu dioperasikan.
 - Tes generator ini tidak membuktikan implementasi proyek target yang dituliskan
   dalam dokumen hasil.
+
+## 2026-10-23 - Instalasi paket observability Vercel
+
+- `npm install --save-exact @vercel/analytics @vercel/speed-insights`: berhasil;
+  analytics 2.0.1 (MIT), speed-insights 2.0.0 (Apache-2.0), sumber npm registry.
+  Versi dikunci di manifest dan lockfile. Komponen belum dipasang pada aplikasi.
+- `npm ls @vercel/analytics @vercel/speed-insights`: kedua versi terpasang.
+- `npx prettier --check package.json package-lock.json`: lulus.
+- `npm run typecheck`: lulus. Audit bawaan instalasi: 0 vulnerabilities.
+- Node lokal 26.8.2 menghasilkan EBADENGINE karena proyek meminta Node 24.
+  Lint, unit/integration/E2E, build dan secret scan tidak dijalankan untuk
+  instalasi dependency ini; hasil ini bukan validasi rilis atau telemetry produksi.
