@@ -35,7 +35,24 @@ const runtimeKeys = [
   "BACKUP_S3_SECRET_KEY",
 ];
 const secrets = runtimeKeys
-  .map((key) => process.env[key])
+  .map((key) => {
+    const value = process.env[key];
+    if (key.startsWith("DATABASE_") && value) {
+      try {
+        const url = new URL(value);
+        // This single published credential belongs only to disposable CI databases.
+        if (
+          ["postgres:", "postgresql:"].includes(url.protocol) &&
+          ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) &&
+          decodeURIComponent(url.password) === "ci-fixture-only"
+        )
+          return undefined;
+      } catch {
+        /* Invalid values still participate in exact secret matching. */
+      }
+    }
+    return value;
+  })
   .filter((value): value is string =>
     Boolean(
       value &&

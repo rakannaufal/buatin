@@ -9,7 +9,7 @@ terpisah. Tidak ada data atau kredensial produksi pada integration/E2E.
 | Perintah / pemeriksaan                                                         | Hasil aktual                                                                                            |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | `npm run format:check`, `npm run lint`, `npm run typecheck`                    | Lulus                                                                                                   |
-| `npm test`                                                                     | 129 tes, 17 file, lulus                                                                                 |
+| `npm test`                                                                     | 131 tes, 18 file, lulus                                                                                 |
 | `npm run test:integration`                                                     | 57 tes, 9 file, lulus                                                                                   |
 | `npm run test:e2e`                                                             | 19 tes Chromium desktop/mobile, lulus                                                                   |
 | `npm run test:migrations`                                                      | Upgrade mempertahankan invoice/manfaat/ledger, lulus                                                    |
@@ -18,7 +18,7 @@ terpisah. Tidak ada data atau kredensial produksi pada integration/E2E.
 | `npm run test:recovery`                                                        | SIGKILL nyata, lease kedaluwarsa, worker baru, resume 42/42 dokumen; checkpoint tidak berubah           |
 | `npm run backup:key`, `npm run db:backup`, `npm run test:backup`               | Backup terenkripsi, restore database baru dan checksum lampiran lulus                                   |
 | `npm audit --omit=dev --audit-level=high`                                      | Nol vulnerability dilaporkan                                                                            |
-| `npm run security:scan`                                                        | 346 file source/config/docs, lulus; nilai secret tidak dicetak                                          |
+| `npm run security:scan`                                                        | 347 file source/config/docs, lulus; nilai secret tidak dicetak                                          |
 | `npm run security:history`                                                     | 468 blob ditinjau sebelum commit; 2 kecocokan legacy yang dicabut, nol temuan belum ditinjau            |
 | `npm run skills:verify`, `npm run templates:verify`                            | 5 skill pack ditinjau, 42 template lulus                                                                |
 | HTTP metadata build lokal                                                      | Canonical/Open Graph empat halaman publik, sitemap empat URL, robots dan login noindex lulus            |
@@ -54,6 +54,13 @@ Turnstile, MFA operator, secret/environment GitHub produksi serta branch rules,
 S3 web/worker, backup luar host dan restore cloud. Pembayaran nyata, inference
 9router, load/soak, Safari/Firefox dan CWV produksi belum diuji. Rilis publik
 atau pembayaran belum diterima. Runbook: `docs/PRODUCTION_RELEASE.md`.
+
+CI push pertama (`52f6c43`) berhenti pada secret scan: URL database fixture yang
+dipublikasikan workflow cocok dengan variable runtime CI. Pengecualian kini
+dibatasi pada password disposable CI yang diketahui dan host loopback; bukan
+pengecualian semua database lokal. Dua regresi subprocess membuktikan fixture
+diterima dan credential lokal acak tetap ditolak tanpa mencetak nilainya.
+Format, lint, typecheck, 131 unit, source scan dan history scan diulang lulus.
 
 ## Database dan perbaikan build Vercel - 21 Oktober 2026
 
