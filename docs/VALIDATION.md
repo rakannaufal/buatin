@@ -1,5 +1,40 @@
 # Hasil verifikasi Buatin
 
+## Verifikasi setelah pembaruan kredensial hosting - 23 Oktober 2026
+
+Bagian ini memperbarui status cloud pada bagian terdahulu; tidak ada perubahan
+kode aplikasi atau skema database dalam verifikasi ini.
+
+- Native validation `main` untuk `d70a600` selesai sukses, run `39894504574`,
+  termasuk gate Docker worker. Deploy workflow run `39895276441` gagal;
+  nama secret deployment Vercel masih tidak tersedia pada repository maupun
+  environment GitHub `production`.
+- Dashboard Vercel menunjukkan `DATABASE_URL` dan `DATABASE_WORKER_URL`
+  diperbarui pengguna. Redeploy `a251218`, ID
+  `7eo1XgyaUGmpGqZs2N5KCjgE9XNb`, Ready/Production. Smoke nyata sesudahnya:
+  pricing 200, session 200; ini membuktikan pemulihan koneksi pada build tersebut.
+- Sesudah memeriksa SHA `main` dan required check `verify` sukses, deployment
+  produksi `d70a600` dibuat melalui dashboard. ID
+  `AYgzMZsHJsgnWAFvEn3L3PEPNQLk` teramati Ready/Production dengan domain
+  `buatin-kappa.vercel.app`.
+- `npm run deploy:smoke -- https://buatin-kappa.vercel.app --scope=operations`
+  setelah deployment baru: HEAD/GET liveness 200, suffix publik/account asing
+  404, POST pricing 405, OPTIONS pricing 204 dengan Allow benar. Gate keseluruhan
+  gagal: readiness/pricing/session/public-config/private projects mendapat 503.
+  Respons publik `SERVICE_UNCONFIGURED`; log dashboard deployment terbaru
+  `runtime.configuration.invalid` menyebut hanya `MOCK_LLM`.
+- Penyimpanan `MOCK_LLM=false` belum dilakukan. Pemeriksaan persetujuan otomatis
+  menolak karena belum ada konfirmasi spesifik pengaturan dan provider nyata
+  belum diverifikasi. Permintaan konfirmasi dikirim; tidak ada jalur lain yang
+  dipakai untuk menyimpan konfigurasi tersebut.
+- Query agregat Supabase: 12 migration selesai, satu bucket privat, heartbeat
+  worker/receipt backup aplikasi/receipt off-host belum ada. Tidak ada migrasi,
+  perubahan akun atau data produksi pada pemeriksaan ini.
+- Integrasi Vercel/Render terdeteksi belum terpasang. Login Render melalui
+  GitHub mencapai halaman consent identitas/email read; pemberian akses baru
+  ditahan sampai konfirmasi pengguna. Worker/scan/storage/backup cloud belum
+  terbukti berfungsi.
+
 ## Penyelesaian operasional dan proteksi main - 23 Oktober 2026
 
 Bagian ini menggantikan angka/status terdahulu yang berubah. Login/provider auth,
