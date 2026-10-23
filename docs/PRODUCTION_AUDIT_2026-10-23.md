@@ -11,31 +11,32 @@ Actions wajib lulus, strict/up-to-date, berlaku bagi admin, force push dan
 penghapusan branch dilarang. Commit harus lulus CI pada branch sebelum fast-forward.
 
 1. **Deployment dashboard sudah Ready; pipeline otomatis masih terblokir.**
-   `d70a600` lulus Native validation pada `main` (run `39894504574`). Commit
-   tersebut kemudian diterapkan melalui dashboard Vercel sebagai deployment
-   `AYgzMZsHJsgnWAFvEn3L3PEPNQLk`, Ready, Production, domain
+   `e3fa641` lulus required check `verify` sebelum fast-forward ke `main`.
+   Commit tersebut diterapkan melalui dashboard Vercel sebagai deployment
+   `Ags1WizPkdbQ8SvfZC5rdg3P5cgm`, Ready, Production, domain
    `buatin-kappa.vercel.app`. GitHub repository dan environment
    `production` belum memiliki secret deployment Vercel. Lengkapi `VERCEL_TOKEN`,
    `VERCEL_TEAM_ID`, `VERCEL_PROJECT_ID` melalui secret manager setelah integrasi
    akun tersedia. Automatic Git deployment tetap dinonaktifkan; required CI
    mendahului deploy. Log step yang gagal belum dapat diunduh dengan akses saat ini;
    jangan menyimpulkan error internal provider tanpa log sebenarnya.
-2. **Kredensial diperbarui; mode produksi belum tersimpan.** Setelah pengguna
-   memperbarui environment dan redeploy kode lama `a251218`, pricing/session
-   berubah dari 500 menjadi 200: koneksi database terbukti berhasil pada
-   deployment tersebut. Setelah penerapan `d70a600`, HEAD liveness 200, suffix
-   asing 404, metode pricing salah 405 dan OPTIONS/Allow sesuai kontrak.
-   API utama mengembalikan 503 `SERVICE_UNCONFIGURED`. Log deployment terbaru
-   menyebut satu field: `MOCK_LLM`. Perubahan `MOCK_LLM=false` belum disimpan:
-   pemeriksaan persetujuan otomatis meminta konfirmasi spesifik pengguna.
-   Setelah disetujui, simpan lalu redeploy dan ulangi smoke serta validasi DB
-   dari runtime terbaru. Jangan menonaktifkan TLS/RLS, ownership atau guard.
+2. **Koneksi web dan mode produksi pulih; readiness belum sehat.** Sesudah
+   persetujuan pengguna, `MOCK_LLM=false` disimpan pada Production lalu deployment
+   diulang. Public config teramati `mock:false`. Smoke nyata: 13/14 pemeriksaan
+   lulus; pricing/session/public-config 200, projects anonim 401, HEAD liveness
+   200, suffix asing 404, metode salah 405 dan OPTIONS/Allow sesuai kontrak.
+   Readiness tetap 503 dengan `ok:false`; kelulusan build tidak menutup gate ini.
+   Jangan menonaktifkan TLS/RLS, ownership atau guard untuk mengubah hasilnya.
 3. **Worker cloud belum hidup.** Heartbeat Supabase belum ada. Gunakan satu worker
    persisten dengan direct/session connection, bukan transaction pooler.
    Blueprint Docker Render sekarang menyertakan ClamAV dan PostgreSQL client 17;
    pembuatan host, biaya, pengaturan secret dan readiness nyata masih diperlukan.
-   Render belum login; halaman otorisasi GitHub meminta identitas dan email
-   read. Persetujuan pengguna diminta sebelum pemberian akses baru tersebut.
+   Akun Render sudah login dan consent identitas/email disetujui pengguna.
+   Formulir `buatin-worker` disiapkan memakai repository publik, Dockerfile
+   `deploy/worker.Dockerfile`, branch main, Singapore, 1 CPU/2 GB RAM.
+   Harga dashboard US$25/bulan; persetujuan biaya berulang dan secret server
+   langsung di dashboard masih diperlukan. Service belum dibuat. Region/key S3,
+   koneksi DB Direct/Session, auth secret bersama dan kontak perlu dilengkapi.
 
 ## P1: ketahanan data dan operasi
 

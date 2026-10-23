@@ -1,5 +1,40 @@
 # Hasil verifikasi Buatin
 
+## Aktivasi mode produksi dan redeploy - 23 Oktober 2026
+
+Bagian ini menggantikan status konfigurasi/consent pada catatan sebelumnya.
+Tidak ada perubahan kode aplikasi atau skema database dalam verifikasi ini.
+
+- Pengguna menyetujui `MOCK_LLM=false` dan redeploy secara eksplisit.
+  Formulir Vercel menyimpan nilai `false`; daftar environment kemudian
+  menampilkan `MOCK_LLM` bertipe Config dengan cakupan Production.
+- Required check `verify` untuk SHA `e3fa6414052746089f3af53a4ff18953c0e41646`
+  teramati completed/success sebelum push fast-forward `HEAD:main` berhasil.
+  Dashboard memvalidasi sumber main pada SHA yang sama sebelum deployment dibuat.
+- Deployment `Ags1WizPkdbQ8SvfZC5rdg3P5cgm` teramati Ready/Production,
+  sumber `main`/`e3fa641`, domain `buatin-kappa.vercel.app`, durasi build 1m 1s.
+- `npm run deploy:smoke -- https://buatin-kappa.vercel.app --scope=operations`:
+  13 dari 14 pemeriksaan HTTP lulus. Pricing/session/public-config 200,
+  projects anonim 401, suffix asing 404, metode salah 405 dan OPTIONS 204
+  dengan Allow sesuai. Readiness masih 503; gate keseluruhan gagal.
+- Pembacaan public config terpisah: HTTP 200, `mock:false`. Readiness terpisah:
+  HTTP 503 dengan `ok:false`. Tidak ada klaim provider AI nyata sudah diuji.
+- Query agregat Supabase terbaru: 12 migration selesai, satu bucket privat,
+  heartbeat worker/receipt backup aplikasi/receipt off-host belum tersedia.
+  Tidak ada perubahan data produksi pada query ini.
+- Akun Render sudah terautentikasi; consent identitas/email telah disetujui
+  pengguna. Formulir worker disiapkan dari repository publik tanpa memberikan
+  akses repository GitHub tambahan: nama `buatin-worker`, branch main, Dockerfile
+  `deploy/worker.Dockerfile`, Singapore, 1 CPU/2 GB RAM, US$25/bulan.
+  Konfigurasi nonrahasia ditambahkan ke formulir. Service belum dibuat;
+  persetujuan biaya berulang dan pengisian secret langsung di dashboard diminta.
+- Deploy otomatis GitHub masih memerlukan secret deployment Vercel. Storage
+  bersama, scanner cloud, backup/off-host restore dan monitoring masih terbuka.
+  Login publik/MFA enrollment dan payment tetap ditunda sesuai arahan pengguna.
+- Pemeriksaan laporan: Prettier kedua Markdown, `npm run security:scan`
+  (358 file) dan `git diff --check` lulus. Tidak ada perubahan perilaku aplikasi;
+  suite aplikasi tidak diulang untuk pembaruan laporan ini.
+
 ## Verifikasi setelah pembaruan kredensial hosting - 23 Oktober 2026
 
 Bagian ini memperbarui status cloud pada bagian terdahulu; tidak ada perubahan
