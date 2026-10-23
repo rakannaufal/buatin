@@ -15,18 +15,31 @@ function fixture(
     const method = init?.method || "GET";
     const status =
       overrides[`${method} ${path}`] ??
-      (path.includes("unexpected") || path.includes("unknown")
-        ? 404
-        : method === "POST"
-          ? 405
-          : method === "OPTIONS"
-            ? 204
-            : path === "/api/projects"
-              ? 401
-              : 200);
+      (path === "/api/auth/callback/google" && method === "HEAD"
+        ? 405
+        : path.includes("unexpected") || path === "/api/account/unknown"
+          ? 404
+          : method === "POST"
+            ? 405
+            : method === "OPTIONS"
+              ? 204
+              : [
+                    "/api/projects",
+                    "/api/admin/users",
+                    "/api/settings",
+                    "/api/jobs/unknown/download",
+                    "/api/cron/maintenance",
+                  ].includes(path)
+                ? 401
+                : 200);
     const body =
       path === "/api/public-config"
-        ? { mock, registrationReady: false, googleReady: false }
+        ? {
+            mock,
+            appOrigin: "https://fixture.example",
+            registrationReady: false,
+            googleReady: false,
+          }
         : { ok: healthy };
     return new Response(
       method === "HEAD" || status === 204 ? null : JSON.stringify(body),
@@ -64,11 +77,37 @@ it("still blocks mock mode, worker outages, false health, and anonymous private 
     fixture({ "GET /api/health/ready": 503 }),
     fixture({}, false),
     fixture({ "GET /api/projects": 200 }),
+    fixture({ "GET /api/admin/users": 200 }),
+    fixture({ "GET /api/settings": 200 }),
+    fixture({ "GET /api/jobs/unknown/download": 200 }),
+    fixture({ "GET /api/cron/maintenance": 200 }),
   ])
     expect(
       (await deploymentChecks("https://fixture.example", "operations", request))
         .scopeReady,
     ).toBe(false);
+});
+
+it("rejects a healthy alias when the configured auth origin belongs to another domain", async () => {
+  const request: typeof fetch = async (input, init) => {
+    if (new URL(String(input)).pathname === "/api/public-config")
+      return Response.json({
+        mock: false,
+        appOrigin: "https://old-domain.example",
+        registrationReady: true,
+        googleReady: true,
+      });
+    return fixture()(input, init);
+  };
+  const result = await deploymentChecks(
+    "https://fixture.example",
+    "operations",
+    request,
+  );
+  expect(result.scopeReady).toBe(false);
+  expect(
+    result.checks.find((check) => check.path === "/api/public-config")?.ok,
+  ).toBe(false);
 });
 
 it("does not accept redirected health, malformed responses or credential-bearing origins", async () => {

@@ -71,6 +71,10 @@ Email provider wajib terverifikasi; implicit linking hanya ke
 email lokal terverifikasi yang sama. Token Google tidak dipertahankan. Unique
 constraint provider/subject mencegah satu identitas terikat ke beberapa akun.
 Signup pause juga diperiksa pada callback. Suspend diperiksa sebelum sesi baru.
+HEAD pada route autentikasi ditolak 405; OPTIONS 204 tidak memanggil callback.
+Probe tidak boleh mengonsumsi state OAuth, mengubah verification atau membuat sesi.
+Domain publik mensyaratkan Turnstile server verification dan hostname persis
+origin aplikasi. Credential Google lengkap saja tidak membuka social login.
 Better Auth 1.7.11 tidak menantang MFA aplikasi pada social sign-in: akun dengan
 MFA serta owner/admin harus memakai email/password/TOTP, termasuk setelah promosi
 role saat OAuth berjalan. Jangan mengubah aturan ini tanpa regression test.

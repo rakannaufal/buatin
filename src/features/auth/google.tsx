@@ -17,10 +17,15 @@ export function GoogleLogin({
   const [attempt, setAttempt] = useState(0);
   async function signIn() {
     setError("");
+    if (siteKey && !token) {
+      setError("Selesaikan verifikasi keamanan sebelum melanjutkan ke Google.");
+      return;
+    }
     setBusy(true);
     try {
       const response = await fetch("/api/auth/sign-in/social", {
         method: "POST",
+        signal: AbortSignal.timeout(15000),
         headers: {
           "Content-Type": "application/json",
           "x-turnstile-token": token,

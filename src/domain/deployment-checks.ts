@@ -35,6 +35,11 @@ export async function deploymentChecks(
     ["/api/pricing", "POST", 405],
     ["/api/pricing", "OPTIONS", 204],
     ["/api/projects", "GET", 401],
+    ["/api/admin/users", "GET", 401],
+    ["/api/settings", "GET", 401],
+    ["/api/jobs/unknown/download", "GET", 401],
+    ["/api/cron/maintenance", "GET", 401],
+    ["/api/auth/callback/google", "HEAD", 405],
   ] as const;
   const checks: DeploymentCheck[] = await Promise.all(
     routes.map(async ([path, method, expected]) => {
@@ -77,6 +82,7 @@ export async function deploymentChecks(
       ok:
         config.ok &&
         value?.mock === false &&
+        value?.appOrigin === origin &&
         (scope === "operations" ||
           (value?.registrationReady === true && value?.googleReady === true)),
     });

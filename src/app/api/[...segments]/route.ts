@@ -118,6 +118,7 @@ async function dispatch(
         generationMode: "template",
         processingMode: getEnv().PROCESSING_MODE,
         mock: getEnv().MOCK_LLM === "true",
+        appOrigin: getEnv().APP_URL,
         turnstileSiteKey: getEnv().TURNSTILE_SITE_KEY,
         registrationReady: publicAuthReady(),
         googleReady: googleAuthReady(),

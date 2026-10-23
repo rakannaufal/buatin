@@ -22,5 +22,5 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit
       - name: Check runtime and route boundaries
         env:
-          APP_URL: ${{ vars.PRODUCTION_URL || 'https://buatin-kappa.vercel.app' }}
+          APP_URL: ${{ vars.PRODUCTION_URL || 'https://bantuin.ai.id' }}
         run: npm run deploy:smoke -- --scope=operations

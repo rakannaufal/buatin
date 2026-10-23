@@ -1,5 +1,11 @@
 # Audit operasional 23 Oktober 2026
 
+Audit terbaru untuk domain final, Google dan gap profil tanpa worker:
+[`PRODUCTION_AUDIT_2026-10-23_DOMAIN_AUTH.md`](PRODUCTION_AUDIT_2026-10-23_DOMAIN_AUTH.md).
+Laporan tersebut menggantikan status penundaan Google pada riwayat berikut.
+Aktivasi email/recovery, retensi, MFA operator, backup dan perjalanan cloud tetap
+harus dinilai tersendiri; status Ready bukan persetujuan peluncuran publik.
+
 ## Pembaruan profil gratis
 
 Keputusan terbaru: hanya Vercel + Supabase. Mode request memakai POST continuation,

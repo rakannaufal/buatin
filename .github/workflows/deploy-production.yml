@@ -33,5 +33,5 @@ jobs:
         run: npm ci
       - name: Verify public runtime
         env:
-          APP_URL: ${{ vars.PRODUCTION_URL || 'https://buatin-kappa.vercel.app' }}
+          APP_URL: ${{ vars.PRODUCTION_URL || 'https://bantuin.ai.id' }}
         run: npm run deploy:smoke -- --scope=operations

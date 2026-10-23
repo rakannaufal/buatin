@@ -213,6 +213,35 @@ it("rejects bad Origin, token login, callback overrides and oversized social req
   );
 });
 
+it("never consumes OAuth state or issues cookies for HEAD and OPTIONS probes", async () => {
+  const flow = await begin();
+  const identifier = `auth-state:${flow.state}`;
+  const original = await db.verification.findFirstOrThrow({
+    where: { identifier },
+  });
+  const callback = `${base}/api/auth/callback/google?state=${encodeURIComponent(flow.state)}&error=access_denied`;
+  for (const [method, status] of [
+    ["HEAD", 405],
+    ["OPTIONS", 204],
+  ] as const) {
+    const response = await fetch(callback, {
+      method,
+      redirect: "manual",
+      headers: { Cookie: flow.cookie },
+    });
+    expect(response.status, method).toBe(status);
+    expect(await response.text()).toBe("");
+    expect(response.headers.getSetCookie()).toEqual([]);
+    expect(response.headers.get("allow")).toBe("GET, POST, OPTIONS");
+    expect(await db.verification.findFirst({ where: { identifier } })).toEqual(
+      original,
+    );
+  }
+  expect((await finish(flow, fixtureEmail())).headers.get("location")).toBe(
+    "/dashboard",
+  );
+});
+
 it("creates a verified user, retains no Google tokens and reuses the same identity on return", async () => {
   const email = fixtureEmail();
   const first = await finish(await begin(), email);

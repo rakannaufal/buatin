@@ -42,6 +42,11 @@ identity, role/suspend/MFA serta signup pause pada callback. Browser memeriksa
 tombol Google, keyboard, mobile dan kegagalan yang bisa dicoba ulang. Kelulusan
 fixture bukan bukti OAuth Google pada domain publik; smoke staging tetap wajib.
 Variable Google fixture tidak boleh berisi credential sebenarnya.
+Probe HEAD/OPTIONS callback harus bodyless, tidak membuat cookie dan tidak
+mengonsumsi verification; GET sesudah probe tetap harus berhasil. Browser menolak
+redirect OAuth ke domain tiruan dan tetap dapat mencoba lagi setelah network error.
+Smoke deployment memeriksa `appOrigin` persis domain tujuan, admin/settings/download
+serta cron anonim 401, dan HEAD callback 405. HTTP sehat pada alias lain tidak cukup.
 Uji RLS beralih ke `pg_read_all_data` agar role non-pemilik tetap tidak dapat
 membaca row. Role fixture CI diberi keanggotaan role baca tersebut; ini hanya
 untuk database test terisolasi, bukan instruksi akses produksi.

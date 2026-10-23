@@ -63,3 +63,31 @@ test("OAuth callback errors use safe, actionable messages", async ({
     "dibatalkan",
   );
 });
+
+test("Google login rejects unexpected redirect destinations and allows retry", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  const google = page.getByRole("button", { name: "Lanjutkan dengan Google" });
+  await page.route("**/api/auth/sign-in/social", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        url: "https://accounts.google.com.untrusted.example/o/oauth2/v2/auth",
+      }),
+    });
+  });
+  await google.click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Tidak dapat membuka Google",
+  );
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(google).toBeEnabled();
+  await page.route("**/api/auth/sign-in/social", async (route) => {
+    await route.abort("failed");
+  });
+  await google.click();
+  await expect(google).toBeEnabled();
+  await expect(page).toHaveURL(/\/login$/);
+});

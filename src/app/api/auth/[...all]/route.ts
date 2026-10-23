@@ -207,11 +207,16 @@ async function guardedAuth(
 export const GET = (request: Request) => guardedAuth(request, handleGet);
 export const POST = (request: Request) => guardedAuth(request, handlePost);
 
-export async function HEAD(request: Request) {
-  const response = await GET(new Request(request, { method: "GET" }));
-  await response.body?.cancel();
+// OAuth callbacks consume one-time state; probes must never invoke their GET handler.
+export function HEAD() {
   return new Response(null, {
-    status: response.status,
-    headers: response.headers,
+    status: 405,
+    headers: { Allow: "GET, POST, OPTIONS", "Cache-Control": "no-store" },
+  });
+}
+export function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: { Allow: "GET, POST, OPTIONS", "Cache-Control": "no-store" },
   });
 }

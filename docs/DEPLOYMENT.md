@@ -194,6 +194,29 @@ keberhasilan restore. Bukti tersebut tetap harus diperiksa operator.
 5. Tombol **Lanjutkan dengan Google** muncul jika credential dan Turnstile lengkap.
    Uji akun baru/lama, cancel, suspend, dan signup pause pada domain tujuan.
 
+Konfigurasi domain aktif Buatin:
+
+- Production `APP_URL` dan `BETTER_AUTH_URL`: `https://bantuin.ai.id`.
+- Google project `bantuin-512507`, client Web application `Buatin production web`.
+- Origin `https://bantuin.ai.id`; redirect persis
+  `https://bantuin.ai.id/api/auth/callback/google`.
+- Homepage, `/privacy`, `/terms` dan authorized domain memakai domain yang sama;
+  audience External telah dipublikasikan ke In production dengan izin operator.
+- Client ID/Secret disimpan sebagai sensitive environment Production Vercel.
+  Jangan menyalinnya ke repository, fixture, log, tangkapan layar atau browser JS.
+- Turnstile gratis memakai widget Managed, hostname hanya `bantuin.ai.id`, tanpa
+  wildcard atau localhost. Simpan `TURNSTILE_SITE_KEY` dan `TURNSTILE_SECRET_KEY`
+  pada Production Vercel. Site key memang publik; secret hanya di server.
+  Tidak perlu memindahkan DNS, menggunakan Cloudflare proxy atau membeli hosting.
+- Redeploy setelah perubahan environment. Pastikan `appOrigin` sama dengan origin
+  yang diuji dan `googleReady:true`. `registrationReady` email dapat tetap false;
+  readiness konfigurasi bukan bukti delivery atau callback provider nyata.
+
+Jalankan smoke pada domain final, lalu login akun uji biasa, cancel, kembali masuk,
+logout dan penolakan akun yang dibatasi. Jangan memakai HEAD untuk memicu callback:
+HEAD auth sengaja 405 dan OPTIONS 204 tanpa mengonsumsi state atau membuat sesi.
+Jangan mengaktifkan mock di production atau melonggarkan Turnstile/Origin/MFA.
+
 Scope hanya `openid`, `email`, `profile`. Token Google tidak dipertahankan.
 Email provider wajib terverifikasi. Email yang sudah ada hanya ditautkan bila
 akun lokal juga terverifikasi. Akun baru ber-role `user`; identitas provider unik.
@@ -202,7 +225,10 @@ Callback memakai state cookie/database sekali pakai dan PKCE dari Better Auth.
 Better Auth 1.7.11 menantang MFA aplikasi hanya pada login credential. Pengguna
 ber-MFA serta owner/admin harus memakai email/password/autentikator; Google
 mereka ditolak dengan petunjuk yang jelas. Pengguna Google dapat membuat password
-melalui **Lupa password**, lalu mengaktifkan MFA. Jangan menonaktifkan MFA untuk
+melalui **Lupa password** setelah delivery email aktif, lalu mengaktifkan MFA.
+Pada profil request saat audit, delivery email masih hanya dipanggil worker;
+mengisi Resend belum menutup gap ini. Lihat audit domain/auth terbaru.
+Jangan menonaktifkan MFA untuk
 mengatasi penolakan ini. Supabase Auth tidak digunakan untuk login, sehingga
 provider Google tidak dikonfigurasi pada dashboard Supabase Auth.
 

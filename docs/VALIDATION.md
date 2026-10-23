@@ -73,6 +73,14 @@ Tidak ada migration baru, fixture produksi, pembelian hosting atau bypass guard.
 - `npm audit --omit=dev --audit-level=high`: nol kerentanan. `security:history`:
   644 objek, dua kecocokan legacy revoked, nol belum ditinjau. `skills:verify`:
   lima pack lulus, tanpa eksekusi upstream. `templates:verify`: 42 lulus.
+- `npm run test:assets`: 145 file trace, parser terisolasi dan penghapusan EXIF
+  lulus. Format seluruh repository, typecheck setelah pemulihan konfigurasi Next,
+  `git diff --check` serta secret scan 369 file lulus.
+- Perubahan paket dari pekerjaan lain ditinjau setelah izin pengguna: commit
+  `6a441f7` menambahkan `@vercel/analytics` 2.0.1 (MIT) dan
+  `@vercel/speed-insights` 2.0.0 (Apache-2.0), keduanya terkunci di lockfile.
+  Commit dan perubahan tersebut dipertahankan. Instalasi paket sendiri belum
+  membuktikan pengumpulan metrik pada domain produksi.
 
 ## Profil request Vercel + Supabase - 23 Oktober 2026
 
