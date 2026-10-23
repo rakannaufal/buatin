@@ -126,3 +126,24 @@ Laporkan masalah secara privat ke operator melalui alamat dukungan yang
 dikonfigurasi aplikasi. Jangan memublikasikan exploit, secrets atau data pengguna
 di issue publik. Rotasi kredensial terdampak, batasi akses, catat dampak, perbaiki,
 jalankan regression test dan verifikasi pemulihan sebelum membuka layanan.
+
+## Credential and release controls
+
+Shared production credential seeds and password arguments are forbidden. Owner
+bootstrap is serialized and first-owner-only; recovery cannot promote users or
+remove MFA. Use audited staff invitations for other privileged accounts.
+
+Exact API path/method contracts run before dispatch. Private browser query caches
+are bound to the workspace session and discarded across login/logout. Uploads on
+Vercel require shared private S3 storage; a publishable Supabase key is not a
+server database or S3 credential. New queued work checks worker readiness before
+quota reservation. Cancellation refunds also check actual output checkpoints.
+
+Main-branch auto deployment is disabled. The production workflow accepts only a
+successful validation for the current main SHA. Protect its GitHub environment
+and branch rules; passing a build alone never certifies a runtime connection,
+email, OAuth, scanner, payment provider, off-host backup, or restore drill.
+
+The current-source scanner rejects credential hashes and non-loopback database
+password URLs. Historical revoked findings use fingerprint-only baselines and
+remain explicitly reported; source scans never apply historical exceptions.

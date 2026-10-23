@@ -143,6 +143,25 @@ export async function reserveQuota(
     },
   });
 }
+// Cancellation refunds only work that produced neither provider requests nor readable checkpoints.
+export async function refundUnusedJobQuota(
+  tx: Transaction,
+  userId: string,
+  jobId: string,
+  reason: string,
+) {
+  const job = await tx.job.findFirst({
+    where: { id: jobId, userId },
+    select: { llmRequestCount: true },
+  });
+  if (
+    !job ||
+    job.llmRequestCount !== 0 ||
+    (await tx.jobFile.count({ where: { jobId, status: "succeeded" } }))
+  )
+    return;
+  await refundQuota(tx, userId, jobId, reason);
+}
 // Caller holds the account advisory lock; the unique ledger entry prevents double refunds.
 export async function refundQuota(
   tx: Transaction,

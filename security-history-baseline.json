@@ -1,0 +1,9 @@
+{
+  "reason": "Legacy seed credentials revoked in the target database on 2026-10-23. Fingerprints allow historical evidence only; current files must pass security:scan. No secret values stored.",
+  "revoked": [
+    {
+      "path": "prisma/seed-accounts.sql",
+      "fingerprint": "0af71cb329c31a3e815550fd13e884d5c8f7f6154a1b97a7b2d64f4ed028ec88"
+    }
+  ]
+}

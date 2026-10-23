@@ -111,6 +111,8 @@ export async function createBackup() {
       "--format=custom",
       "--no-owner",
       "--no-acl",
+      "--schema=public",
+      "--schema=pgboss",
       "--snapshot",
       snapshot,
       "--file",
@@ -239,6 +241,9 @@ export async function checkBackup(directory: string, restoreDatabase = false) {
     database = `buatin_restore_${crypto.randomUUID().replaceAll("-", "")}`;
     await postgresCommand("createdb", [database]);
     await postgresCommand("pg_restore", [
+      // Only the freshly created UUID database is cleaned, never the source.
+      "--clean",
+      "--if-exists",
       "--no-owner",
       "--no-acl",
       "--exit-on-error",

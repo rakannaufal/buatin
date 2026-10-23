@@ -37,11 +37,16 @@ test("desktop: login, brief, plan, persistent job, safe preview, ZIP, delete", a
     .getByRole("link", { name: /Lihat hasil|Buka hasil|Tinjau hasil/ })
     .click();
   await expect(
-    page.getByText("Mode mock: seluruh isi", { exact: false }),
+    page.getByText("Mode pengujian aktif.", { exact: false }),
   ).toBeVisible();
   await expect(page.locator(".markdown-document h1")).toBeVisible();
   await page.getByRole("button", { name: "Source", exact: true }).click();
-  await expect(page.locator(".markdown-source")).toContainText("MODE MOCK");
+  await expect(page.locator(".markdown-source")).toContainText(
+    "# Studio Karsa E2E",
+  );
+  await expect(page.locator(".markdown-source")).toContainText(
+    "Layanan desain, portofolio",
+  );
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("button", { name: "Unduh ZIP", exact: true }).click(),

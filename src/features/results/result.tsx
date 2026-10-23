@@ -114,8 +114,8 @@ export function ResultPage({ id }: { id: string }) {
       <ResultTools job={job} selectedId={selectedId} />
       {job.mock && (
         <Notice tone="info">
-          Mode mock: seluruh isi adalah fixture untuk pengujian alur. Gunakan AI
-          nyata untuk membuat spesifikasi proyek.
+          Mode pengujian aktif. Dokumen inti disusun dari template; layanan
+          eksternal memakai fixture pengujian. Tinjau isi sebelum implementasi.
         </Notice>
       )}
       {!available && (

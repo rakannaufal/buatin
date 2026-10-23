@@ -212,7 +212,7 @@ test("Plus presets, brief revisions, selective regeneration and comparison run e
     .click();
   await page.getByLabel("Versi sebelumnya").selectOption(jobId);
   await expect(page.locator(".comparison-columns pre").first()).toContainText(
-    "MODE MOCK",
+    "# Pola studio Plus",
   );
   const account = await (await page.request.get("/api/account")).json();
   expect(account.entitlement).toMatchObject({

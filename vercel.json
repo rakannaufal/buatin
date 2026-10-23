@@ -5,6 +5,13 @@
   "buildCommand": "npm run build:hosted",
   "regions": ["sin1"],
   "functions": {
-    "src/app/api/**/*.ts": { "maxDuration": 300 }
+    "src/app/api/**/*.ts": {
+      "maxDuration": 300
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
   }
 }

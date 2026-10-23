@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 import { getEnv } from "@/server/config";
+import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
 import { db } from "@/server/db";
 import { suspended } from "@/domain/admin";
@@ -17,15 +18,17 @@ export default async function WorkspaceLayout({
   const current = await db.user.findUnique({ where: { id: session.user.id } });
   if (!current || suspended(current)) redirect("/login?restricted=1");
   return (
-    <Shell
-      user={{
-        name: session.user.name,
-        email: session.user.email,
-        role: current.role,
-      }}
-      mock={getEnv().MOCK_LLM === "true"}
-    >
-      {children}
-    </Shell>
+    <Providers key={`${current.id}:${session.session.id}`}>
+      <Shell
+        user={{
+          name: session.user.name,
+          email: session.user.email,
+          role: current.role,
+        }}
+        mock={getEnv().MOCK_LLM === "true"}
+      >
+        {children}
+      </Shell>
+    </Providers>
   );
 }

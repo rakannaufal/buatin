@@ -1,6 +1,7 @@
 import { PublicShell } from "@/components/public-shell";
 import { PublicPricing } from "@/features/billing/plans";
-export const metadata = { title: "Paket dan fitur" };
+import { publicMetadata } from "@/server/seo";
+export const metadata = publicMetadata("Paket dan fitur", "/pricing");
 export default function Page() {
   return (
     <PublicShell>

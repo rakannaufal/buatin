@@ -19,8 +19,34 @@ import { AppError } from "./errors";
 import { db } from "./db";
 import { userLock } from "./limits";
 
+export function referenceStorageConfigured() {
+  const env = getEnv();
+  if (env.REFERENCE_STORAGE === "s3")
+    return Boolean(
+      env.REFERENCE_S3_BUCKET &&
+      env.REFERENCE_S3_ACCESS_KEY &&
+      env.REFERENCE_S3_SECRET_KEY &&
+      (!env.REFERENCE_S3_ENDPOINT ||
+        env.REFERENCE_S3_ENDPOINT.startsWith("https:")),
+    );
+  return (
+    process.env.VERCEL !== "1" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(new URL(env.APP_URL).hostname)
+  );
+}
 const validKey = (key: string) => /^[a-f0-9-]{36}\.blob$/.test(key);
 function localDirectory() {
+  if (
+    !["localhost", "127.0.0.1", "[::1]"].includes(
+      new URL(getEnv().APP_URL).hostname,
+    ) ||
+    process.env.VERCEL === "1"
+  )
+    throw new AppError(
+      "STORAGE_UNCONFIGURED",
+      503,
+      "Hosting memerlukan storage privat persisten yang dikonfigurasi bersama worker.",
+    );
   const directory = path.resolve(getEnv().REFERENCE_STORAGE_DIR);
   if (
     directory === path.resolve("public") ||

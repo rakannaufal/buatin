@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { getEnv } from "@/server/config";
+export const dynamic = "force-dynamic";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -17,5 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         "/reset-password",
       ],
     },
+    sitemap: new URL("/sitemap.xml", getEnv().APP_URL).href,
   };
 }

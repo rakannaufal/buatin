@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -35,8 +35,7 @@ export function Shell({
   user: { name: string; email: string; role: string };
   mock: boolean;
 }) {
-  const pathname = usePathname(),
-    router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [logoutError, setLogoutError] = useState(false);
   const online = useSyncExternalStore(
@@ -66,8 +65,7 @@ export function Shell({
         body: "{}",
       });
       if (!response.ok) throw new Error();
-      router.replace("/login");
-      router.refresh();
+      window.location.replace("/login");
     } catch {
       setLogoutError(true);
     }
@@ -157,9 +155,9 @@ export function Shell({
               </li>
             </ol>
             <p className="muted">
-              Brief dikirim melalui 9router ke provider AI saat mode nyata
-              aktif. Jangan masukkan password, key, atau data rahasia. Retensi
-              mengikuti pengaturan server.
+              Dokumen utama disusun dari template. Analisis gambar opsional
+              memakai provider AI jika diaktifkan. Jangan masukkan password,
+              key, atau data rahasia. Retensi mengikuti pengaturan server.
             </p>
           </Modal>
           <div className="account">
@@ -198,7 +196,7 @@ export function Shell({
             {mock ? (
               <span className="mode-indicator">Mode mock</span>
             ) : (
-              <span className="connection">9router dikonfigurasi</span>
+              <span className="connection">Dokumen berbasis template</span>
             )}
             <span className="personal-label">Pribadi</span>
           </span>

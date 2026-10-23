@@ -5,6 +5,10 @@ const file = process.argv[2];
 if (!file)
   throw new Error("Usage: npm run db:check-restore -- path/to/backup.dump");
 const url = new URL(process.env.DATABASE_URL || "");
+if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
+  throw new Error(
+    "Legacy plaintext restore is restricted to an isolated loopback PostgreSQL target. Use the encrypted backup runbook for production recovery.",
+  );
 const name = `speckit_restore_${Date.now()}`;
 const env = {
   ...process.env,

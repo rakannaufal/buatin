@@ -127,6 +127,11 @@ const schema = z.object({
     .enum(["fallback", "builtin", "original"])
     .default("builtin"),
   ADMIN_REQUIRE_2FA: z.enum(["true", "false"]).default("true"),
+  BACKUP_S3_ENDPOINT: z.union([z.url(), z.literal("")]).default(""),
+  BACKUP_S3_REGION: z.string().default("auto"),
+  BACKUP_S3_BUCKET: z.string().default(""),
+  BACKUP_S3_ACCESS_KEY: z.string().default(""),
+  BACKUP_S3_SECRET_KEY: z.string().default(""),
   BACKUP_DIRECTORY: z.string().default(".local/backups"),
   BACKUP_KEY_FILE: z.string().default(".local/backup-key"),
   BACKUP_MAX_AGE_HOURS: z.coerce.number().int().min(1).max(168).default(36),

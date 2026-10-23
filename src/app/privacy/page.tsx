@@ -2,7 +2,8 @@ import { PublicShell } from "@/components/public-shell";
 import { getEnv } from "@/server/config";
 import { siteSettings } from "@/server/admin/policies";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Kebijakan privasi" };
+import { publicMetadata } from "@/server/seo";
+export const metadata = publicMetadata("Kebijakan privasi", "/privacy");
 export default async function Page() {
   const { value: site } = await siteSettings();
   return (
@@ -25,21 +26,22 @@ export default async function Page() {
         </p>
         <h2>Pemrosesan AI dan pembayaran</h2>
         <p>
-          Dalam mode AI nyata, brief serta konteks dokumen diteruskan melalui
-          9router kepada provider AI yang dikonfigurasi pengelola. Jangan
-          memasukkan password, kunci API, data pribadi sensitif, atau materi
-          yang tidak boleh dibagikan. Email dan rincian tagihan yang diperlukan
-          dikirim ke Duitku untuk pembayaran QRIS. Email layanan dikirim melalui
-          Resend jika aktif. Turnstile memproses sinyal keamanan saat
-          verifikasi.
+          Perencanaan dan dokumen inti disusun dari template terstruktur, tanpa
+          mengirim brief ke provider AI. Analisis gambar opsional mengirim
+          gambar dan konteks terkait melalui 9router kepada provider AI yang
+          dikonfigurasi pengelola ketika Anda memintanya. Jangan memasukkan
+          password, kunci API, data pribadi sensitif, atau materi yang tidak
+          boleh dibagikan. Email dan rincian tagihan yang diperlukan dikirim ke
+          Duitku untuk pembayaran QRIS. Email layanan dikirim melalui Resend
+          jika aktif. Turnstile memproses sinyal keamanan saat verifikasi.
         </p>
         <p>
-          Teks hasil ekstraksi referensi serta catatannya dapat menjadi konteks
-          AI. Gambar dikirim untuk analisis ketika fitur analisis digunakan;
-          model vision perlu dikonfigurasi pengelola. Referensi disimpan pada
-          storage privat lokal atau bucket yang dikonfigurasi. Kebijakan
-          pemrosesan dan retensi provider AI mengikuti layanan upstream yang
-          dipilih. Unggah hanya materi yang berhak Anda bagikan.
+          Teks hasil ekstraksi referensi serta catatannya menjadi konteks
+          dokumen. Gambar dikirim untuk analisis ketika fitur analisis
+          digunakan; model vision perlu dikonfigurasi pengelola. Referensi
+          disimpan pada storage privat lokal atau bucket yang dikonfigurasi.
+          Kebijakan pemrosesan dan retensi provider AI mengikuti layanan
+          upstream yang dipilih. Unggah hanya materi yang berhak Anda bagikan.
         </p>
         <h2>Penyimpanan dan penghapusan</h2>
         <p>

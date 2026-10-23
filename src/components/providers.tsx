@@ -1,6 +1,6 @@
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(
     () =>
@@ -9,6 +9,12 @@ export function Providers({ children }: { children: ReactNode }) {
           queries: { retry: 1, staleTime: 1000, refetchOnWindowFocus: true },
         },
       }),
+  );
+  useEffect(
+    () => () => {
+      client.clear();
+    },
+    [client],
   );
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

@@ -1,12 +1,21 @@
-import { beforeAll, afterAll, describe, expect, it } from "vitest";
+import * as workerStatus from "../../src/server/worker-status";
+import { AppError } from "../../src/server/errors";
+import { userLock } from "../../src/server/limits";
+import { beforeAll, afterAll, describe, expect, it, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 import { db, json } from "../../src/server/db";
 import { createAuth } from "../../src/server/auth";
-import { startJob, resumeJob, changePlan } from "../../src/server/projects";
+import {
+  startJob,
+  resumeJob,
+  changePlan,
+  saveProject,
+  jobMetadataFor,
+} from "../../src/server/projects";
 import { catalog } from "../../src/domain/catalog";
 import { maintenance } from "../../src/worker/maintenance";
 import { weekPeriod } from "../../src/domain/billing";
-import { entitlementFor } from "../../src/server/entitlements";
+import { entitlementFor, reserveQuota } from "../../src/server/entitlements";
 import { grantTestPlan, clearTestBilling } from "../helpers/saas";
 import { generateJob } from "../../src/worker/generator";
 import { fixtureLogin } from "../helpers/http";
@@ -107,10 +116,11 @@ async function fixture() {
 }
 async function planned(
   brief = "Landing page untuk studio desain, berisi layanan, portofolio, kontak WhatsApp. Tanpa login atau pembayaran. Tampilan mobile dan warna hijau. Target pengguna pemilik usaha kecil.",
+  webType = "landing",
 ) {
   const response = await request("/projects", "POST", {
     name: "Integration fixture",
-    webType: "landing",
+    webType,
     brief,
   });
   expect(response.status).toBe(201);
@@ -172,6 +182,33 @@ afterAll(async () => {
 });
 
 describe("native authenticated workflow", () => {
+  it("keeps draft editing available during a worker outage", async () => {
+    const project = await db.project.create({
+      data: {
+        userId,
+        name: "Offline worker draft",
+        webType: "landing",
+        expiresAt: new Date(Date.now() + 3600000),
+      },
+    });
+    const unavailable = vi
+      .spyOn(workerStatus, "requireWorkerReady")
+      .mockRejectedValue(new AppError("WORKER_UNAVAILABLE", 503));
+    try {
+      await expect(
+        saveProject(userId, project.id, {
+          briefVersion: project.briefVersion,
+          brief: "Saved draft while processing is temporarily unavailable.",
+        }),
+      ).resolves.toMatchObject({
+        briefVersion: project.briefVersion + 1,
+        status: "draft",
+      });
+      expect(unavailable).not.toHaveBeenCalled();
+    } finally {
+      unavailable.mockRestore();
+    }
+  });
   it("exports all 42 selected documents plus exactly one manifest", async () => {
     const project = await planned();
     let version = 1;
@@ -297,7 +334,10 @@ describe("native authenticated workflow", () => {
     ).toBe(409);
   });
   it("clarifies at most once and rejects old versions", async () => {
-    const project = await planned("Website jasa desain sederhana.");
+    const project = await planned(
+      "Website toko online sederhana.",
+      "ecommerce",
+    );
     expect(project.status).toBe("needs_clarification");
     const response = await request(
       `/projects/${project.id}/clarification`,
@@ -326,38 +366,41 @@ describe("native authenticated workflow", () => {
       ).status,
     ).toBe("plan_ready");
   });
-  it("health failure creates no job or usage; parallel idempotent starts consume one quota; export matches plan", async () => {
+  it("worker outage creates no job or usage; parallel idempotent starts consume one quota; export matches plan", async () => {
     const project = await planned();
-    await control({ mode: "empty-models" });
-    await expect(
-      startJob(userId, project.id, 1, "health-failure-key"),
-    ).rejects.toMatchObject({ code: "LLM_MODEL_MISSING" });
-    expect(await db.job.count({ where: { projectId: project.id } })).toBe(0);
-    await control({});
+    const quotaBefore = (await entitlementFor(userId)).used;
+    const unavailable = vi
+      .spyOn(workerStatus, "requireWorkerReady")
+      .mockRejectedValueOnce(new AppError("WORKER_UNAVAILABLE", 503));
+    try {
+      await expect(
+        startJob(userId, project.id, 1, "health-failure-key"),
+      ).rejects.toMatchObject({ code: "WORKER_UNAVAILABLE" });
+      expect(await db.job.count({ where: { projectId: project.id } })).toBe(0);
+      expect((await entitlementFor(userId)).used).toBe(quotaBefore);
+    } finally {
+      unavailable.mockRestore();
+    }
     const jobs = await Promise.all([
       startJob(userId, project.id, 1, "parallel-start-key"),
       startJob(userId, project.id, 1, "parallel-start-key"),
     ]);
     expect(jobs[0].id).toBe(jobs[1].id);
     expect(
-      (await startJob(userId, project.id, 1, "another-active-click")).id,
-    ).toBe(jobs[0].id);
-    expect(
       (
         await db.usagePeriod.findUniqueOrThrow({
           where: { userId_key: { userId, key: weekPeriod().key } },
         })
       ).jobsCount,
-    ).toBe(2);
+    ).toBe(quotaBefore + 1);
     const job = await jobDone(jobs[0].id);
     expect(job.status).toBe("succeeded");
     expect(job.done).toBe(job.total);
+    const metadata = await jobMetadataFor(userId, job.id);
+    expect(metadata.files.every((file) => !("content" in file))).toBe(true);
     await control({ mode: "auth" });
     expect(
       (await startJob(userId, project.id, 1, "parallel-start-key")).id,
-    ).toBe(job.id);
-    expect(
-      (await startJob(userId, project.id, 1, "another-active-click")).id,
     ).toBe(job.id);
     await control({});
     const zip = await request(`/jobs/${job.id}/download`);
@@ -398,8 +441,44 @@ describe("native authenticated workflow", () => {
   });
   it("partial output blocks broken ZIP; resume retains successful checkpoints and quota", async () => {
     const project = await planned();
-    await control({ failFile: "security" });
-    const { id } = await startJob(userId, project.id, 1, "partial-start-key");
+    const source = await db.job.findFirstOrThrow({
+      where: { userId, status: "succeeded", total: { lt: 30 } },
+      include: { files: true },
+    });
+    const snapshot = source.snapshot as unknown as Snapshot;
+    const failed = await db.$transaction(async (tx) => {
+      await userLock(tx, userId);
+      const entitlement = await entitlementFor(userId, tx);
+      const job = await tx.job.create({
+        data: {
+          userId,
+          projectId: project.id,
+          planId: project.plans[0].id,
+          snapshot: json(snapshot),
+          status: "partial",
+          total: source.total,
+          done: source.total - 1,
+          retentionDays: source.retentionDays,
+          expiresAt: source.expiresAt,
+          billingPlanId: entitlement.planId,
+          finishedAt: new Date(),
+          files: {
+            create: source.files.map((file) => ({
+              fileId: file.fileId,
+              status: file.fileId === "security" ? "failed" : "succeeded",
+              content: file.fileId === "security" ? null : file.content,
+              checksum: file.checksum,
+              attempts: file.attempts,
+              finishReason: file.finishReason,
+              lint: json(file.lint),
+            })),
+          },
+        },
+      });
+      await reserveQuota(tx, userId, job.id, entitlement);
+      return job;
+    });
+    const id = failed.id;
     const partial = await jobDone(id);
     expect(partial.status).toBe("partial");
     expect(partial.files.find((f) => f.fileId === "security")?.status).toBe(
@@ -450,20 +529,63 @@ describe("native authenticated workflow", () => {
     expect(await resumeJob(userId, id, "resume-same-key")).toEqual({ id });
     await control({});
   });
-  it("cancels an in-flight request without new requests or cancelled downloads", async () => {
+  it("cancels a running template job before its first checkpoint and prevents downloads", async () => {
     const project = await planned();
-    await control({ delay: 4000 });
-    const { id } = await startJob(userId, project.id, 1, "cancel-start-key");
-    await waitFor(
-      () => db.job.findUniqueOrThrow({ where: { id } }),
-      (j) => j.status === "running" && j.llmRequestCount > 0,
-    );
-    expect((await request(`/jobs/${id}/cancel`, "POST", {})).status).toBe(202);
-    const cancelled = await jobDone(id);
+    const source = await db.job.findFirstOrThrow({
+      where: { userId, status: "succeeded", total: { lt: 30 } },
+    });
+    const snapshot = source.snapshot as unknown as Snapshot;
+    const queued = await db.job.create({
+      data: {
+        userId,
+        projectId: project.id,
+        planId: project.plans[0].id,
+        snapshot: json(snapshot),
+        total: snapshot.plan.selected.length,
+        files: {
+          create: snapshot.plan.selected.map((file) => ({ fileId: file.id })),
+        },
+      },
+    });
+    let release!: () => void;
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const original = db.jobFile.findUniqueOrThrow.bind(db.jobFile);
+    const read = vi
+      .spyOn(db.jobFile, "findUniqueOrThrow")
+      .mockImplementationOnce(
+        (args) =>
+          new Proxy(original(args), {
+            get(target, key, receiver) {
+              if (key === "then")
+                return (
+                  resolve: (value: unknown) => unknown,
+                  reject: (error: unknown) => unknown,
+                ) => blocked.then(() => target).then(resolve, reject);
+              return Reflect.get(target, key, receiver);
+            },
+          }),
+      );
+    const execution = generateJob(queued.id);
+    try {
+      await waitFor(
+        () => db.job.findUniqueOrThrow({ where: { id: queued.id } }),
+        (job) => job.status === "running",
+      );
+      expect(
+        (await request(`/jobs/${queued.id}/cancel`, "POST", {})).status,
+      ).toBe(202);
+    } finally {
+      release();
+      await execution;
+      read.mockRestore();
+    }
+    const cancelled = await jobDone(queued.id);
     expect(cancelled.status).toBe("cancelled");
-    expect(cancelled.llmRequestCount).toBe(1);
-    expect((await request(`/jobs/${id}/download`)).status).toBe(409);
-    await control({});
+    expect(cancelled.done).toBe(0);
+    expect(cancelled.llmRequestCount).toBe(0);
+    expect((await request(`/jobs/${queued.id}/download`)).status).toBe(409);
   });
   it("recovers an expired lease, fences duplicate execution, then resumes existing checkpoints", async () => {
     const project = await planned();

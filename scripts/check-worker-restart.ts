@@ -1,10 +1,16 @@
+import { catalog } from "../src/domain/catalog";
 import "dotenv/config";
 import { spawn, type ChildProcess } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { once } from "node:events";
 import { db } from "../src/server/db";
 import { createAuth } from "../src/server/auth";
-import { queuePlan, startJob, resumeJob } from "../src/server/projects";
+import {
+  queuePlan,
+  startJob,
+  resumeJob,
+  changePlan,
+} from "../src/server/projects";
 
 if (
   process.env.MOCK_LLM !== "true" ||
@@ -34,7 +40,7 @@ async function until<T>(
   while (Date.now() < end) {
     const value = await read();
     if (ready(value)) return value;
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 10));
   }
   throw new Error("Recovery check timed out.");
 }
@@ -114,21 +120,25 @@ try {
     () => db.project.findUniqueOrThrow({ where: { id: project.id } }),
     (value) => value.status === "plan_ready",
   );
-  await control({ delay: 700 });
+  let version = 1;
+  for (const file of catalog)
+    version = (await changePlan(userId, project.id, version, file.id, true))
+      .version;
   const { id } = await startJob(
     userId,
     project.id,
-    1,
+    version,
     "actual-process-restart",
   );
   await until(
     () => db.job.findUniqueOrThrow({ where: { id } }),
-    (value) => value.done >= 2,
+    (value) =>
+      value.status === "running" && value.done >= 2 && value.done < value.total,
   );
+  await stop("SIGKILL");
   const checkpoint = await db.jobFile.findUniqueOrThrow({
     where: { jobId_fileId: { jobId: id, fileId: "brief" } },
   });
-  await stop("SIGKILL");
   console.log(
     "Worker killed after persisted checkpoints. Waiting 31 seconds for its test lease to expire.",
   );

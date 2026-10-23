@@ -12,7 +12,16 @@ export function hasSecret(content: string, secrets: string[] = []) {
   return (
     /\b(?:sk-[A-Za-z0-9_-]{24,}|ghp_[A-Za-z0-9]{30,}|AKIA[A-Z0-9]{16})\b/.test(
       content,
-    ) || secrets.some((key) => key.length >= 12 && content.includes(key))
+    ) ||
+    /\b[a-f0-9]{32}:[a-f0-9]{128}\b/i.test(content) ||
+    /\$(?:2[aby]\$\d{2}\$[./A-Za-z0-9]{53}|argon2(?:id|i|d)\$[^\s"']+)/.test(
+      content,
+    ) ||
+    /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(content) ||
+    /(?:postgres(?:ql)?|mysql):\/\/[^\s:@/]+:([^\s@/]+)@(?!localhost[:/]|127\.0\.0\.1[:/]|\[::1\])[^\s/]+/i.test(
+      content,
+    ) ||
+    secrets.some((key) => key.length >= 12 && content.includes(key))
   );
 }
 export function safePath(value: string) {

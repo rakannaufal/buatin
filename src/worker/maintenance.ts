@@ -2,7 +2,7 @@ import { db, json } from "../server/db";
 import { getEnv } from "../server/config";
 import { ACTIVE_STATUSES } from "../domain/types";
 import { userLock } from "../server/limits";
-import { refundQuota } from "../server/entitlements";
+import { refundUnusedJobQuota } from "../server/entitlements";
 import { readdir, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import type { Prisma } from "@prisma/client";
@@ -96,8 +96,13 @@ export async function maintenance() {
           where: { id: job.projectId },
           data: { status: job.cancelRequestedAt ? "cancelled" : "failed" },
         });
-        if (job.cancelRequestedAt && job.llmRequestCount === 0)
-          await refundQuota(tx, job.userId, job.id, "cancelled_before_ai");
+        if (job.cancelRequestedAt)
+          await refundUnusedJobQuota(
+            tx,
+            job.userId,
+            job.id,
+            "cancelled_before_output",
+          );
       }
     }
     const tasks = await tx.planningTask.findMany({

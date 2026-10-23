@@ -1,0 +1,46 @@
+# Optional Render Blueprint for the persistent worker, not a Vercel Function.
+# Review the provider price before creating a service. No service is created by Git push.
+services:
+  - type: worker
+    name: buatin-worker
+    runtime: node
+    region: singapore
+    numInstances: 1
+    autoDeployTrigger: checksPass
+    buildCommand: npm ci && npm run db:generate && npm run build:worker
+    startCommand: npm run start:hosted-worker
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: MOCK_LLM
+        value: "false"
+      - key: ADMIN_REQUIRE_2FA
+        value: "true"
+      - key: APP_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_WORKER_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: REFERENCE_STORAGE
+        value: s3
+      - key: REFERENCE_S3_ENDPOINT
+        sync: false
+      - key: REFERENCE_S3_REGION
+        sync: false
+      - key: REFERENCE_S3_BUCKET
+        value: buatin-references
+      - key: REFERENCE_S3_ACCESS_KEY
+        sync: false
+      - key: REFERENCE_S3_SECRET_KEY
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false

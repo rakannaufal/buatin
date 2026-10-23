@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { PublicShell } from "@/components/public-shell";
 import { Folio } from "@/components/ui";
 import { webTypes } from "@/domain/catalog";
+import { publicMetadata } from "@/server/seo";
+export const metadata = publicMetadata("Dari ide, jadi terarah", "/");
 export default function Home() {
   return (
     <PublicShell>

@@ -9,7 +9,9 @@ if (!["web", "worker", "check"].includes(mode)) {
 }
 let issues: string[];
 try {
-  issues = hostedConfigurationIssues();
+  issues = hostedConfigurationIssues(
+    mode === "check" ? "release" : (mode as "web" | "worker"),
+  );
 } catch {
   console.error(
     "Konfigurasi environment tidak valid. Periksa .env.example dan panduan deployment; nilai rahasia tidak dicetak.",

@@ -1,3 +1,4 @@
+import { assertRuntimeConfiguration } from "@/server/runtime-config";
 import { toNextJsHandler } from "better-auth/next-js";
 import { auth } from "@/server/auth";
 import { verifyChallenge } from "@/server/challenge";
@@ -8,12 +9,12 @@ import { googleAuthReady } from "@/server/google-auth";
 import { getEnv } from "@/server/config";
 import { z } from "zod";
 const handlers = toNextJsHandler(auth);
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const response = await handlers.GET(request);
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   let pathname: string;
   try {
     pathname = decodeURIComponent(new URL(request.url).pathname)
@@ -156,3 +157,61 @@ export async function POST(request: Request) {
   return response;
 }
 export const dynamic = "force-dynamic";
+
+async function guardedAuth(
+  request: Request,
+  handler: (request: Request) => Promise<Response>,
+) {
+  const requestId = crypto.randomUUID();
+  try {
+    assertRuntimeConfiguration();
+    const response = await handler(request);
+    if (response.status < 500) {
+      response.headers.set("X-Request-Id", requestId);
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
+    console.error(
+      JSON.stringify({
+        event: "auth.request.failed",
+        requestId,
+        status: response.status,
+      }),
+    );
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "auth.request.failed",
+        requestId,
+        code: error instanceof AppError ? error.code : "INTERNAL_ERROR",
+      }),
+    );
+  }
+  return Response.json(
+    {
+      error: {
+        code: "AUTH_UNAVAILABLE",
+        message: "Login sementara tidak tersedia. Coba kembali nanti.",
+        requestId,
+      },
+    },
+    {
+      status: 503,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "X-Request-Id": requestId,
+      },
+    },
+  );
+}
+export const GET = (request: Request) => guardedAuth(request, handleGet);
+export const POST = (request: Request) => guardedAuth(request, handlePost);
+
+export async function HEAD(request: Request) {
+  const response = await GET(new Request(request, { method: "GET" }));
+  await response.body?.cancel();
+  return new Response(null, {
+    status: response.status,
+    headers: response.headers,
+  });
+}

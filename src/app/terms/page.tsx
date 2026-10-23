@@ -1,7 +1,8 @@
 import { PublicShell } from "@/components/public-shell";
 import { siteSettings } from "@/server/admin/policies";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Ketentuan layanan" };
+import { publicMetadata } from "@/server/seo";
+export const metadata = publicMetadata("Ketentuan layanan", "/terms");
 export default async function Page() {
   const { value: site } = await siteSettings();
   return (
@@ -17,11 +18,11 @@ export default async function Page() {
         <p className="muted">Berlaku 20 Oktober 2026.</p>
         <h2>Layanan dan akun</h2>
         <p>
-          Buatin menghasilkan paket dokumen perencanaan website. Dokumen AI
-          dapat mengandung kekeliruan; tinjau sebelum dipakai untuk
-          implementasi. Hasil bukan jaminan kode sudah dibangun, aman, atau
-          diuji. Anda bertanggung jawab atas materi brief, hak penggunaannya,
-          dan keamanan akun.
+          Buatin menghasilkan paket dokumen perencanaan website dari template
+          terstruktur. Dokumen dan analisis gambar opsional dapat mengandung
+          kekeliruan; tinjau sebelum dipakai untuk implementasi. Hasil bukan
+          jaminan kode sudah dibangun, aman, atau diuji. Anda bertanggung jawab
+          atas materi brief, hak penggunaannya, dan keamanan akun.
         </p>
         <h2>Paket dan kuota</h2>
         <p>
@@ -57,8 +58,9 @@ export default async function Page() {
           Gangguan worker dapat dilanjutkan dari dokumen tersimpan. Kegagalan
           sistem permanen mengembalikan kuota sekali ke periode asal; proses
           yang dikembalikan kuotanya ditutup. Pengembalian ke minggu yang sudah
-          lewat tidak menambah kuota minggu ini. Pembatalan sebelum AI dimulai
-          mengembalikan kuota, setelah AI dimulai tetap dihitung. Pengembalian
+          lewat tidak menambah kuota minggu ini. Pembatalan sebelum ada dokumen
+          berhasil atau request provider mengembalikan kuota. Setelah salah
+          satunya tersedia atau dimulai, kuota tetap dihitung. Pengembalian
           kuota berbeda dari pengembalian pembayaran; masalah tagihan diperiksa
           pengelola melalui catatan Duitku.
         </p>

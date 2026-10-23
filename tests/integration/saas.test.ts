@@ -26,7 +26,7 @@ import { signDuitku } from "../../src/server/duitku";
 import { weekPeriod, addBillingMonth } from "../../src/domain/billing";
 import { grantTestPlan, clearTestBilling } from "../helpers/saas";
 import { maintenance } from "../../src/worker/maintenance";
-import { startBatch } from "../../src/server/projects";
+import { cancelJob, startBatch } from "../../src/server/projects";
 import { defaultPlanner, resolvePlan } from "../../src/domain/planner";
 const users: { id: string; name: string; email: string }[] = [];
 async function account() {
@@ -334,6 +334,51 @@ describe("SaaS entitlements and durable quotas", () => {
       (await db.job.findUniqueOrThrow({ where: { id: job.id } })).status,
     ).toBe("cancelled");
   });
+  it.each(["queued", "cancel_requested"])(
+    "does not refund template output on %s cancellation even with zero AI requests",
+    async (status) => {
+      const user = await account(),
+        job = await jobForTest(user.id);
+      await db.$transaction(async (tx) => {
+        await userLock(tx, user.id);
+        await reserveQuota(
+          tx,
+          user.id,
+          job.id,
+          await entitlementFor(user.id, tx),
+        );
+        await tx.jobFile.create({
+          data: {
+            jobId: job.id,
+            fileId: "brief",
+            status: "succeeded",
+            content: "# Existing checkpoint",
+          },
+        });
+        await tx.job.update({
+          where: { id: job.id },
+          data: {
+            status,
+            llmRequestCount: 0,
+            cancelRequestedAt:
+              status === "cancel_requested" ? new Date() : null,
+            leaseExpiresAt: new Date(Date.now() - 1000),
+          },
+        });
+      });
+      if (status === "queued") await cancelJob(user.id, job.id);
+      else await maintenance();
+      expect((await entitlementFor(user.id)).remaining).toBe(0);
+      expect(
+        await db.quotaLedger.count({
+          where: { jobId: job.id, action: "refund" },
+        }),
+      ).toBe(0);
+      expect(
+        (await db.job.findUniqueOrThrow({ where: { id: job.id } })).status,
+      ).toBe("cancelled");
+    },
+  );
   it("refunds once, to the original period rather than the new week", async () => {
     const user = await account(),
       subscription = await grantTestPlan(user.id, "plus"),

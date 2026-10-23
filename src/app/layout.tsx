@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
+import { getEnv } from "@/server/config";
 import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-500.css";
 import "@fontsource/manrope/latin-600.css";
@@ -8,6 +9,7 @@ import "@fontsource/source-serif-4/latin-400.css";
 import "@fontsource/source-serif-4/latin-400-italic.css";
 import "./globals.css";
 export const metadata: Metadata = {
+  metadataBase: new URL(getEnv().APP_URL),
   title: {
     default: "Buatin | Dari ide, jadi terarah",
     template: "%s | Buatin",

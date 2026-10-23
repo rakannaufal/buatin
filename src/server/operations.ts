@@ -19,6 +19,29 @@ export type ProductionCheck = {
   label: string;
   detail: string;
 };
+async function backupState() {
+  const env = getEnv();
+  const backup = await latestBackup();
+  const remote = await db.setting.findUnique({
+    where: { key: "backup.remote" },
+  });
+  const receipt = remote?.value as
+    { id?: string; completedAt?: string; verified?: boolean } | undefined;
+  const age = receipt?.completedAt
+    ? Date.now() - Date.parse(receipt.completedAt)
+    : Infinity;
+  return {
+    fresh: Boolean(backup && backup.ageHours < env.BACKUP_MAX_AGE_HOURS),
+    remoteVerified: Boolean(
+      backup &&
+      "id" in backup &&
+      receipt?.id === backup.id &&
+      receipt?.verified &&
+      age >= 0 &&
+      age < env.BACKUP_MAX_AGE_HOURS * 3600000,
+    ),
+  };
+}
 export async function productionChecks(
   provider = false,
 ): Promise<ProductionCheck[]> {
@@ -82,31 +105,33 @@ export async function productionChecks(
     "Isi kontak dukungan dan identitas pengelola pada kebijakan layanan.",
   );
   add(
-    "ai-mode",
+    "generation-mode",
     "P0",
     env.MOCK_LLM === "false",
-    "AI nyata",
-    "MOCK_LLM=false setelah smoke provider lulus; fixture otomatis tetap memakai mock.",
+    "Dokumen berbasis template",
+    "Dokumen inti memakai template deterministik; MOCK_LLM harus false untuk pengguna. AI vision opsional, hanya aktif bila model, kredensial dan batas biaya tersedia.",
   );
-  add(
-    "ai-key",
-    "P0",
-    env.LLM_AUTH_MODE === "header" && Boolean(env.NINEROUTER_API_KEY),
-    "Kredensial 9router",
-    "Simpan kunci klien di secret environment; batasi akses 9router pada jaringan privat.",
-  );
-  add(
-    "ai-budget",
-    "P0",
-    Boolean(
-      policy &&
-      policy.dailyBudgetUsd > 0 &&
-      policy.inputRate > 0 &&
-      policy.outputRate > 0,
-    ),
-    "Batas estimasi biaya AI",
-    "Isi tarif konservatif untuk seluruh model terpilih dan batas USD harian; aktifkan batas tagihan di provider juga.",
-  );
+  if (env.LLM_VISION_MODEL) {
+    add(
+      "ai-key",
+      "P0",
+      env.LLM_AUTH_MODE === "header" && Boolean(env.NINEROUTER_API_KEY),
+      "Kredensial analisis gambar",
+      "Simpan kunci 9router di secret environment.",
+    );
+    add(
+      "ai-budget",
+      "P0",
+      Boolean(
+        policy &&
+        policy.dailyBudgetUsd > 0 &&
+        policy.inputRate > 0 &&
+        policy.outputRate > 0,
+      ),
+      "Batas biaya analisis gambar",
+      "Lengkapi tarif konservatif dan batas USD harian sebelum mengaktifkan analisis gambar.",
+    );
+  }
   add(
     "templates",
     "P0",
@@ -153,8 +178,7 @@ export async function productionChecks(
     "Volume bersama web/worker di luar public dengan mode 0700, atau bucket privat; uji akses dan restore pada staging.",
   );
   try {
-    const [models, operators, paid] = await Promise.all([
-      db.setting.findUnique({ where: { key: "models" } }),
+    const [operators, paid] = await Promise.all([
       db.user.findMany({
         where: { role: { in: ["owner", "admin"] } },
         select: { twoFactorEnabled: true, emailVerified: true },
@@ -163,18 +187,6 @@ export async function productionChecks(
         where: { id: { not: "free" }, available: true },
       }),
     ]);
-    const selected = models?.value as
-      { planner?: string; writer?: string } | undefined;
-    add(
-      "models",
-      "P0",
-      Boolean(
-        (selected?.planner || env.LLM_MODEL_PLANNER) &&
-        (selected?.writer || env.LLM_MODEL_WRITER),
-      ),
-      "Model planner dan writer",
-      "Gunakan ID dari /models; verifikasi kualitas, latensi, harga dan izin penggunaan upstream.",
-    );
     add(
       "operator-mfa",
       "P0",
@@ -213,11 +225,11 @@ export async function productionChecks(
     );
   }
   try {
-    const backup = await latestBackup();
+    const backup = await backupState();
     add(
       "backup",
       "P0",
-      Boolean(backup && backup.ageHours < env.BACKUP_MAX_AGE_HOURS),
+      backup.fresh && backup.remoteVerified,
       "Backup terenkripsi terbaru",
       "Waktu backup selesai dibaca dari database bersama. Verifikasi job/volume backup, kunci terpisah, salinan di luar host dan latihan restore tetap wajib.",
     );
@@ -230,7 +242,7 @@ export async function productionChecks(
       "Periksa direktori backup, izin dan jadwal.",
     );
   }
-  if (provider) {
+  if (provider && env.LLM_VISION_MODEL) {
     try {
       const config = await llmConfig();
       await checkModels(config);
@@ -281,6 +293,10 @@ export async function productionChecks(
 }
 export async function operationsSnapshot() {
   const ready = await readiness();
+  const backup = await backupState().catch(() => ({
+    fresh: false,
+    remoteVerified: false,
+  }));
   const policy = await controls();
   const day = new Date().toISOString().slice(0, 10);
   const [
@@ -306,16 +322,18 @@ export async function operationsSnapshot() {
     db.dataRequest.count({ where: { status: { in: ["open", "processing"] } } }),
     db.aiBudgetPeriod.findUnique({ where: { id: `real:${day}:global` } }),
   ]);
-  const disk = await statfs(process.cwd());
-  const freeDiskMb = Math.floor(
-    (Number(disk.bavail) * Number(disk.bsize)) / 1048576,
-  );
+  const disk = process.env.VERCEL === "1" ? null : await statfs(process.cwd());
+  const freeDiskMb = disk
+    ? Math.floor((Number(disk.bavail) * Number(disk.bsize)) / 1048576)
+    : null;
   const dispatchAgeSeconds = queue
     ? Math.floor((Date.now() - queue.createdAt.getTime()) / 1000)
     : 0;
   const alerts = [
     !ready.ok && "DEPENDENCY_UNHEALTHY",
-    freeDiskMb < 1024 && "DISK_LOW",
+    !backup.fresh && "BACKUP_STALE",
+    !backup.remoteVerified && "BACKUP_ARCHIVE_UNVERIFIED",
+    freeDiskMb !== null && freeDiskMb < 1024 && "DISK_LOW",
     dispatchAgeSeconds > 120 && "OUTBOX_STALLED",
     mailFailures > 0 && "EMAIL_DELIVERY_FAILED",
     paymentReviews > 0 && "PAYMENT_REVIEW_REQUIRED",

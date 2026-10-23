@@ -10,6 +10,7 @@ import { PreferenceSection } from "./preference-controls";
 
 interface Configuration {
   limits: { files: number; image: number; document: number; total: number };
+  uploadAvailable: boolean;
   visionAvailable: boolean;
   binaryScanAvailable: boolean;
 }
@@ -114,7 +115,8 @@ export function ReferenceFields({
       lock.current ||
       disabled ||
       config.isPending ||
-      config.isError
+      config.isError ||
+      !config.data?.uploadAvailable
     )
       return;
     const batch = Array.from(selected);
@@ -165,10 +167,11 @@ export function ReferenceFields({
     >
       <div
         className={`reference-drop ${dragging ? "reference-dragging" : ""}`}
-        aria-disabled={disabled || busy}
+        aria-disabled={disabled || busy || !config.data?.uploadAvailable}
         onDragOver={(event) => {
           event.preventDefault();
-          if (!disabled && !busy) setDragging(true);
+          if (!disabled && !busy && config.data?.uploadAvailable)
+            setDragging(true);
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={(event) => {
@@ -197,7 +200,13 @@ export function ReferenceFields({
             multiple
             accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.txt,.md"
             aria-label="Pilih file referensi"
-            disabled={disabled || busy || config.isPending || config.isError}
+            disabled={
+              disabled ||
+              busy ||
+              config.isPending ||
+              config.isError ||
+              !config.data?.uploadAvailable
+            }
             onChange={(event) => {
               void upload(event.target.files);
               event.target.value = "";
@@ -222,7 +231,13 @@ export function ReferenceFields({
           </Button>
         </Notice>
       )}
-      {config.data && !config.data.binaryScanAvailable && (
+      {config.data && !config.data.uploadAvailable && (
+        <Notice>
+          Unggahan sementara tidak tersedia. Brief teks tetap dapat disimpan;
+          coba lagi setelah layanan pemrosesan dan penyimpanan pulih.
+        </Notice>
+      )}
+      {config.data?.uploadAvailable && !config.data.binaryScanAvailable && (
         <Notice>
           PDF dan DOCX menunggu pemeriksaan keamanan tersedia. Gambar dan teks
           tetap dapat digunakan.

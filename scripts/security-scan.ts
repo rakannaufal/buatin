@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import "dotenv/config";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -19,6 +20,9 @@ const ignored = new Set([
   "playwright-report",
 ]);
 const runtimeKeys = [
+  "DATABASE_URL",
+  "DATABASE_DIRECT_URL",
+  "DATABASE_WORKER_URL",
   "BETTER_AUTH_SECRET",
   "GOOGLE_CLIENT_SECRET",
   "NINEROUTER_API_KEY",
@@ -27,6 +31,8 @@ const runtimeKeys = [
   "TURNSTILE_SECRET_KEY",
   "REFERENCE_S3_ACCESS_KEY",
   "REFERENCE_S3_SECRET_KEY",
+  "BACKUP_S3_ACCESS_KEY",
+  "BACKUP_S3_SECRET_KEY",
 ];
 const secrets = runtimeKeys
   .map((key) => process.env[key])
@@ -70,6 +76,12 @@ async function scan(directory: string) {
     });
   }
 }
+const tracked = execFileSync("git", ["ls-files", "-z"], {
+  encoding: "utf8",
+}).split("\0");
+for (const file of tracked)
+  if (/(?:^|\/)\.env(?:\.|$)/.test(file) && !file.endsWith(".env.example"))
+    findings.push(`${file}: tracked environment file`);
 await scan(".");
 if (findings.length) {
   console.error(findings.join("\n"));

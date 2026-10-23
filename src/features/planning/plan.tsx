@@ -332,8 +332,9 @@ export function PlanPage({ id }: { id: string }) {
                     dapat dilanjutkan.
                   </p>
                   <p className="muted">
-                    Saat mode AI nyata aktif, brief diteruskan melalui 9router
-                    ke provider. Periksa kembali agar tidak memuat data rahasia.
+                    Dokumen inti disusun dari template. Analisis gambar opsional
+                    memakai provider AI ketika Anda memintanya. Hindari
+                    memasukkan data rahasia.
                   </p>
                   {start.error && (
                     <Notice tone="error">{message(start.error)}</Notice>

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,7 +20,6 @@ export function LoginForm({
   siteKey?: string;
   initialError?: string;
 }) {
-  const router = useRouter();
   const [error, setError] = useState(initialError);
   const [challenge, setChallenge] = useState(false);
   const [recovery, setRecovery] = useState(false);
@@ -56,8 +54,7 @@ export function LoginForm({
         setChallenge(true);
         return;
       }
-      router.replace("/dashboard");
-      router.refresh();
+      window.location.replace("/dashboard");
     } catch {
       setError("Tidak dapat terhubung. Periksa koneksi lalu coba kembali.");
     }
@@ -82,8 +79,7 @@ export function LoginForm({
         );
         return;
       }
-      router.replace("/dashboard");
-      router.refresh();
+      window.location.replace("/dashboard");
     } catch {
       setError("Tidak dapat terhubung. Periksa koneksi lalu coba kembali.");
     } finally {

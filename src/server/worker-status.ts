@@ -1,7 +1,8 @@
 import path from "node:path";
 import { access } from "node:fs/promises";
 import { constants } from "node:fs";
-import { db } from "./db";
+import { AppError } from "./errors";
+import { db, type Transaction } from "./db";
 import { getEnv } from "./config";
 
 export async function scannerExecutableAvailable() {
@@ -27,4 +28,18 @@ export async function workerScannerReady() {
     !Array.isArray(value) &&
     value.scanner === true,
   );
+}
+
+export async function requireWorkerReady(tx: Transaction = db) {
+  const worker = await tx.setting.findUnique({
+    where: { key: "worker" },
+    select: { updatedAt: true },
+  });
+  const age = worker ? Date.now() - worker.updatedAt.getTime() : Infinity;
+  if (age < 0 || age >= 30000)
+    throw new AppError(
+      "WORKER_UNAVAILABLE",
+      503,
+      "Pemrosesan sementara tidak tersedia. Kuota belum dipakai; coba kembali nanti.",
+    );
 }

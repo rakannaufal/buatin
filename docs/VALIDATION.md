@@ -1,5 +1,60 @@
 # Hasil verifikasi Buatin
 
+## Perbaikan audit produksi - 23 Oktober 2026
+
+Bagian ini memperbarui status terdahulu. Lingkungan pengujian: Node 24,
+PostgreSQL 17 khusus fixture, web port 3100, worker dan storage/outbox/backup
+terpisah. Tidak ada data atau kredensial produksi pada integration/E2E.
+
+| Perintah / pemeriksaan                                                         | Hasil aktual                                                                                            |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `npm run format:check`, `npm run lint`, `npm run typecheck`                    | Lulus                                                                                                   |
+| `npm test`                                                                     | 129 tes, 17 file, lulus                                                                                 |
+| `npm run test:integration`                                                     | 57 tes, 9 file, lulus                                                                                   |
+| `npm run test:e2e`                                                             | 19 tes Chromium desktop/mobile, lulus                                                                   |
+| `npm run test:migrations`                                                      | Upgrade mempertahankan invoice/manfaat/ledger, lulus                                                    |
+| `npm run build:hosted`                                                         | Build Next.js dan worker lulus                                                                          |
+| Instalasi/build bersih di `/private/tmp/buatin-production-build-1792721293966` | `npm ci --include=dev --no-audit` lalu `npm run build:hosted`, tanpa `.env` atau cache workspace, lulus |
+| `npm run test:recovery`                                                        | SIGKILL nyata, lease kedaluwarsa, worker baru, resume 42/42 dokumen; checkpoint tidak berubah           |
+| `npm run backup:key`, `npm run db:backup`, `npm run test:backup`               | Backup terenkripsi, restore database baru dan checksum lampiran lulus                                   |
+| `npm audit --omit=dev --audit-level=high`                                      | Nol vulnerability dilaporkan                                                                            |
+| `npm run security:scan`                                                        | 346 file source/config/docs, lulus; nilai secret tidak dicetak                                          |
+| `npm run security:history`                                                     | 468 blob ditinjau sebelum commit; 2 kecocokan legacy yang dicabut, nol temuan belum ditinjau            |
+| `npm run skills:verify`, `npm run templates:verify`                            | 5 skill pack ditinjau, 42 template lulus                                                                |
+| HTTP metadata build lokal                                                      | Canonical/Open Graph empat halaman publik, sitemap empat URL, robots dan login noindex lulus            |
+
+Regresi yang ditemukan selama verifikasi: batas template 32.000 byte memblokir
+ekspor seluruh katalog; refund pembatalan menganggap nol request AI berarti belum
+ada hasil; gate worker sempat memblokir penyimpanan draft; restore dump schema
+aplikasi berbenturan dengan schema public bawaan. Semuanya diperbaiki dan
+diverifikasi. Restore membersihkan objek hanya dalam database UUID baru yang
+dibuat script, tidak menimpa sumber. Ekspektasi tes lama tentang mock AI diganti
+dengan pemeriksaan dokumen template sebenarnya; cakupan kegagalan worker,
+partial checkpoint, pembatalan dan ownership tetap diuji.
+
+Tindakan cloud terbatas yang diminta pengguna: tiga credential lama yang
+terekspos dicabut, sesi terkait dicabut, owner dipulihkan dengan password acak
+privat dan MFA dipertahankan; bucket Supabase privat `buatin-references` dibuat.
+Recovery tidak mempromosikan akun dan tidak mengaktifkan MFA tanpa operator.
+Tidak ada password, hash, email akun nyata, atau token pemulihan dalam Git.
+
+Query agregat Supabase terakhir: 12 migration selesai, satu owner aktif, dua
+operator belum MFA, dua credential account tanpa password, satu bucket privat,
+tidak ada heartbeat worker segar atau receipt backup aplikasi/luar host.
+Tidak adanya receipt aplikasi tidak menyimpulkan status backup managed Supabase.
+
+HTTP deployment aktif sebelum push: pricing 500, auth session 500, readiness
+503, liveness 200; mode mock aktif, signup dan Google belum siap. Detail log
+runtime Vercel dan environment hosting belum dapat diakses dari sesi ini;
+akar error DB/auth belum dibuktikan. Guard konfigurasi/error aman, pipeline
+deploy dan smoke sudah disiapkan di kode, belum menjadi bukti runtime pulih.
+
+Gate terbuka: koneksi runtime Vercel, worker persisten/scanner, Google/Resend/
+Turnstile, MFA operator, secret/environment GitHub produksi serta branch rules,
+S3 web/worker, backup luar host dan restore cloud. Pembayaran nyata, inference
+9router, load/soak, Safari/Firefox dan CWV produksi belum diuji. Rilis publik
+atau pembayaran belum diterima. Runbook: `docs/PRODUCTION_RELEASE.md`.
+
 ## Database dan perbaikan build Vercel - 21 Oktober 2026
 
 Screenshot pengguna menunjukkan deployment Vercel project `buatin`, team

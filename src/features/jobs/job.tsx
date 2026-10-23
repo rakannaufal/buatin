@@ -29,7 +29,11 @@ export function useJob(id: string) {
     queryFn: () => api<{ job: JobView }>(`/jobs/${id}`),
     refetchInterval: (q) =>
       q.state.data && !TERMINAL_STATUSES.includes(q.state.data.job.status)
-        ? 2000
+        ? q.state.data.job.workerReady === false
+          ? 10000
+          : q.state.status === "error"
+            ? Math.min(15000, 2000 * 2 ** Math.min(q.state.errorUpdateCount, 3))
+            : 2000
         : false,
   });
 }
@@ -51,8 +55,7 @@ export function JobPage({ id }: { id: string }) {
     onSuccess: () => client.invalidateQueries({ queryKey: ["job", id] }),
   });
   if (query.isPending) return <Loading />;
-  if (query.isError)
-    return <Notice tone="error">{message(query.error)}</Notice>;
+  if (!query.data) return <Notice tone="error">{message(query.error)}</Notice>;
   const job = query.data.job;
   const active = !TERMINAL_STATUSES.includes(job.status);
   const percent = Math.round((job.done / job.total) * 100);
@@ -88,8 +91,22 @@ export function JobPage({ id }: { id: string }) {
       </div>
       {job.mock && (
         <Notice tone="info">
-          Mode mock aktif. Dokumen ini fixture pengujian, bukan hasil analisis
-          AI nyata.
+          Mode pengujian aktif. Dokumen inti disusun dari template; layanan
+          eksternal memakai fixture pengujian.
+        </Notice>
+      )}
+      {query.isError && (
+        <Notice tone="error">
+          Pembaruan status gagal. Menampilkan data terakhir yang tersimpan.{" "}
+          <Button variant="secondary" onClick={() => void query.refetch()}>
+            Coba lagi
+          </Button>
+        </Notice>
+      )}
+      {active && job.workerReady === false && (
+        <Notice>
+          Layanan pemrosesan sementara terputus. Hasil yang sudah tersimpan
+          tetap tersedia; status diperiksa kembali secara berkala.
         </Notice>
       )}
       {job.errorCode && (

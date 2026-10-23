@@ -8,6 +8,7 @@ for (const entry of catalog) {
   if (
     !text.startsWith("# ") ||
     text.length < 500 ||
+    Buffer.byteLength(text) > 65536 ||
     /\[(?:ISI|PLACEHOLDER)\]/.test(text) ||
     (text.match(/^## /gm) ?? []).length < 3
   )

@@ -6,7 +6,9 @@ import { directDatabaseUrl, workerDatabaseUrl } from "./database-config";
 const loopback = (host: string) =>
   ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "[::]"].includes(host);
 
-export function hostedConfigurationIssues() {
+export function hostedConfigurationIssues(
+  scope: "release" | "web" | "worker" = "release",
+) {
   const env = getEnv();
   const issues: string[] = [];
   const app = new URL(env.APP_URL);
@@ -22,7 +24,9 @@ export function hostedConfigurationIssues() {
     ["DATABASE_URL", env.DATABASE_URL],
     ["DATABASE_DIRECT_URL", directDatabaseUrl()],
     ["DATABASE_WORKER_URL", workerDatabaseUrl()],
-  ]) {
+  ] as const) {
+    if (scope === "web" && name !== "DATABASE_URL") continue;
+    if (scope === "worker" && name === "DATABASE_DIRECT_URL") continue;
     try {
       const url = new URL(value);
       if (
@@ -44,9 +48,9 @@ export function hostedConfigurationIssues() {
       issues.push(`${name}: URL PostgreSQL tidak valid.`);
     }
   }
-  if (!publicAuthReady())
+  if (scope === "release" && !publicAuthReady())
     issues.push("AUTH: lengkapi Resend, pengirim terverifikasi dan Turnstile.");
-  if (!googleAuthReady())
+  if (scope === "release" && !googleAuthReady())
     issues.push(
       "GOOGLE: isi GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET; aktifkan Turnstile.",
     );
@@ -54,35 +58,37 @@ export function hostedConfigurationIssues() {
     issues.push("ADMIN_REQUIRE_2FA: wajib true.");
   if (env.MOCK_LLM !== "false")
     issues.push("MOCK_LLM: wajib false pada layanan pengguna.");
-  const llm = new URL(env.LLM_BASE_URL);
-  if (loopback(llm.hostname) || llm.protocol !== "https:")
-    issues.push(
-      "LLM_BASE_URL: gunakan endpoint HTTPS yang terjangkau Vercel dan worker.",
-    );
-  if (env.LLM_AUTH_MODE !== "header" || !env.NINEROUTER_API_KEY)
-    issues.push("AI: konfigurasi autentikasi 9router belum lengkap.");
-  if (!env.LLM_MODEL_PLANNER || !env.LLM_MODEL_WRITER)
-    issues.push("AI: tentukan model planner dan writer yang tersedia.");
+  if (env.LLM_VISION_MODEL) {
+    const llm = new URL(env.LLM_BASE_URL);
+    if (loopback(llm.hostname) || llm.protocol !== "https:")
+      issues.push(
+        "LLM_BASE_URL: gunakan endpoint HTTPS yang terjangkau Vercel dan worker.",
+      );
+    if (env.LLM_AUTH_MODE !== "header" || !env.NINEROUTER_API_KEY)
+      issues.push("AI: konfigurasi autentikasi 9router belum lengkap.");
+    if (
+      env.LLM_DAILY_BUDGET_USD <= 0 ||
+      env.LLM_INPUT_USD_PER_MILLION <= 0 ||
+      env.LLM_OUTPUT_USD_PER_MILLION <= 0
+    )
+      issues.push("AI: isi tarif konservatif dan batas estimasi USD harian.");
+  }
   if (
-    env.LLM_DAILY_BUDGET_USD <= 0 ||
-    env.LLM_INPUT_USD_PER_MILLION <= 0 ||
-    env.LLM_OUTPUT_USD_PER_MILLION <= 0
-  )
-    issues.push("AI: isi tarif konservatif dan batas estimasi USD harian.");
-  if (
-    env.REFERENCE_STORAGE !== "s3" ||
-    !env.REFERENCE_S3_BUCKET ||
-    !env.REFERENCE_S3_ACCESS_KEY ||
-    !env.REFERENCE_S3_SECRET_KEY ||
-    (env.REFERENCE_S3_ENDPOINT &&
-      !env.REFERENCE_S3_ENDPOINT.startsWith("https:"))
+    (scope === "release" || env.REFERENCE_STORAGE === "s3") &&
+    (env.REFERENCE_STORAGE !== "s3" ||
+      !env.REFERENCE_S3_BUCKET ||
+      !env.REFERENCE_S3_ACCESS_KEY ||
+      !env.REFERENCE_S3_SECRET_KEY ||
+      (env.REFERENCE_S3_ENDPOINT &&
+        !env.REFERENCE_S3_ENDPOINT.startsWith("https:")))
   )
     issues.push(
       "STORAGE: web dan worker memerlukan bucket S3-compatible privat yang sama.",
     );
   if (
-    !env.SUPPORT_EMAIL ||
-    /@(?:localhost\.test|example\.com)$/.test(env.SUPPORT_EMAIL)
+    scope === "release" &&
+    (!env.SUPPORT_EMAIL ||
+      /@(?:localhost\.test|example\.com)$/.test(env.SUPPORT_EMAIL))
   )
     issues.push("SUPPORT_EMAIL: isi alamat bantuan operasional.");
   return issues;

@@ -7,6 +7,7 @@ import { AppError } from "./errors";
 import { rateLimit } from "./limits";
 import { saveProject, projectFor } from "./projects";
 import {
+  referenceStorageConfigured,
   readReference,
   writeReference,
   removeReference,
@@ -17,7 +18,7 @@ import { technologyCatalog } from "../domain/technology";
 import { styleOptions } from "../domain/preferences";
 import { callLlm, llmConfig, checkModels } from "./llm";
 import { localApp } from "./challenge";
-import { workerScannerReady } from "./worker-status";
+import { requireWorkerReady, workerScannerReady } from "./worker-status";
 
 const reply = (value: unknown, status = 200) =>
   Response.json(value, {
@@ -76,6 +77,11 @@ export async function customizationApi(
         document: env.MAX_REFERENCE_DOCUMENT_BYTES,
         total: env.MAX_REFERENCE_TOTAL_BYTES,
       },
+      uploadAvailable:
+        referenceStorageConfigured() &&
+        (await requireWorkerReady()
+          .then(() => true)
+          .catch(() => false)),
       visionAvailable: env.MOCK_LLM !== "true" && Boolean(env.LLM_VISION_MODEL),
       binaryScanAvailable: localApp() || (await workerScannerReady()),
     });
@@ -89,6 +95,13 @@ export async function customizationApi(
       briefVersion: project.briefVersion,
     });
   if (!referenceId && req.method === "POST") {
+    if (!referenceStorageConfigured())
+      throw new AppError(
+        "STORAGE_UNCONFIGURED",
+        503,
+        "Unggahan belum tersedia; pengelola perlu menghubungkan storage privat.",
+      );
+    await requireWorkerReady();
     await rateLimit(`reference-upload:${user.id}`, 30, 3600);
     const briefVersion = versionHeader(req);
     let fileName: string;

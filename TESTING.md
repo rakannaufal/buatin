@@ -110,3 +110,24 @@ recovery code, pencabutan sesi, kesiapan dependency dan integritas backup. Jalan
 `backup:verify -- <bundle> --restore` ke database baru untuk bukti pemulihan lengkap;
 unit enkripsi tidak cukup. `provider:check -- --smoke` adalah panggilan nyata yang
 terpisah dari fixture dan dapat ditagih; jangan masukkan key nyata ke CI test.
+
+## Production hardening regressions
+
+- `tests/integration/route-contracts.test.ts`: exact suffix rejection, 404/405,
+  method-specific Allow, bodyless HEAD, mutation-free OPTIONS.
+- `tests/e2e/cache-isolation.spec.ts`: logout/login for two users in one tab,
+  cleared document state, account isolation and offline view.
+- `tests/integration/owner-recovery.test.ts`: concurrent first-owner guard,
+  session revocation, retained MFA, no promotion via reset.
+- `tests/integration/workflow.test.ts`: template package export, worker outage
+  before quota reservation, checkpoint resume, running cancellation, metadata
+  without document bodies. Provider failure is injected only at test boundaries.
+- `tests/integration/saas.test.ts`: no cancellation refund after a template
+  checkpoint, including stale leases with zero AI requests.
+- `tests/unit/backup-remote.test.ts`: mocked remote round-trip integrity; corrupt
+  responses cannot publish completion receipts. This does not prove real S3.
+
+Release validation also runs `npm run security:history`; the baseline contains
+fingerprints of revoked legacy credentials only. Current source must pass the
+separate scanner without that baseline. Never add a new secret to the baseline
+instead of revoking it. See `docs/PRODUCTION_RELEASE.md` for provider activation.

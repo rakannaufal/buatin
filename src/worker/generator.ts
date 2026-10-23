@@ -2,7 +2,7 @@ import { db, json } from "../server/db";
 import { getEnv } from "../server/config";
 import { AppError, errorCode } from "../server/errors";
 import { hash, userLock } from "../server/limits";
-import { refundQuota } from "../server/entitlements";
+import { refundUnusedJobQuota } from "../server/entitlements";
 import { activeUser } from "../server/admin/security";
 import { suspended } from "../domain/admin";
 import { lintOutput, manifestFor, type OutputFile } from "../domain/lint";
@@ -49,8 +49,12 @@ export async function generateJob(id: string) {
         where: { id: candidate.projectId },
         data: { status: "cancelled" },
       });
-      if (candidate.llmRequestCount === 0)
-        await refundQuota(tx, candidate.userId, id, "suspended_before_ai");
+      await refundUnusedJobQuota(
+        tx,
+        candidate.userId,
+        id,
+        "suspended_before_output",
+      );
       return { count: 0 };
     }
     if (
@@ -423,22 +427,15 @@ export async function generateJob(id: string) {
           where: { id: initial.projectId },
           data: { status },
         });
-        if (
-          code === "ACCOUNT_SUSPENDED" &&
-          initial.llmRequestCount === 0 &&
-          (await tx.job.findUniqueOrThrow({ where: { id } }))
-            .llmRequestCount === 0
-        ) {
-          await refundQuota(tx, initial.userId, id, "permanent_system_failure");
-        }
-        if (
-          code === "CANCELLED" &&
-          initial.llmRequestCount === 0 &&
-          (await tx.job.findUniqueOrThrow({ where: { id } }))
-            .llmRequestCount === 0
-        ) {
-          await refundQuota(tx, initial.userId, id, "cancelled_before_ai");
-        }
+        if (code === "ACCOUNT_SUSPENDED" || code === "CANCELLED")
+          await refundUnusedJobQuota(
+            tx,
+            initial.userId,
+            id,
+            code === "CANCELLED"
+              ? "cancelled_before_output"
+              : "suspended_before_output",
+          );
         await tx.auditEvent.create({
           data: {
             userId: initial.userId,

@@ -30,7 +30,7 @@ export async function readTemplate(
     );
     if (
       !/^# .+/m.test(content.slice(0, 200)) ||
-      Buffer.byteLength(content) > 32000
+      Buffer.byteLength(content) > 65536
     )
       throw new Error("Invalid template");
     if (

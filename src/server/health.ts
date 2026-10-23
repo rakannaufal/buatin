@@ -33,7 +33,9 @@ export function readiness(): Promise<Readiness> {
       const row = result.rows[0];
       const database = Boolean(row && row.unfinished === "0" && row.migrated);
       const worker = Boolean(
-        row?.worker_at && Date.now() - row.worker_at.getTime() < 30000,
+        row?.worker_at &&
+        Date.now() - row.worker_at.getTime() >= 0 &&
+        Date.now() - row.worker_at.getTime() < 30000,
       );
       return { ok: database && worker, database, worker };
     } catch {

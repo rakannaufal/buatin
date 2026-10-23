@@ -282,3 +282,19 @@ Operator memakai `GET /api/admin/support` dan `GET /api/admin/support/:id`.
 `POST /api/admin/support/:id` menerima
 `{version,status,priority,assignedTo,message?,internal,reason}` dengan reauth
 dan Idempotency-Key. Catatan internal tidak dikirim ke API pengguna.
+
+## Exact dispatcher contracts
+
+The main API dispatcher accepts only full patterns in `src/domain/api-routes.ts`.
+Unknown suffixes return 404 before authentication/body parsing; known paths with
+an unsupported method return 405 with `Allow`. HEAD mirrors GET status/headers
+without a body; OPTIONS reports only allowed methods and makes no mutation.
+`/api/auth/*` and `/api/billing/duitku/callback` retain dedicated handlers.
+
+`GET /api/jobs/:id` and `/files` select file metadata without content; a single
+file body requires its owned `/files/:fileId` route. Job status includes
+`generationMode: "template"` and `workerReady`. `GET /api/customization` includes
+`uploadAvailable`, false when private storage or the worker is unavailable.
+New work returns `WORKER_UNAVAILABLE` (503) before consuming quota. Hosted local
+storage returns `STORAGE_UNCONFIGURED` (503). Invalid runtime configuration fails
+closed; auth service failures return a safe 503 with a request ID.

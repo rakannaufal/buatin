@@ -1,3 +1,4 @@
+import * as referenceStorage from "../../src/server/reference-storage";
 import { beforeAll, afterAll, describe, expect, it, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
@@ -478,6 +479,8 @@ describe("customization persistence and private references", () => {
       },
     });
     try {
+      // Isolate scanner policy from the independently tested hosted storage gate.
+      vi.spyOn(referenceStorage, "readReference").mockResolvedValue(data);
       vi.stubEnv("APP_URL", "https://app.example.test");
       vi.stubEnv("REFERENCE_SCANNER_PATH", "");
       await processReference(file.id);
@@ -504,6 +507,7 @@ describe("customization persistence and private references", () => {
         errorCode: "REFERENCE_SCAN_FAILED",
       });
     } finally {
+      vi.restoreAllMocks();
       vi.unstubAllEnvs();
     }
     const rejected = await request(`/projects/${draft.id}/plans`, "POST", {

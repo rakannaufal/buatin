@@ -45,7 +45,9 @@
     "backup:verify": "node --import tsx scripts/backup.ts",
     "templates:verify": "node --import tsx scripts/check-templates.ts",
     "ops:check": "node --import tsx scripts/check-production.ts --runtime",
-    "test:backup": "node --import tsx scripts/check-backup.ts"
+    "test:backup": "node --import tsx scripts/check-backup.ts",
+    "security:history": "node --import tsx scripts/security-history.ts",
+    "deploy:smoke": "node --import tsx scripts/check-deployment.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1154.0",

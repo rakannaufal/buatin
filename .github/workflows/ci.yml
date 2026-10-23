@@ -17,6 +17,8 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -35,6 +37,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run security:scan
+      - run: npm run security:history
       - run: npm run skills:verify
       - run: npm run templates:verify
       - run: npm test
@@ -44,15 +47,25 @@ jobs:
         run: |
           mkdir -p .local
           npm run mock > .local/mock.log 2>&1 &
-          npm run start:worker > .local/worker.log 2>&1 &
+          node --import tsx src/worker/index.ts > .local/worker.log 2>&1 &
+          echo $! > .local/worker.pid
           npm start > .local/web.log 2>&1 &
           for attempt in $(seq 1 60); do
             if curl -fsS http://localhost:3000/api/health; then break; fi
             sleep 1
           done
+          curl --fail --silent --show-error http://localhost:3000/api/health/ready
       - run: npm run test:integration
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Verify worker process recovery
+        run: |
+          kill -TERM "$(cat .local/worker.pid)"
+          for attempt in $(seq 1 30); do
+            if ! kill -0 "$(cat .local/worker.pid)" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:recovery
       - run: npm run backup:key
       - run: npm run db:backup
       - run: npm run test:backup

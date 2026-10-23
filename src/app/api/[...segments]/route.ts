@@ -1,4 +1,6 @@
 import { NextRequest } from "next/server";
+import { assertRuntimeConfiguration } from "@/server/runtime-config";
+import { routeMethods } from "@/domain/api-routes";
 import { z } from "zod";
 import { auth } from "@/server/auth";
 import { db, json } from "@/server/db";
@@ -16,7 +18,8 @@ import {
   queuePlan,
   changePlan,
   startJob,
-  jobFor,
+  jobMetadataFor,
+  jobFileFor,
   cancelJob,
   resumeJob,
 } from "@/server/projects";
@@ -83,7 +86,7 @@ const reply = (value: unknown, status = 200) =>
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
-async function handler(
+async function dispatch(
   req: NextRequest,
   context: { params: Promise<{ segments: string[] }> },
 ) {
@@ -95,10 +98,12 @@ async function handler(
     if (resource === "health" && method === "GET" && !action) {
       if (id === "live") return reply({ ok: true });
       if (!id || id === "ready") {
+        assertRuntimeConfiguration();
         const status = await readiness();
         return reply({ ok: status.ok }, status.ok ? 200 : 503);
       }
     }
+    assertRuntimeConfiguration();
     if (resource === "pricing" && method === "GET")
       return reply({
         plans: await billingPlans(),
@@ -106,6 +111,7 @@ async function handler(
       });
     if (resource === "public-config" && method === "GET")
       return reply({
+        generationMode: "template",
         mock: getEnv().MOCK_LLM === "true",
         turnstileSiteKey: getEnv().TURNSTILE_SITE_KEY,
         registrationReady: publicAuthReady(),
@@ -485,19 +491,10 @@ async function handler(
         method === "GET"
       )
         return await download(user.id, id, subId);
-      const job = await jobFor(user.id, id);
+      if (action === "files" && subId && method === "GET")
+        return reply({ file: await jobFileFor(user.id, id, subId) });
+      const job = await jobMetadataFor(user.id, id);
       const snapshot = job.snapshot as unknown as Snapshot;
-      if (action === "files" && subId && method === "GET") {
-        const file = job.files.find((f) => f.fileId === subId);
-        if (!file || file.status !== "succeeded")
-          throw new AppError("NOT_FOUND", 404);
-        return reply({
-          file: {
-            ...file,
-            path: snapshot.catalog.find((c) => c.id === subId)?.path,
-          },
-        });
-      }
       if ((!action || action === "files") && method === "GET")
         return reply({
           job: {
@@ -519,6 +516,8 @@ async function handler(
             billingPlanId: job.billingPlanId,
             quotaRefundedAt: job.quotaRefundedAt,
             sourceJobId: job.sourceJobId,
+            generationMode: "template",
+            workerReady: (await readiness()).worker,
             mock: snapshot.config.mock,
             plan: snapshot.plan,
             files: snapshot.plan.selected.map((selected) => {
@@ -692,8 +691,50 @@ async function handler(
     );
   }
 }
+async function handler(
+  req: NextRequest,
+  context: { params: Promise<{ segments: string[] }> },
+) {
+  const { segments } = await context.params;
+  const methods = routeMethods(segments);
+  if (!methods)
+    return reply(
+      { error: { code: "NOT_FOUND", message: "Halaman API tidak ditemukan." } },
+      404,
+    );
+  const headers = {
+    Allow: methods.join(", "),
+    "Cache-Control": "private, no-store",
+  };
+  if (req.method === "OPTIONS")
+    return new Response(null, { status: 204, headers });
+  if (!methods.includes(req.method))
+    return Response.json(
+      {
+        error: {
+          code: "METHOD_NOT_ALLOWED",
+          message: "Metode tidak diizinkan.",
+        },
+      },
+      { status: 405, headers },
+    );
+  if (req.method === "HEAD") {
+    const response = await dispatch(
+      new NextRequest(req, { method: "GET" }),
+      context,
+    );
+    await response.body?.cancel();
+    return new Response(null, {
+      status: response.status,
+      headers: response.headers,
+    });
+  }
+  return dispatch(req, context);
+}
 export {
   handler as GET,
+  handler as HEAD,
+  handler as OPTIONS,
   handler as POST,
   handler as PATCH,
   handler as DELETE,

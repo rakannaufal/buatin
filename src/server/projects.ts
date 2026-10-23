@@ -1,3 +1,4 @@
+import { requireWorkerReady } from "./worker-status";
 import { readFile } from "node:fs/promises";
 import { readTemplate } from "./templates";
 import { applyPublishedSkills, publishedTemplates } from "./admin/content";
@@ -15,7 +16,7 @@ import {
   requireFeature,
   reserveQuota,
   reservePlanner,
-  refundQuota,
+  refundUnusedJobQuota,
 } from "./entitlements";
 import { regenerationClosure } from "../domain/billing";
 import type { Transaction } from "./db";
@@ -263,6 +264,7 @@ export async function queuePlan(
       },
     });
     if (existing) return existing;
+    await requireWorkerReady(tx);
     const references = await referenceSnapshot(tx, id);
     const preferences = readPreferences(project.preferences);
     const conflicts = [
@@ -478,6 +480,7 @@ async function createQueuedJob(
   key: string,
 ) {
   const { projectId, planVersion, snapshot } = prepared;
+  await requireWorkerReady(tx);
   const operation = prepared.sourceJobId
     ? `regenerate:${prepared.sourceJobId}`
     : `start:${projectId}`;
@@ -819,6 +822,35 @@ export async function regenerateJob(
     return { ...job, impacted };
   });
 }
+export async function jobMetadataFor(userId: string, id: string) {
+  const job = await db.job.findFirst({
+    where: { id, userId },
+    include: {
+      files: { omit: { content: true } },
+      project: { select: { name: true, id: true, webType: true } },
+    },
+  });
+  if (!job) throw new AppError("NOT_FOUND", 404, "Proses tidak ditemukan.");
+  if (job.finishedAt && job.expiresAt.getTime() <= Date.now())
+    throw new AppError(
+      "RESULT_EXPIRED",
+      410,
+      "Masa penyimpanan hasil sudah berakhir.",
+    );
+  return job;
+}
+export async function jobFileFor(userId: string, id: string, fileId: string) {
+  const job = await jobMetadataFor(userId, id);
+  const file = await db.jobFile.findFirst({
+    where: { jobId: id, fileId, status: "succeeded", job: { userId } },
+  });
+  if (!file) throw new AppError("NOT_FOUND", 404);
+  const snapshot = job.snapshot as unknown as Snapshot;
+  return {
+    ...file,
+    path: snapshot.catalog.find((entry) => entry.id === fileId)?.path,
+  };
+}
 export async function jobFor(userId: string, id: string) {
   const job = await db.job.findFirst({
     where: { id, userId },
@@ -878,6 +910,7 @@ export async function resumeJob(
         409,
         "Proses ini tidak dapat dilanjutkan.",
       );
+    await requireWorkerReady(tx);
     const entitlement = await entitlementFor(userId, tx);
     if (
       (await tx.job.count({
@@ -954,8 +987,8 @@ export async function cancelJob(
         where: { id: job.projectId },
         data: { status: "cancelled" },
       });
-    if (status === "cancelled" && job.llmRequestCount === 0)
-      await refundQuota(tx, userId, id, "cancelled_before_ai");
+    if (status === "cancelled")
+      await refundUnusedJobQuota(tx, userId, id, "cancelled_before_output");
     return { id, status };
   };
   return transaction ? run(transaction) : db.$transaction(run);

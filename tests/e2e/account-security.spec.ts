@@ -118,8 +118,11 @@ test("operator sees production priorities and runtime metrics without mobile ove
     page.getByRole("heading", { name: "Prioritas peluncuran" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Batas estimasi biaya AI", { exact: true }),
+    page.getByText("Dokumen berbasis template", { exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByText("Kredensial analisis gambar", { exact: true }),
+  ).toHaveCount(0);
   await expect(
     page.getByText("Request AI nyata hari ini (UTC)", { exact: true }),
   ).toBeVisible();

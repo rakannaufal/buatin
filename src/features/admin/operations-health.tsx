@@ -12,7 +12,7 @@ type Report = {
     metrics: {
       queued: number;
       running: number;
-      freeDiskMb: number;
+      freeDiskMb: number | null;
       dispatchAgeSeconds: number;
     };
     ai: {
@@ -49,6 +49,8 @@ export function OperationsPanel() {
   const labels: Record<string, string> = {
     DEPENDENCY_UNHEALTHY: "Database atau worker bermasalah",
     DISK_LOW: "Ruang penyimpanan menipis",
+    BACKUP_STALE: "Backup terbaru belum tersedia",
+    BACKUP_ARCHIVE_UNVERIFIED: "Salinan backup luar host belum terverifikasi",
     OUTBOX_STALLED: "Pengiriman antrean tertunda",
     EMAIL_DELIVERY_FAILED: "Email gagal dikirim",
     PAYMENT_REVIEW_REQUIRED: "Pembayaran perlu diperiksa",
@@ -86,7 +88,11 @@ export function OperationsPanel() {
         </div>
         <div>
           <dt>Disk aplikasi tersedia</dt>
-          <dd>{runtime.metrics.freeDiskMb.toLocaleString("id-ID")} MiB</dd>
+          <dd>
+            {runtime.metrics.freeDiskMb === null
+              ? "Dikelola platform; storage memakai bucket privat"
+              : `${runtime.metrics.freeDiskMb.toLocaleString("id-ID")} MiB`}
+          </dd>
         </div>
         <div>
           <dt>Request AI nyata hari ini (UTC)</dt>

@@ -1,21 +1,30 @@
 import "dotenv/config";
 import { randomBytes } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, open } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import { Writable } from "node:stream";
 import { hashPassword } from "better-auth/crypto";
-import { createAuth } from "../src/server/auth";
+import { manageOwner } from "../src/server/owner-recovery";
 import { db } from "../src/server/db";
 import { getEnv } from "../src/server/config";
 const mode = process.argv[2];
 if (!["create", "reset"].includes(mode))
   throw new Error("Use create or reset.");
+if (process.argv.slice(3).some((arg) => arg !== "--generate"))
+  throw new Error(
+    "Password arguments are forbidden. Use the interactive prompt or --generate.",
+  );
 const email = getEnv().OWNER_EMAIL;
 let password: string;
 if (process.argv.includes("--generate")) {
   password = randomBytes(24).toString("base64url");
   await mkdir(".local", { recursive: true });
-  await writeFile(".local/owner-password", password + "\n", { mode: 0o600 });
+  const file = await open(".local/owner-password", "wx", 0o600);
+  try {
+    await file.writeFile(password + "\n");
+  } finally {
+    await file.close();
+  }
 } else {
   if (!process.stdin.isTTY)
     throw new Error(
@@ -42,26 +51,11 @@ if (process.argv.includes("--generate")) {
 if (password.length < 12 || password.length > 128)
   throw new Error("Password must contain 12-128 characters.");
 try {
-  const existing = await db.user.findUnique({ where: { email } });
-  if (mode === "create") {
-    if (existing) throw new Error("Owner exists; use reset.");
-    const result = await createAuth(true).api.signUpEmail({
-      body: { email, password, name: "Pemilik" },
-    });
-    await db.user.update({
-      where: { id: result.user.id },
-      data: { role: "owner", emailVerified: true },
-    });
-  } else {
-    if (!existing) throw new Error("Owner not found.");
-    await db.$transaction([
-      db.account.updateMany({
-        where: { userId: existing.id, providerId: "credential" },
-        data: { password: await hashPassword(password) },
-      }),
-      db.session.deleteMany({ where: { userId: existing.id } }),
-    ]);
-  }
+  await manageOwner(
+    mode as "create" | "reset",
+    email,
+    await hashPassword(password),
+  );
   console.log(
     `Owner ${mode === "create" ? "created" : "password reset"}: ${email}. ${process.argv.includes("--generate") ? "Password saved in .local/owner-password (private)." : ""}`,
   );
