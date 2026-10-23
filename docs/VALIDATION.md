@@ -43,7 +43,10 @@ heartbeat worker/receipt backup aplikasi belum ada. Produksi masih pricing/sessi
 500, readiness 503, kontrak route lama dan `mock:true`. Repository/environment
 GitHub produksi belum memiliki secret deployment Vercel. Persetujuan menghubungkan
 Vercel/Render sudah ada; koneksi akun yang dapat digunakan belum tersedia.
-Jangan menyimpulkan akar error runtime tanpa log. Lihat
+Dashboard log Vercel kemudian berhasil dibaca: Prisma `P1000` /
+`AuthenticationFailed` pada query RateLimit/Setting membuktikan kredensial
+PostgreSQL ditolak. Password database yang benar belum tersedia; publishable key
+bukan kredensial PostgreSQL. Perubahan environment hosting masih diperlukan. Lihat
 `PRODUCTION_AUDIT_2026-10-23.md` untuk prioritas penutupan.
 
 ## Perbaikan audit produksi - 23 Oktober 2026

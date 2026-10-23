@@ -19,8 +19,11 @@ penghapusan branch dilarang. Commit harus lulus CI pada branch sebelum fast-forw
 2. **HTTP produksi masih bermasalah.** Probe publik menemukan pricing 500,
    readiness 503, session 500, HEAD liveness 401, suffix API asing 200 dan metode
    pricing salah 401. Ini sesuai perilaku kode lama; kontrak baru sudah lulus
-   pada build fixture. Terapkan commit yang lolos CI, periksa runtime log dan
-   koneksi PostgreSQL dari Vercel, lalu ulangi smoke. Jangan menonaktifkan TLS/RLS,
+   pada build fixture. Dashboard log Vercel kemudian berhasil dibaca: Prisma
+   `P1000` / `AuthenticationFailed` pada query RateLimit dan Setting membuktikan
+   kredensial PostgreSQL ditolak. Perbaiki connection string/password database
+   melalui environment hosting, terapkan commit yang lolos CI, lalu ulangi smoke.
+   Jangan menonaktifkan TLS/RLS,
    ownership atau autentikasi untuk menutupi kegagalan koneksi.
 3. **Worker cloud belum hidup.** Heartbeat Supabase belum ada. Gunakan satu worker
    persisten dengan direct/session connection, bukan transaction pooler.
