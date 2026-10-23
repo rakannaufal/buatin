@@ -5,6 +5,40 @@
 Bagian ini menggantikan kebutuhan worker pada catatan anggaran/deployment lama.
 Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
 
+### Hasil cloud akhir
+
+- Implementasi `fd240bbcca98f76e43abf82e95e67acadd152101` didorong ke
+  `codex/admin-management`. Required `verify` sukses pada run `39908519789`;
+  seluruh tahap, termasuk browser, mode request dan Docker, selesai tanpa failure.
+  Sesudah sukses, push fast-forward SHA yang sama ke `main` berhasil.
+- Proteksi main diperiksa kembali sebelum deploy: verify wajib, strict,
+  enforce-admins aktif, force push dan deletion nonaktif.
+- Deployment Vercel `dpl_3yrGjjYjkcBSqBst2VcoJBtAXiaK` Ready/Production;
+  gitSource main/SHA dan metadata validatedCommit cocok dengan SHA terverifikasi.
+  Team tetap memakai paket Hobby. Tidak ada worker berbayar yang dibuat.
+- `npm run deploy:smoke -- https://buatin-kappa.vercel.app --scope=operations`:
+  **14/14 lulus**, `scopeReady:true`, `publicLaunchAccepted:false`.
+  Readiness HTTP 200; private projects 401; suffix 404; metode 405; OPTIONS 204.
+- Probe terpisah: public-config 200, mock false, processingMode request,
+  generationMode template, registrationReady false dan googleReady false.
+  Cron tanpa secret 401, HEAD cron 405/body kosong; POST processing anonim 401,
+  HEAD processing 405/body kosong, suffix processing asing 404.
+  Cron bersecret tidak dipanggil secara manual karena menjalankan retensi nyata.
+- Agregat Supabase read-only: 12 migration selesai, satu bucket referensi privat,
+  satu owner aktif. Dua akun privileged belum MFA, dua credential account belum
+  memiliki password; aktivasi/recovery login tidak dilakukan dalam scope ini.
+  Tidak ada heartbeat worker atau receipt backup/off-host. Mode request tidak
+  membutuhkan heartbeat; ketiadaan receipt backup tetap gap operasi.
+- Monitoring HTTP GitHub diaktifkan melalui MONITOR_ENABLED dan PRODUCTION_URL;
+  run manual dikirim sesudah smoke sukses. Repository publik, tanpa upgrade
+  hosting atau penyimpanan secret tambahan. Run `39910384926` completed/success
+  untuk SHA `fd240bb`; delivery alert gangguan belum diuji.
+- Deployment ini dijalankan manual melalui API resmi Vercel memakai CLI login
+  operator. CD GitHub masih memerlukan izin token khusus proyek, bukan salinan
+  token CLI akun. Automatic Git deployment main tetap nonaktif.
+
+### Bukti fixture dan build
+
 - `npm test`: 144 test, 21 file lulus.
 - `npm run lint` dan `npm run typecheck`: lulus.
 - `npm run test:request`: enam test lulus pada dev fixture loopback tanpa worker,
@@ -55,9 +89,10 @@ Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
   Journey workspace desktop/mobile build final: dua test lulus (13,3 detik).
   Lint akhir lulus. Secret scan akhir mencakup 368 file dan lulus.
 
-Masih menunggu CI SHA rilis serta deployment/smoke cloud. Login publik,
-enrollment MFA dan payment tetap ditunda. Mock tidak membuktikan provider nyata
-atau kapasitas. Backup/restore lokal bukan bukti off-host produksi.
+Login publik, enrollment MFA dan payment tetap ditunda. Mock tidak membuktikan
+provider nyata atau kapasitas. Backup/restore lokal bukan bukti off-host produksi.
+Alur privat upload/generasi melalui akun cloud belum diuji; fixture tidak membuat
+akun produksi atau melewati proteksi untuk menutup gap tersebut.
 
 ## Batas anggaran hosting awal - 23 Oktober 2026
 

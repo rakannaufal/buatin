@@ -9,14 +9,17 @@ scanner; template, gambar dan TXT/MD tetap didukung. Tidak ada provisioning berb
 
 Prioritas aktual sebelum peluncuran:
 
-1. **P0 - Validasi rilis dan runtime.** CI SHA yang sama, build hosted, smoke origin
-   publik dan readiness DB/processing wajib lulus. Environment mode request dan
-   storage sudah disimpan pada Production; deploy baru masih harus diverifikasi.
-   Jangan menyatakan build atau bucket read-only membuktikan alur privat cloud.
+1. **P0 - Runtime inti terverifikasi.** SHA `fd240bb` lulus required verify,
+   dipromosikan ke main dan deployment Production Ready. Smoke publik 14/14,
+   readiness 200, mode request dan mock false. Proteksi main tetap aktif.
+   Alur privat cloud belum diuji melalui akun produksi; bukti bucket read-only
+   dan fixture tidak menggantikannya. CD otomatis menunggu izin token khusus
+   proyek pada GitHub Environment production; deploy manual berhasil.
 2. **P1 - Backup/restore dan monitoring.** Cron harian hanya retensi batch terbatas;
    bukan backup. Belum ada bukti backup off-host/restore produksi. Pantau maintenance,
-   error rate, pemakaian DB/storage, expiry lease dan backlog. Aktivasi alert tetap
-   memerlukan tujuan/operator yang benar.
+   error rate, pemakaian DB/storage, expiry lease dan backlog. Workflow monitor
+   HTTP telah diaktifkan; run manual `39910384926` sukses. Delivery alert operator
+   belum dibuktikan.
 3. **P1 - Login dan MFA operator (ditunda).** Tetap wajib sebelum membuka akses
    publik. Jangan melewati ownership/Origin/MFA untuk mempermudah pengujian cloud.
    Payment nonaktif sampai aktivasi merchant dan harga ditinjau.
