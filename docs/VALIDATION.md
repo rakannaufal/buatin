@@ -40,24 +40,40 @@ Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
 
 - Pengguna mengizinkan token khusus proyek Buatin selama 90 hari, disimpan
   terenkripsi pada GitHub Environment `production`. Token CLI akun tidak disalin.
-- Permintaan resmi Vercel dengan `projectId` dan expiry 90 hari ditolak HTTP 403:
-  `Cannot create tokens for this app.`. Pemeriksaan daftar token memastikan token
-  bernama `buatin-github-production-deploy` belum ada; secret `VERCEL_*` pada
-  environment production juga belum ada. Tidak ada tanggal expiry yang aktif.
-- Run deploy `39910789451` gagal pada step `Deploy the validated commit`. Log
-  mengonfirmasi `VERCEL_TOKEN must be configured in the protected production
-environment.`. Required Native validation pada main `fd240bb` tetap sukses
+- Permintaan resmi Vercel dengan `projectId` dan expiry 90 hari semula ditolak
+  HTTP 403: `Cannot create tokens for this app.`. Token kemudian dibuat melalui
+  dashboard setelah konfirmasi akhir dan verifikasi email oleh operator. Scope
+  dipilih pada proyek `buatin`, bukan All Projects/Full Account.
+- `VERCEL_TOKEN`, `VERCEL_TEAM_ID` dan `VERCEL_PROJECT_ID` disimpan menggunakan
+  GitHub Environment Secrets API dengan public key dan SealedBox. Akses token
+  ke project ID tujuan serta scope tim/expiry diperiksa; berakhir tepat
+  `2027-01-21T07:14:13.440Z`. Token CLI tidak disalin; nilai token tidak dicetak.
+  Transfer sementara dienkripsi RSA-OAEP SHA-256, diuji dengan fixture, kemudian
+  ciphertext dan pasangan key sementara dihapus setelah penyimpanan sukses.
+- Run deploy `39910789451` awalnya gagal pada step `Deploy the validated commit`. Log
+  mengonfirmasi `VERCEL_TOKEN must be configured in the protected production environment.`.
+  Required Native validation pada main `fd240bb` tetap sukses
   (run `39910003059`); CI branch dokumentasi `af36c05` sukses (`39910651700`).
-- Pemeriksaan ulang `npm run deploy:smoke -- https://buatin-kappa.vercel.app
---scope=operations` lulus 14/14, readiness 200, private projects 401,
-  `publicLaunchAccepted:false`. Ini memeriksa deployment yang sudah aktif,
-  bukan bukti workflow deploy otomatis berhasil.
-- Dashboard token dibuka untuk penyelesaian melalui UI; browser Codex memerlukan
-  login operator. Scope proyek dan expiry harus diperiksa sebelum token dibuat.
-  Jangan menggantinya dengan token akun atau scope lebih luas tanpa izin baru.
-- Perubahan dokumentasi ini: Prettier pada dua dokumen dan `git diff --check`
-  lulus; `npm run security:scan` lulus untuk 368 file. Tidak ada perubahan
-  aplikasi atau migration; suite aplikasi tidak diulang untuk catatan ini.
+- Setelah secret tersimpan, main masih pada SHA `fd240bb`; required verify dan
+  proteksi strict/enforce-admins/no-force/no-delete diperiksa sebelum menjalankan
+  ulang job gagal. Attempt kedua menghasilkan job `120292987716`, completed/success,
+  selesai `2026-10-23T07:22:31Z` menurut GitHub API.
+- Workflow membuat deployment `dpl_7K3e2RMfokDTevESByqgMKN2CRjm`, Ready/Production.
+  GitSource main SHA `fd240bbcca98f76e43abf82e95e67acadd152101`, metadata
+  validatedCommit dan validationRun `39910003059` cocok dengan CI sukses.
+  Log job membuktikan deployment Ready serta smoke `scopeReady:true`,
+  `publicLaunchAccepted:false`; check-run deploy juga success. Respons status
+  antrean sempat tertinggal; request baru dan log job mengonfirmasi penyelesaian.
+- Pemeriksaan ulang dari operator dengan `npm run deploy:smoke -- https://buatin-kappa.vercel.app --scope=operations`
+  pada deployment baru lulus 14/14, readiness 200, private projects 401.
+- CI commit dokumentasi `638770b` juga completed/success (`39916167677`).
+  Perubahan setelahnya hanya catatan bukti dan panduan rotasi, tanpa perubahan
+  aplikasi atau migration; suite aplikasi tidak diulang untuk dokumentasi.
+- Dokumentasi akhir: `npm run format:check`, `npm run security:scan` (368 file)
+  dan `git diff --check` lulus. Anotasi deploy mencatat actions/checkout@v4 dan
+  setup-node@v4 menargetkan Node 20 tetapi dipaksa runner memakai Node 24,
+  serta pemberitahuan migrasi ubuntu-latest ke Ubuntu 26. Job tetap sukses;
+  pembaruan versi action/runner memerlukan validasi CI tersendiri.
 
 ### Bukti fixture dan build
 

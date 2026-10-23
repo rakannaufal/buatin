@@ -13,11 +13,12 @@ Prioritas aktual sebelum peluncuran:
    dipromosikan ke main dan deployment Production Ready. Smoke publik 14/14,
    readiness 200, mode request dan mock false. Proteksi main tetap aktif.
    Alur privat cloud belum diuji melalui akun produksi; bukti bucket read-only
-   dan fixture tidak menggantikannya. Token khusus proyek selama 90 hari sudah
-   diizinkan, tetapi Vercel menolak pembuatannya melalui CLI OAuth (403,
-   `Cannot create tokens for this app.`). GitHub Environment production belum
-   memiliki secret Vercel; penyelesaian melalui dashboard menunggu login operator.
-   Deploy manual berhasil; CD otomatis belum aktif.
+   dan fixture tidak menggantikannya. CD otomatis terverifikasi: job deploy
+   `120292987716` sukses pada attempt kedua run `39910789451`, deployment
+   `dpl_7K3e2RMfokDTevESByqgMKN2CRjm` Ready dengan sumber SHA yang sama.
+   Token hanya untuk proyek `buatin`, tersimpan terenkripsi pada GitHub Environment
+   production, berakhir 21 Januari 2027. Rotasi sebelum kedaluwarsa mengikuti
+   runbook; token CLI akun tidak disalin.
 2. **P1 - Backup/restore dan monitoring.** Cron harian hanya retensi batch terbatas;
    bukan backup. Belum ada bukti backup off-host/restore produksi. Pantau maintenance,
    error rate, pemakaian DB/storage, expiry lease dan backlog. Workflow monitor
@@ -30,6 +31,10 @@ Prioritas aktual sebelum peluncuran:
    throughput. Tab harus terbuka untuk continuation. Tidak ada SLA background,
    scanner persisten atau kapasitas tak terbatas. Hobby hanya personal/nonkomersial;
    penggunaan komersial memerlukan paket sesuai ketentuan provider.
+5. **P2 - Pemeliharaan CI.** Job deploy sukses dengan peringatan runtime Node 20
+   pada checkout/setup-node v4 yang dijalankan sebagai Node 24, serta notice
+   migrasi ubuntu-latest ke Ubuntu 26. Tinjau upgrade action dan pemilihan runner
+   pada perubahan terpisah dengan validasi penuh; tidak memblokir hasil deploy ini.
 
 Runbook aktif: `VERCEL_SUPABASE_FREE.md`. Bukti aktual: `VALIDATION.md`.
 Bagian berikut merupakan riwayat audit sebelum profil request diterapkan.

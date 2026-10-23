@@ -110,6 +110,29 @@ Prioritas sebelum membuka layanan: aktivasi login/MFA yang ditunda, backup dan
 restore off-host, monitoring/alert serta verifikasi kapasitas. Payment tetap
 nonaktif sampai integrasi dan harga ditinjau. Rincian bukti aktual di VALIDATION.
 
+## Deploy otomatis dan rotasi token
+
+Workflow `Deploy verified production` hanya menerima Native validation sukses
+untuk push main pada repository ini. Script membandingkan SHA validasi dengan
+main terkini sebelum meminta deployment. Automatic Git deployment main tetap
+nonaktif agar CI mendahului deploy. Proteksi main tetap wajib untuk admin.
+
+GitHub Environment `production` menyimpan `VERCEL_TOKEN`, `VERCEL_TEAM_ID` dan
+`VERCEL_PROJECT_ID`. Token aktif hanya mencakup proyek `buatin`, berakhir
+21 Januari 2027 pukul 14.14 WIB. Jangan memakai token CLI akun sebagai pengganti.
+
+1. Sebelum tanggal tersebut, buat token pengganti dari dashboard Vercel dengan
+   scope tim lalu proyek `buatin`, masa berlaku 90 hari. Periksa scope dan expiry
+   sebelum Create; jangan memilih All Projects atau Full Account.
+2. Simpan token pengganti langsung pada secret `VERCEL_TOKEN` di environment
+   production GitHub. Jangan mengirimnya lewat chat, command argument atau Git.
+3. Uji melalui workflow pada main yang sudah lulus validasi dan masih terkini.
+   Bila menjalankan ulang job, pastikan SHA main belum berubah. Periksa job
+   success, Vercel Ready, kesamaan gitSource/validatedCommit dan smoke publik.
+4. Setelah pengganti terverifikasi, cabut token lama dan catat expiry baru pada
+   runbook operator. Deployment gagal karena expiry tidak menghapus deployment
+   aktif; periksa status provider sebelum mencoba ulang.
+
 Sumber resmi diperiksa 23 Oktober 2026:
 
 - https://vercel.com/docs/functions/limitations
