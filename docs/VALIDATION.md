@@ -1,5 +1,43 @@
 # Hasil verifikasi Buatin
 
+## Harga paket dan formulir akun - 24 Oktober 2026
+
+Harga bulanan Pro Starter Rp29.000, Pro Plus Rp49.000 dan Pro Max Rp99.000
+ditetapkan melalui migration `20261024040000_set_plan_prices`. API paket,
+halaman publik dan tagihan tetap memakai katalog database yang sama. Perubahan
+harga menaikkan versi paket untuk menolak quote/draft lama; status penjualan,
+invoice, langganan serta ledger sebelumnya tidak diubah. Migration diterapkan
+hanya pada database fixture loopback, bukan database produksi.
+
+Banner pengiriman email lokal dihapus dari formulir. Persetujuan pendaftaran
+menjadi satu paragraf bersama untuk Google dan email, di bawah tombol daftar.
+Tautan ketentuan/privasi tetap tersedia. Konfigurasi dan keamanan autentikasi
+tidak diubah. Reproduksi sebelum perbaikan menemukan dua paragraf persetujuan
+dan satu banner; build baru menampilkan satu paragraf tanpa banner.
+
+Pemeriksaan memakai Node.js 24, `MOCK_LLM=true`, database/worker lokal, dan
+production preview 3191 melalui wrapper `.local/doodle-fixture/run.mjs`.
+
+| Perintah/pemeriksaan                                                                         | Hasil aktual                                                                                                                                         |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:migrations`                                                                    | Lulus pada database baru terisolasi; harga, perubahan versi, paket dengan harga yang sudah sama, status penjualan dan dua invoice historis diperiksa |
+| `npm run db:migrate`, `npm run build`                                                        | Migration fixture dan production build lulus                                                                                                         |
+| `npm run lint`, `npm run typecheck`, `npm run format:check`                                  | Lulus                                                                                                                                                |
+| `npm test`                                                                                   | 159 test / 23 file lulus                                                                                                                             |
+| `vitest run tests/integration/saas.test.ts tests/integration/admin.test.ts --maxWorkers=1`   | 32 test / 2 file lulus setelah worker fixture dijalankan; percobaan awal 31/32 karena `WORKER_UNAVAILABLE` pada tes batch kuota                      |
+| Playwright: tes terpilih pada `google-auth.spec.ts`, `public-design.spec.ts`, `saas.spec.ts` | 12 tes lulus: Google/error/retry, signup/verifikasi/login, keyboard, paket loading/error/empty, mobile, isolasi dashboard dan manfaat pembelian lama |
+| `.local/doodle-fixture/auth-pricing-inspect.mjs`                                             | 12 kombinasi pada 1440/390/320px; harga sesuai katalog, satu persetujuan signup, tanpa banner, overflow atau page error                              |
+| `npm audit --omit=dev --audit-level=high`                                                    | 0 vulnerabilities                                                                                                                                    |
+| `npm run security:scan`, `git diff --check`                                                  | Lulus; secret scan memeriksa 410 berkas sumber/config/dokumen                                                                                        |
+
+Lima palet cerah disiapkan dalam pratinjau percakapan; belum mengganti warna
+website. Pemilihan palet tetap pada pengguna. Screenshot formulir dan paket
+desktop/mobile diperiksa. Fixture tidak membuktikan pengiriman email, OAuth
+Google maupun pembayaran merchant nyata. Aktivasi penjualan dan audit identitas
+pengelola pada `docs/LEGAL_REVIEW.md` tetap perlu diselesaikan sebelum peluncuran.
+Perubahan awal pengguna pada `next-env.d.ts` dipertahankan dan tidak disertakan
+dalam commit tugas ini.
+
 ## Penerapan tema doodle publik - 24 Oktober 2026
 
 Landing, paket, tujuh halaman layanan, login, pendaftaran, verifikasi email,

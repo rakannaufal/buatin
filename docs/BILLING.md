@@ -15,8 +15,10 @@
    menganggap satu bulan selalu empat minggu. Tambahkan biaya gateway, email,
    infrastruktur, dan margin sebelum menentukan harga.
 5. Operator membuka `/admin/plans`, membuat draft harga/manfaat, meninjau preview,
-   lalu publish dengan reauth dan alasan. Default harga null, available=false.
-   Tidak ada harga produksi rekaan.
+   lalu publish dengan reauth dan alasan. Harga awal bulanan: Pro Starter
+   Rp29.000, Pro Plus Rp49.000, Pro Max Rp99.000; default available=false.
+   Migration harga menaikkan versi katalog tanpa mengubah status penjualan,
+   invoice atau manfaat pembelian yang sudah tersimpan.
 6. Verifikasi sandbox merchant yang sesungguhnya sebelum mengganti environment
    produksi. Sandbox dan produksi mempunyai kredensial berbeda. Aktifkan HTTPS,
    kirim callback ulang dari portal merchant, uji jumlah/referensi salah, duplikat,

@@ -58,12 +58,47 @@ try {
   ];
   const baseline = [];
   for (const query of queries) baseline.push((await client.query(query)).rows);
+  type CatalogPlan = {
+    id: string;
+    monthlyPrice: number | null;
+    version: number;
+    available: boolean;
+  };
+  const catalogQuery =
+    'SELECT id, "monthlyPrice", version, available FROM "BillingPlan" ORDER BY id';
+  const prices: Record<string, number | null> = {
+    free: null,
+    starter: 29000,
+    plus: 49000,
+    max: 99000,
+  };
+  let catalogBefore: CatalogPlan[] = [];
   for (const name of directories.filter((name) => name >= adminMigration)) {
     stage = name;
+    if (name === "20261024040000_set_plan_prices") {
+      await client.query(
+        `UPDATE "BillingPlan" SET "monthlyPrice"=90000, available=true WHERE id='starter'`,
+      );
+      await client.query(
+        `UPDATE "BillingPlan" SET "monthlyPrice"=49000 WHERE id='plus'`,
+      );
+      catalogBefore = (await client.query<CatalogPlan>(catalogQuery)).rows;
+    }
     await client.query(
       await readFile(`prisma/migrations/${name}/migration.sql`, "utf8"),
     );
   }
+  stage = "verify catalog prices, versions and sale availability";
+  assert.equal(catalogBefore.length, 4);
+  const catalogAfter = (await client.query<CatalogPlan>(catalogQuery)).rows;
+  assert.deepEqual(
+    catalogAfter,
+    catalogBefore.map((plan) => ({
+      ...plan,
+      monthlyPrice: prices[plan.id],
+      version: plan.version + Number(plan.monthlyPrice !== prices[plan.id]),
+    })),
+  );
   stage = "compare historical financial data";
   for (const [index, query] of queries.entries())
     assert.deepEqual((await client.query(query)).rows, baseline[index]);
@@ -100,6 +135,7 @@ try {
       database,
       historicalPayments: payments.length,
       originalBenefitsPreserved: true,
+      planPricesVerified: true,
     }),
   );
 } catch (error) {

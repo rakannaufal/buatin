@@ -47,8 +47,18 @@ test("Google login offers keyboard access, mobile layout and retryable errors", 
   });
   await page.goto("/signup");
   await expect(google).toBeVisible();
+  const consent = page.locator(".auth-form p").filter({
+    hasText: /Dengan (melanjutkan|mendaftar), Anda menyetujui/,
+  });
+  await expect(consent).toHaveCount(1);
   await expect(
-    page.getByRole("link", { name: "kebijakan privasi" }).first(),
+    page.getByText("Mode pengembangan. Email belum dikirim ke internet."),
+  ).toHaveCount(0);
+  await expect(
+    consent.getByRole("link", { name: "ketentuan layanan" }),
+  ).toHaveAttribute("href", "/terms");
+  await expect(
+    consent.getByRole("link", { name: "kebijakan privasi" }),
   ).toHaveAttribute("href", "/privacy");
 });
 

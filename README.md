@@ -23,7 +23,7 @@ pemasangan tetap pending sampai dibuktikan pada lingkungan agent pengguna.
 - Katalog tetap 43 Markdown + manifest otomatis, maksimum 44 entri ZIP.
 - 43 template builtin terstruktur dengan checksum dan variabel; brief, preferensi, referensi dan plan diisi ke template secara deterministik. Kit original dapat dipakai bila sumber/haknya jelas. Hasil selalu perlu ditinjau manusia.
 - Pendaftaran publik dengan verifikasi email. Admin/owner mengelola layanan; seluruh proyek tetap diisolasi per akun.
-- Free sekali seumur hidup; Starter 3/minggu, Plus 10/minggu, Max 25/minggu. Harga belum ditentukan, checkout dinonaktifkan sampai dikonfigurasi.
+- Free sekali seumur hidup; Starter 3/minggu Rp29.000/bulan, Plus 10/minggu Rp49.000/bulan, Max 25/minggu Rp99.000/bulan. Checkout memerlukan aktivasi paket dan konfigurasi pembayaran.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.
 - Schema Supabase produksi sudah diterapkan: 45 tabel aplikasi, 12 migration dan 13 tabel antrean. Koneksi runtime hosting, worker dan domain HTTPS belum diaktifkan. Kesiapan dan prioritas ada di `docs/PRODUCTION_READINESS.md`.
 
@@ -62,6 +62,7 @@ publish admin dapat mengubah penawaran baru. Pembelian lama memakai snapshot.
 
 | Fitur                                   | Free           | Pro Starter | Pro Plus     | Pro Max   |
 | --------------------------------------- | -------------- | ----------- | ------------ | --------- |
+| Harga per bulan                         | Gratis         | Rp29.000    | Rp49.000     | Rp99.000  |
 | Generasi                                | 1 seumur hidup | 3/minggu    | 10/minggu    | 25/minggu |
 | Retensi hasil                           | 14 hari        | 30 hari     | 90 hari      | 180 hari  |
 | 9 tipe, checklist, preview, ZIP, resume | Ya             | Ya          | Ya           | Ya        |
@@ -102,8 +103,11 @@ Turnstile diverifikasi di server beserta hostname. Role tidak dapat dipilih pada
 Hanya kanal QRIS NQ/SQ yang dipilih operator dan aktif pada merchant. Tidak ada
 kartu, VA, atau autodebit. Isi `DUITKU_ENV=sandbox`, `DUITKU_MERCHANT_CODE`,
 `DUITKU_API_KEY`, `DUITKU_QRIS_METHOD`, `DUITKU_EXPIRY_MINUTES`. Kredensial sandbox
-dan produksi berbeda. Di `/admin/plans`, susun draft, tinjau lalu publish harga berdasarkan biaya AI lalu aktifkan
-paket. Default harga null sehingga aplikasi tidak membuat tagihan dengan angka usulan.
+dan produksi berbeda. Harga awal Pro Starter Rp29.000, Pro Plus Rp49.000 dan
+Pro Max Rp99.000 per bulan ditetapkan melalui migration katalog. Di `/admin/plans`,
+tinjau harga/manfaat dan aktifkan paket melalui draft, preview lalu publish.
+Harga berikutnya tetap dikelola melalui alur admin; pembayaran memerlukan
+konfigurasi merchant yang valid.
 
 Callback publik HTTPS: `/api/billing/duitku/callback`, form-urlencoded dengan HMAC
 SHA256 sesuai dokumentasi Duitku terbaru. Event valid disimpan sebelum HTTP 200;

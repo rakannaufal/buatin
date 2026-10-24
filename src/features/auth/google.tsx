@@ -1,16 +1,9 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { Button, Notice } from "@/components/ui";
 import { Challenge } from "./challenge";
 
-export function GoogleLogin({
-  siteKey,
-  signup = false,
-}: {
-  siteKey: string;
-  signup?: boolean;
-}) {
+export function GoogleLogin({ siteKey }: { siteKey: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
@@ -98,13 +91,6 @@ export function GoogleLogin({
         )}
         Lanjutkan dengan Google
       </Button>
-      {signup && (
-        <p className="login-hint">
-          Dengan melanjutkan, Anda menyetujui{" "}
-          <Link href="/terms">ketentuan layanan</Link> dan{" "}
-          <Link href="/privacy">kebijakan privasi</Link>.
-        </p>
-      )}
       <p className="auth-divider">atau gunakan email</p>
     </div>
   );

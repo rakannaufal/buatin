@@ -20,14 +20,12 @@ export function PublicAuthForm({
   mode,
   siteKey,
   ready,
-  localEmail,
   googleReady = false,
   token = "",
 }: {
   mode: Mode;
   siteKey: string;
   ready: boolean;
-  localEmail: boolean;
   googleReady?: boolean;
   token?: string;
 }) {
@@ -129,11 +127,6 @@ export function PublicAuthForm({
               ? "Buat password baru untuk akun Anda."
               : "Tautan dikirim ke alamat email terdaftar."}
         </p>
-        {localEmail && (
-          <Notice tone="info">
-            Mode pengembangan. Email belum dikirim ke internet.
-          </Notice>
-        )}
         {!ready && mode !== "reset" && (
           <Notice>
             Pendaftaran dan pengiriman email belum diaktifkan pengelola.
@@ -141,7 +134,7 @@ export function PublicAuthForm({
         )}
         {error && <Notice tone="error">{error}</Notice>}
         {mode === "signup" && googleReady && !success && (
-          <GoogleLogin siteKey={siteKey} signup />
+          <GoogleLogin siteKey={siteKey} />
         )}
         {success ? (
           <Notice tone="info">
@@ -247,15 +240,14 @@ export function PublicAuthForm({
                   ? "Simpan password baru"
                   : "Kirim tautan email"}
             </Button>
-            {mode === "signup" && (
-              <p className="login-hint">
-                Dengan mendaftar, Anda menyetujui{" "}
-                <Link href="/terms">ketentuan layanan</Link> dan{" "}
-                <Link href="/privacy">kebijakan privasi</Link>. Verifikasi email
-                diperlukan sebelum memakai Free.
-              </p>
-            )}
           </form>
+        )}
+        {mode === "signup" && !success && (
+          <p className="auth-consent">
+            Dengan melanjutkan, Anda menyetujui{" "}
+            <Link href="/terms">ketentuan layanan</Link> dan{" "}
+            <Link href="/privacy">kebijakan privasi</Link>.
+          </p>
         )}
         <p className="login-hint">
           Sudah punya akun?{" "}

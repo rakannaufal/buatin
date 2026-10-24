@@ -1019,6 +1019,25 @@
 .auth-form form > .button {
   margin-top: 10px;
 }
+.public-theme .auth-form .auth-consent {
+  max-width: 40ch;
+  margin: 20px auto 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  text-align: center;
+  text-wrap: balance;
+}
+.auth-consent a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.auth-consent + .login-hint {
+  text-align: center;
+}
 .public-theme .auth-form .login-hint {
   font-size: 12px;
   line-height: 1.85;
