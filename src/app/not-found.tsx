@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { PublicState } from "@/components/public-state";
 export default function NotFound() {
   return (
-    <div className="empty-state">
-      <h1>Halaman tidak ditemukan.</h1>
-      <Link href="/dashboard" className="button button-primary">
-        Kembali ke workspace
+    <PublicState
+      title="Halaman ini belum ketemu."
+      illustration="public-not-found"
+    >
+      <p>Periksa alamatnya atau mulai kembali dari beranda.</p>
+      <Link href="/" className="button button-primary">
+        Kembali ke beranda
       </Link>
-    </div>
+    </PublicState>
   );
 }

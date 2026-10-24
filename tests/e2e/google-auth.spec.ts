@@ -7,6 +7,10 @@ test("Google login offers keyboard access, mobile layout and retryable errors", 
   const google = page.getByRole("button", { name: "Lanjutkan dengan Google" });
   await expect(google).toBeVisible();
   await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Lewati ke formulir" }),
+  ).toBeFocused();
+  await page.keyboard.press("Enter");
   await page.keyboard.press("Tab");
   await expect(google).toBeFocused();
   await page.route("**/api/auth/sign-in/social", async (route) => {

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { Button } from "@/components/ui";
+import { PublicState } from "@/components/public-state";
 export default function ErrorPage({
   error,
   reset,
@@ -13,12 +14,14 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="empty-state">
-      <h1>Halaman belum dapat dimuat.</h1>
+    <PublicState
+      title="Halaman belum dapat dimuat."
+      illustration="public-error"
+    >
       <p>
         Coba kembali. Data proyek yang sudah tersimpan tetap berada di server.
       </p>
       <Button onClick={reset}>Coba kembali</Button>
-    </div>
+    </PublicState>
   );
 }

@@ -1,41 +1,42 @@
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
 import { connection } from "next/server";
 import { siteSettings } from "@/server/admin/policies";
 import { serviceLinks } from "@/domain/legal";
-export async function PublicShell({ children }: { children: React.ReactNode }) {
+import { Brand } from "./brand";
+import { PublicNavigation } from "./public-navigation";
+
+export async function PublicShell({
+  children,
+  path = "/",
+}: {
+  children: React.ReactNode;
+  path?: string;
+}) {
   await connection();
   const { value: site } = await siteSettings();
   return (
-    <div className="public-site">
+    <div className="public-theme public-page">
       <a className="skip-link" href="#main-content">
         Lewati ke konten
       </a>
-      <header className="public-header">
-        <Link href="/" className="brand">
-          <BookOpen size={25} strokeWidth={1.5} />
-          <span>Buatin</span>
-        </Link>
-        <nav aria-label="Navigasi publik">
-          <Link href="/#cara-kerja">Cara kerja</Link>
-          <Link href="/pricing">Paket</Link>
-          <Link href="/login">Masuk</Link>
-          <Link className="button button-secondary" href="/signup">
-            Mulai gratis
-          </Link>
-        </nav>
+      <header className="site-header">
+        <Brand />
+        <PublicNavigation path={path} />
       </header>
       {site.announcement && (
         <aside className="public-announcement" role="status">
           {site.announcement}
         </aside>
       )}
-      <main id="main-content">{children}</main>
-      <footer className="public-footer">
-        <Link className="brand" href="/">
-          Buatin
-        </Link>
-        <span>Dari ide, jadi terarah.</span>
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+      <footer className="site-footer">
+        <div className="footer-intro">
+          <Brand />
+          <p>Dari ide, jadi terarah.</p>
+          <span>Brief Anda. Bekal membangunnya.</span>
+        </div>
         <nav aria-label="Informasi layanan">
           {serviceLinks.map((link) => (
             <Link key={link.href} href={link.href}>
@@ -43,6 +44,10 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
+        <div className="footer-bottom">
+          <span>Buatin. Dokumen perencanaan website.</span>
+          <a href="#main-content">Kembali ke atas</a>
+        </div>
       </footer>
     </div>
   );

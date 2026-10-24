@@ -1,5 +1,76 @@
 # Hasil verifikasi Buatin
 
+## Penerapan tema doodle publik - 24 Oktober 2026
+
+Landing, paket, tujuh halaman layanan, login, pendaftaran, verifikasi email,
+pemulihan password serta fallback 404/error menggunakan tema publik baru.
+Caveat 400/700 memberi tulisan tangan pada judul dan catatan; Manrope tetap
+digunakan untuk isi panjang, formulir dan harga. Font lokal Caveat 5.3.0 dikunci
+di dependency; lisensi SIL OFL disalin oleh generator aset. Logo, ilustrasi,
+tekstur, ornamen, favicon dan gambar Open Graph memakai keluarga `public/assets/`.
+
+Dashboard dan workspace tidak diberi wrapper tema publik. Teks ketujuh kebijakan
+dibandingkan dengan production build sebelum perubahan setelah normalisasi
+spasi: seluruh isi body sama. FAQ hanya mengubah presentasi menjadi disclosure
+native; heading dan jawaban tetap ada di HTML. Harga, kuota dan ketersediaan
+kartu paket memakai API layanan yang sama. Daftar skill tetap tidak ada di UI.
+
+Verifikasi menggunakan Node.js 24.22.0, database loopback dan `MOCK_LLM=true`.
+Build tersimpan di `.local/doodle-fixture/next`; server production fixture pada
+port 3191, dengan server Turnstile terpisah pada 3192 untuk satu tes challenge.
+Wrapper privat hanya meneruskan environment fixture, tidak mencetak secret.
+
+| Perintah/pemeriksaan                                                                                                                                              | Hasil aktual                                                                                                                                                                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run build` melalui wrapper fixture                                                                                                                           | Dua production build lulus; build akhir mencakup perbaikan fokus, reset password dan posisi tombol paket                                                                                                                                            |
+| `npm test`                                                                                                                                                        | 159 test / 23 file lulus                                                                                                                                                                                                                            |
+| `npm run lint`, `npm run typecheck`, `npm run format:check`                                                                                                       | Lulus                                                                                                                                                                                                                                               |
+| Playwright: `public-design.spec.ts`, `service-pages.spec.ts`, `google-auth.spec.ts`, serta tes publik pada `saas.spec.ts` dan MFA pada `account-security.spec.ts` | 15 tes terpilih lulus pada build akhir                                                                                                                                                                                                              |
+| Playwright: `challenge.spec.ts` dengan `TURNSTILE_SITE_KEY=test-only-site`                                                                                        | Satu tes lulus; error, retry, expiry dan layout mobile memakai skrip/token fixture yang diintersep                                                                                                                                                  |
+| `.local/doodle-fixture/inspect.mjs`                                                                                                                               | 45 kombinasi halaman/lebar diperiksa; 15 route pada 1440/390px ditangkap, lima route utama juga diukur pada 320/768/1996px; tanpa overflow halaman, gambar eager gagal atau page error                                                              |
+| `.local/doodle-fixture/measure.mjs`                                                                                                                               | 10 halaman diperiksa dengan foreground/background terkomposisi: tidak ditemukan kontras teks terlihat di bawah 4,5:1 atau 3:1 untuk teks besar; perbandingan isi tujuh kebijakan sama; reduced motion menghasilkan `animation-name: none` pada hero |
+| `node scripts/build-brand-assets.mjs`, `node scripts/check-brand-assets.mjs`                                                                                      | 163 aset utama tetap valid; checksum/dimensi, 48 ID brief, SVG aman, transparansi, maskable, ICO dan 22 PDF lulus; lisensi Caveat ikut direproduksi                                                                                                 |
+| `npm run test:assets` melalui wrapper fixture                                                                                                                     | 145 berkas parser/dependency dari trace deployment; JPEG diubah menjadi WebP tanpa EXIF di direktori terisolasi                                                                                                                                     |
+| `npm audit --omit=dev --audit-level=high`                                                                                                                         | 0 vulnerabilities                                                                                                                                                                                                                                   |
+| `npm run security:scan`, `git diff --check`                                                                                                                       | Lulus                                                                                                                                                                                                                                               |
+
+Tes desain mencakup menu mobile dengan keyboard/Escape/pemulihan fokus, FAQ dan
+anchor daftar isi, pricing loading/error/empty/retry, scroll tabel dengan
+keyboard, serta isolasi tipografi dashboard pada desktop/ponsel. Tes autentikasi
+mencakup signup/verifikasi/login, penanganan error Google, tujuan redirect,
+aktivasi MFA dan login faktor kedua. Alur provider nyata tidak dihubungi.
+
+Regresi skip link direproduksi dengan tes yang gagal sebelum target formulir
+dibuat focusable. Tiga temuan peninjauan ditutup dalam satu batch: fokus skip
+link, petunjuk reset password dan alignment tindakan kartu paket. Tes Google
+yang sebelumnya mengasumsikan dua kali Tab diperbarui untuk menggunakan skip
+link, lalu memverifikasi fokus tombol Google dan aktivasi dengan Enter.
+Selector tes pricing dibatasi pada alert di main agar tidak tertukar dengan
+route announcer Next.js; scroll horizontal diuji dengan ArrowRight.
+
+Screenshot desktop/ponsel dan bagian bawah landing diperiksa secara visual,
+kemudian dikonfirmasi sekali sesudah perbaikan. Arsip lokal ada di
+`.impeccable/review/` dan `.local/doodle-fixture/`, tidak di-commit. Pemeriksa
+Impeccable tidak berjalan karena launcher permission denied (exit 126).
+Peninjau subagent tidak dapat dimulai karena model sesi tidak dikenali; review
+dan dokumentasi memakai fallback langsung, bukan tinjauan independen.
+`PRODUCT.md`, `DESIGN.md` dan `.impeccable/design.json` merekam implementasi
+publik, token, komponen serta batas workspace.
+
+HTML/network menunjukkan hero eager berprioritas tinggi dan font berasal dari
+origin sendiri; ilustrasi bagian bawah memakai native lazy loading. Sampel
+landing lokal tanpa throttle pada konfirmasi akhir merekam LCP 64ms/52ms serta
+CLS 0,0505/0,0034 pada desktop/ponsel. Ini observasi Chromium loopback, bukan
+bukti Core Web Vitals lapangan, INP, atau performa perangkat/jaringan pengguna.
+Pemeriksaan kontras terhitung bukan pengganti pengujian pembaca layar manual.
+
+Perubahan otomatis Next pada `tsconfig.json` dan `next-env.d.ts` dipulihkan dari
+snapshot sesudah build. Perubahan awal pengguna pada `next-env.d.ts` tetap sama
+dan tidak di-stage. Tidak ada migration, perubahan API/otorisasi/pembayaran,
+full suite integrasi/backend, Safari/Firefox, perangkat fisik atau deployment
+pada pekerjaan desain ini. Provider publik, harga komersial, identitas
+pengelola dan pemeriksaan merek tetap mengikuti gate operasional yang sudah ada.
+
 ## Paket aset doodle dan logo - 24 Oktober 2026
 
 `public/assets/` memuat 163 aset utama: 79 SVG, 81 PNG/WebP, satu ICO dan

@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { BookOpen, Eye, EyeOff } from "lucide-react";
-import { Button, Folio, Notice } from "@/components/ui";
+import { Eye, EyeOff } from "lucide-react";
+import { Button, Notice } from "@/components/ui";
+import { AuthShell } from "@/components/auth-shell";
 import { Challenge } from "./challenge";
 import { GoogleLogin } from "./google";
 type Mode = "signup" | "forgot" | "reset" | "verify";
@@ -110,181 +111,168 @@ export function PublicAuthForm({
     }
   }
   return (
-    <main className="login-page">
-      <section className="login-story">
-        <Link className="brand" href="/">
-          <BookOpen size={25} />
-          <span>Buatin</span>
-        </Link>
-        <div className="login-intro">
-          <Folio />
-          <h1>
-            Ide yang baik
-            <br />
-            layak punya <em>rencana.</em>
-          </h1>
-          <p>
-            Mulai dari brief. Bawa pulang spesifikasi yang bisa ditinjau,
-            dibagikan, dan dikerjakan.
-          </p>
-        </div>
-        <span className="login-footnote">
-          Dokumen proyek hanya tersedia untuk akun Anda.
-        </span>
-      </section>
-      <section className="login-panel">
-        <div className="login-form">
-          <h2>{titles[mode]}</h2>
-          <p className="muted">
-            {mode === "signup"
-              ? "Free: satu generasi per akun, tanpa pembayaran."
+    <AuthShell
+      illustration={
+        mode === "signup"
+          ? "auth-notebook"
+          : mode === "verify"
+            ? "auth-email"
+            : "auth-recovery"
+      }
+    >
+      <div className="auth-form">
+        <h2>{titles[mode]}</h2>
+        <p className="muted">
+          {mode === "signup"
+            ? "Free: satu generasi per akun, tanpa pembayaran."
+            : mode === "reset"
+              ? "Buat password baru untuk akun Anda."
               : "Tautan dikirim ke alamat email terdaftar."}
-          </p>
-          {localEmail && (
-            <Notice tone="info">
-              Mode pengembangan. Email belum dikirim ke internet.
-            </Notice>
-          )}
-          {!ready && mode !== "reset" && (
-            <Notice>
-              Pendaftaran dan pengiriman email belum diaktifkan pengelola.
-            </Notice>
-          )}
-          {error && <Notice tone="error">{error}</Notice>}
-          {mode === "signup" && googleReady && !success && (
-            <GoogleLogin siteKey={siteKey} signup />
-          )}
-          {success ? (
-            <Notice tone="info">
-              {mode === "reset"
-                ? "Password diperbarui. Silakan masuk dengan password baru."
-                : "Jika alamat email memenuhi syarat, tautan sudah disiapkan. Periksa email dan folder spam."}{" "}
-              <Link href="/login" className="text-button">
-                Buka halaman masuk
-              </Link>
-            </Notice>
-          ) : (
-            <form onSubmit={form.handleSubmit(submit)} noValidate>
-              {mode === "signup" && (
-                <div className="field">
-                  <label htmlFor="name">Nama</label>
-                  <input
-                    id="name"
-                    autoComplete="name"
-                    {...form.register("name")}
-                    aria-invalid={!!form.formState.errors.name}
-                  />
-                  <span className="field-error">
-                    {form.formState.errors.name?.message}
-                  </span>
-                </div>
-              )}
-              {mode !== "reset" && (
-                <div className="field">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    {...form.register("email")}
-                    aria-invalid={!!form.formState.errors.email}
-                  />
-                  <span className="field-error">
-                    {form.formState.errors.email?.message}
-                  </span>
-                </div>
-              )}
-              {["signup", "reset"].includes(mode) && (
-                <div className="field">
-                  <label htmlFor="password">Password</label>
-                  <div className="password-field">
-                    <input
-                      id="password"
-                      type={show ? "text" : "password"}
-                      autoComplete="new-password"
-                      {...form.register("password")}
-                      aria-invalid={!!form.formState.errors.password}
-                    />
-                    <button
-                      type="button"
-                      className="icon-button"
-                      aria-label={
-                        show ? "Sembunyikan password" : "Tampilkan password"
-                      }
-                      onClick={() => setShow(!show)}
-                    >
-                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  <small className="muted">Gunakan minimal 12 karakter.</small>
-                  <span className="field-error">
-                    {form.formState.errors.password?.message}
-                  </span>
-                </div>
-              )}
-              {mode === "reset" && (
-                <div className="field">
-                  <label htmlFor="confirmation">Konfirmasi password</label>
-                  <input
-                    id="confirmation"
-                    type="password"
-                    autoComplete="new-password"
-                    {...form.register("confirmation")}
-                    aria-invalid={!!form.formState.errors.confirmation}
-                  />
-                  <span className="field-error">
-                    {form.formState.errors.confirmation?.message}
-                  </span>
-                </div>
-              )}
-              {mode !== "reset" && (
-                <Challenge
-                  siteKey={siteKey}
-                  onToken={setChallengeToken}
-                  attempt={attempt}
-                />
-              )}
-              <Button
-                type="submit"
-                className="full-width"
-                busy={form.formState.isSubmitting}
-                disabled={
-                  (mode !== "reset" && !ready) || (mode === "reset" && !token)
-                }
-              >
-                {mode === "signup"
-                  ? "Buat akun gratis"
-                  : mode === "reset"
-                    ? "Simpan password baru"
-                    : "Kirim tautan email"}
-              </Button>
-              {mode === "signup" && (
-                <p className="login-hint">
-                  Dengan mendaftar, Anda menyetujui{" "}
-                  <Link href="/terms">ketentuan layanan</Link> dan{" "}
-                  <Link href="/privacy">kebijakan privasi</Link>. Verifikasi
-                  email diperlukan sebelum memakai Free.
-                </p>
-              )}
-            </form>
-          )}
-          <p className="login-hint">
-            Sudah punya akun?{" "}
-            <Link className="text-button" href="/login">
-              Masuk
+        </p>
+        {localEmail && (
+          <Notice tone="info">
+            Mode pengembangan. Email belum dikirim ke internet.
+          </Notice>
+        )}
+        {!ready && mode !== "reset" && (
+          <Notice>
+            Pendaftaran dan pengiriman email belum diaktifkan pengelola.
+          </Notice>
+        )}
+        {error && <Notice tone="error">{error}</Notice>}
+        {mode === "signup" && googleReady && !success && (
+          <GoogleLogin siteKey={siteKey} signup />
+        )}
+        {success ? (
+          <Notice tone="info">
+            {mode === "reset"
+              ? "Password diperbarui. Silakan masuk dengan password baru."
+              : "Jika alamat email memenuhi syarat, tautan sudah disiapkan. Periksa email dan folder spam."}{" "}
+            <Link href="/login" className="text-button">
+              Buka halaman masuk
             </Link>
-            {mode !== "verify" && (
-              <>
-                {" "}
-                ·{" "}
-                <Link className="text-button" href="/verify-email">
-                  Kirim ulang verifikasi
-                </Link>
-              </>
+          </Notice>
+        ) : (
+          <form onSubmit={form.handleSubmit(submit)} noValidate>
+            {mode === "signup" && (
+              <div className="field">
+                <label htmlFor="name">Nama</label>
+                <input
+                  id="name"
+                  autoComplete="name"
+                  {...form.register("name")}
+                  aria-invalid={!!form.formState.errors.name}
+                />
+                <span className="field-error">
+                  {form.formState.errors.name?.message}
+                </span>
+              </div>
             )}
-          </p>
-        </div>
-      </section>
-    </main>
+            {mode !== "reset" && (
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  {...form.register("email")}
+                  aria-invalid={!!form.formState.errors.email}
+                />
+                <span className="field-error">
+                  {form.formState.errors.email?.message}
+                </span>
+              </div>
+            )}
+            {["signup", "reset"].includes(mode) && (
+              <div className="field">
+                <label htmlFor="password">Password</label>
+                <div className="password-field">
+                  <input
+                    id="password"
+                    type={show ? "text" : "password"}
+                    autoComplete="new-password"
+                    {...form.register("password")}
+                    aria-invalid={!!form.formState.errors.password}
+                  />
+                  <button
+                    type="button"
+                    className="icon-button"
+                    aria-label={
+                      show ? "Sembunyikan password" : "Tampilkan password"
+                    }
+                    onClick={() => setShow(!show)}
+                  >
+                    {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <small className="muted">Gunakan minimal 12 karakter.</small>
+                <span className="field-error">
+                  {form.formState.errors.password?.message}
+                </span>
+              </div>
+            )}
+            {mode === "reset" && (
+              <div className="field">
+                <label htmlFor="confirmation">Konfirmasi password</label>
+                <input
+                  id="confirmation"
+                  type="password"
+                  autoComplete="new-password"
+                  {...form.register("confirmation")}
+                  aria-invalid={!!form.formState.errors.confirmation}
+                />
+                <span className="field-error">
+                  {form.formState.errors.confirmation?.message}
+                </span>
+              </div>
+            )}
+            {mode !== "reset" && (
+              <Challenge
+                siteKey={siteKey}
+                onToken={setChallengeToken}
+                attempt={attempt}
+              />
+            )}
+            <Button
+              type="submit"
+              className="full-width"
+              busy={form.formState.isSubmitting}
+              disabled={
+                (mode !== "reset" && !ready) || (mode === "reset" && !token)
+              }
+            >
+              {mode === "signup"
+                ? "Buat akun gratis"
+                : mode === "reset"
+                  ? "Simpan password baru"
+                  : "Kirim tautan email"}
+            </Button>
+            {mode === "signup" && (
+              <p className="login-hint">
+                Dengan mendaftar, Anda menyetujui{" "}
+                <Link href="/terms">ketentuan layanan</Link> dan{" "}
+                <Link href="/privacy">kebijakan privasi</Link>. Verifikasi email
+                diperlukan sebelum memakai Free.
+              </p>
+            )}
+          </form>
+        )}
+        <p className="login-hint">
+          Sudah punya akun?{" "}
+          <Link className="text-button" href="/login">
+            Masuk
+          </Link>
+          {mode !== "verify" && (
+            <>
+              {" "}
+              ·{" "}
+              <Link className="text-button" href="/verify-email">
+                Kirim ulang verifikasi
+              </Link>
+            </>
+          )}
+        </p>
+      </div>
+    </AuthShell>
   );
 }

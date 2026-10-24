@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { api, message } from "@/components/api";
-import { Loading, Notice } from "@/components/ui";
+import { Button, Loading, Notice } from "@/components/ui";
 import { planFeatures } from "@/domain/admin";
 import { rupiah } from "@/domain/billing";
 import type { CommercialPlan } from "./types";
@@ -165,11 +166,111 @@ export function PublicPricing() {
     queryFn: () =>
       api<{ plans: CommercialPlan[]; paymentReady: boolean }>("/pricing"),
   });
-  if (query.isPending) return <Loading label="Memuat paket..." />;
+  if (query.isPending)
+    return (
+      <div className="public-pricing-status" aria-busy="true">
+        <Loading label="Memuat paket..." />
+      </div>
+    );
   if (query.isError)
-    return <Notice tone="error">{message(query.error)}</Notice>;
+    return (
+      <div className="public-pricing-status">
+        <Notice tone="error">{message(query.error)}</Notice>
+        <Button variant="secondary" onClick={() => void query.refetch()}>
+          Muat ulang paket
+        </Button>
+      </div>
+    );
+  if (!query.data.plans.length)
+    return (
+      <div className="public-pricing-status">
+        <Notice>Belum ada paket yang ditampilkan.</Notice>
+        <Button variant="secondary" onClick={() => void query.refetch()}>
+          Periksa kembali
+        </Button>
+      </div>
+    );
   return (
     <>
+      <div className="public-plan-grid">
+        {query.data.plans.map((plan) => {
+          const features = planFeatures(plan.id, plan.features);
+          const purchasable =
+            plan.id !== "free" &&
+            query.data.paymentReady &&
+            plan.available &&
+            !!plan.monthlyPrice;
+          return (
+            <article
+              className={`public-plan plan-${plan.id}`}
+              key={plan.id}
+              aria-labelledby={`plan-${plan.id}-title`}
+            >
+              <Image
+                src={`/assets/doodles/plan-${plan.id}.svg`}
+                alt=""
+                width={96}
+                height={80}
+                unoptimized
+              />
+              <h2 id={`plan-${plan.id}-title`}>{plan.name}</h2>
+              <p className="public-plan-price">
+                {plan.id === "free"
+                  ? "Gratis"
+                  : plan.monthlyPrice
+                    ? rupiah(plan.monthlyPrice)
+                    : "Harga menyusul"}
+              </p>
+              <p className="public-plan-period">
+                {plan.id === "free" ? "Sekali per akun" : "per bulan, QRIS"}
+              </p>
+              <ul>
+                <li>
+                  {plan.weeklyQuota} generasi{" "}
+                  {plan.id === "free" ? "seumur hidup" : "per minggu"}
+                </li>
+                <li>Hasil tersimpan {plan.retentionDays} hari</li>
+                <li>
+                  {features.templates
+                    ? "Template Markdown pribadi"
+                    : features.revisions
+                      ? "Revisi dan perbandingan hasil"
+                      : "Preview dan unduh ZIP"}
+                </li>
+              </ul>
+              <div className="public-plan-action">
+                <Link
+                  className={`button button-${plan.id === "free" ? "primary" : "secondary"}`}
+                  href={
+                    plan.id === "free"
+                      ? "/signup"
+                      : purchasable
+                        ? "/billing"
+                        : "#bandingkan-paket"
+                  }
+                >
+                  {plan.id === "free"
+                    ? "Mulai gratis"
+                    : purchasable
+                      ? "Lihat langganan"
+                      : "Lihat detail paket"}
+                </Link>
+                {plan.id !== "free" && !purchasable && (
+                  <span className="plan-availability">
+                    Belum tersedia untuk dibeli
+                  </span>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <div className="comparison-heading" id="bandingkan-paket">
+        <h2>
+          Periksa setiap <em>detailnya.</em>
+        </h2>
+        <p>Pilih berdasarkan kebutuhan proyek, bukan hanya jumlah generasi.</p>
+      </div>
       <PlanComparison {...query.data} />
       <p className="pricing-note">
         Kuota Pro reset Senin 00.00 WIB selama masa aktif. Sisa kuota tidak

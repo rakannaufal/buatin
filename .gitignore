@@ -10,6 +10,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.impeccable/review/
 *.tsbuildinfo
 *.log
 .DS_Store

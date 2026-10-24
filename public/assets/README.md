@@ -1,7 +1,8 @@
 # Aset Buatin
 
 Keluarga doodle editorial untuk landing, harga, FAQ, kebijakan dan autentikasi.
-Dashboard dan halaman aplikasi belum diubah. Galeri: `index.html`.
+Tema diterapkan pada halaman publik dan autentikasi. Dashboard dan halaman
+aplikasi mempertahankan desainnya. Galeri: `index.html`.
 
 ## Isi
 
@@ -13,7 +14,7 @@ Dashboard dan halaman aplikasi belum diubah. Galeri: `index.html`.
 - `textures/`: tile grain transparan 512px, PNG dan WebP.
 - `social/`: sembilan kartu 1200x630 dan satu kartu persegi 1080px, SVG dengan
   teks outline dan PNG.
-- `licenses/`: lisensi font Manrope dan Source Serif 4.
+- `licenses/`: lisensi font Manrope, Source Serif 4 dan Caveat.
 - `PROMPTS.md`: brief sumber tiap aset. `manifest.json`: dimensi, penggunaan,
   checksum dan status review. Ekspor PDF memiliki `pdf-manifest.json` sendiri.
 
@@ -41,7 +42,11 @@ luar layar dapat lazy. Aset dekoratif memakai alt kosong. Judul, tombol, harga
 dan isi kebijakan tetap HTML. Ilustrasi kebijakan cukup 64-120px dengan paragraf
 bebas dekorasi.
 
-Favicon belum dipasang ke metadata aplikasi. Ikon maskable memiliki latar penuh
+Judul dan catatan publik memakai Caveat; paragraf dan formulir memakai Manrope.
+Font dimuat lokal melalui dependency yang dikunci. Teks hukum tetap memakai
+Manrope. Source Serif 4 tetap digunakan di workspace dan kartu berbagi.
+
+Favicon dipasang ke metadata aplikasi. Ikon maskable memiliki latar penuh
 dan tanda di dalam safe circle. ICO berisi 16/32/48px. Logo provider harus diambil
 dari sumber resmi secara terpisah; paket ini tidak membuat ulang Google/Duitku/QRIS.
 PDF varian putih memakai latar hijau dan akhiran `-proof`; gunakan SVG putih
@@ -68,4 +73,4 @@ node scripts/check-brand-assets.mjs
 
 Ekspor PDF dan pemeriksaan browser memakai Chromium Playwright yang sudah
 terpasang. Generator hanya menulis keluarga aset ini; tidak mengubah halaman
-aplikasi atau memasang favicon secara otomatis.
+aplikasi. Penerapan halaman dan metadata dikelola terpisah pada kode aplikasi.

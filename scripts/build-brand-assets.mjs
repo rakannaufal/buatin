@@ -531,6 +531,10 @@ for (const [name, packageName, fontFile] of [
     },
   );
 }
+await copyFile(
+  path.join(root, "node_modules/@fontsource/caveat/LICENSE"),
+  path.join(directory, "licenses/caveat-OFL.txt"),
+);
 await writeFile(
   path.join(directory, "index.html"),
   await format(galleryHtml(entries, colors), { parser: "html" }),
@@ -597,6 +601,7 @@ await writeFile(
       fontSources: [
         "@fontsource/manrope@5.3.0",
         "@fontsource/source-serif-4@5.3.1",
+        "@fontsource/caveat@5.3.0",
       ],
       entries,
     }),
