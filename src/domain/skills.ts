@@ -82,12 +82,6 @@ const pending: SkillEntry[] = [
     "Varian panduan desain untuk kebutuhan client.",
   ],
   [
-    "superdesign",
-    "Superdesign",
-    "Desain",
-    "Canvas desain dan eksplorasi visual memerlukan koneksi layanan.",
-  ],
-  [
     "imagegen",
     "Image generation",
     "Media",
@@ -226,6 +220,7 @@ export function selectSkills(
           "ui-ux-pro-max",
           "ui-craft",
           "webapp-testing",
+          "antislop",
           ...(["portfolio", "landing", "company", "blog"].includes(webType)
             ? ["impeccable", "emil-design-eng"]
             : []),

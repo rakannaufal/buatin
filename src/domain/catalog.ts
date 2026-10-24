@@ -4,6 +4,7 @@ import type { CatalogEntry, WebTypeEntry } from "./types";
 export const catalog = catalogJson as CatalogEntry[];
 export const webTypes = typesJson as WebTypeEntry[];
 export const floor = [
+  "skills",
   "agents",
   "index",
   "brief",

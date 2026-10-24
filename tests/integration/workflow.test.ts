@@ -209,7 +209,7 @@ describe("native authenticated workflow", () => {
       unavailable.mockRestore();
     }
   });
-  it("exports all 42 selected documents plus exactly one manifest", async () => {
+  it("exports all 43 selected documents plus exactly one manifest", async () => {
     const project = await planned();
     let version = 1;
     for (const file of catalog) {
@@ -224,7 +224,7 @@ describe("native authenticated workflow", () => {
     );
     const completed = await jobDone(id);
     expect(completed.status).toBe("succeeded");
-    expect(completed.done).toBe(42);
+    expect(completed.done).toBe(43);
     const response = await request(`/jobs/${id}/download`);
     expect(response.status).toBe(200);
     expect(

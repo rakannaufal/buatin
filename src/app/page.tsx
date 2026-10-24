@@ -68,7 +68,7 @@ export default function Home() {
               <h3>Periksa pilihan dokumen.</h3>
               <p>
                 Jawab klarifikasi, lihat alasan pemilihan, sesuaikan checklist.
-                Hingga 42 Markdown dan satu manifest.
+                Hingga 43 Markdown dan satu manifest.
               </p>
             </div>
           </li>

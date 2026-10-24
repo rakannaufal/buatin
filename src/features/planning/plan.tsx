@@ -180,9 +180,7 @@ export function PlanPage({ id }: { id: string }) {
             <section>
               {project?.customization && (
                 <details className="plan-customization">
-                  <summary>
-                    Tinjau teknologi, desain, skill dan referensi
-                  </summary>
+                  <summary>Tinjau teknologi, desain dan referensi</summary>
                   <dl className="recommendation-list">
                     {Object.entries(
                       project.customization.preferences.technology,
@@ -196,13 +194,6 @@ export function PlanPage({ id }: { id: string }) {
                       </div>
                     ))}
                   </dl>
-                  <p>
-                    Skill aktif:{" "}
-                    {project.customization.skills
-                      .map((skill) => skill.name)
-                      .join(", ")}
-                    .
-                  </p>
                   <p>
                     {project.customization.references.length} referensi siap
                     digunakan.

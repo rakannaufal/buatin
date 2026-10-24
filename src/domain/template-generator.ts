@@ -74,7 +74,7 @@ export function generateFromTemplates(
         snapshot.plan.selected
           .map(
             (f) =>
-              `- [${f.path}](${f.id === "agents" ? "../AGENTS.md" : f.path.replace("specs/", "")}): ${f.reason}`,
+              `- [${f.path}](${f.path.startsWith("specs/") ? f.path.slice(6) : `../${f.path}`}): ${f.reason}`,
           )
           .join("\n") +
         "\n";

@@ -29,11 +29,9 @@ import {
   preferenceConflicts,
   type ProjectPreferences,
 } from "@/domain/preferences";
-import { selectSkills } from "@/domain/skills";
 import type { WebType } from "@/domain/types";
 import { TechnologyFields } from "./technology-fields";
 import { ColorFields, StyleFields } from "./design-fields";
-import { SkillFields } from "./skill-fields";
 import { ReferenceFields } from "./reference-fields";
 const schema = z.object({
   name: z.string().trim().min(1, "Beri nama proyek Anda.").max(160),
@@ -274,7 +272,6 @@ export function ProjectEditor({
     name: "webType",
   }) as WebType;
   const resolved = resolvePreferences(preferences, webType);
-  const selectedSkills = selectSkills(preferences, webType);
   const conflicts = preferenceConflicts(preferences, webType);
   function changePreferences(next: ProjectPreferences) {
     form.setValue("preferences", next, { shouldDirty: true });
@@ -528,11 +525,6 @@ export function ProjectEditor({
               webType={webType}
               onChange={changePreferences}
             />
-            <SkillFields
-              value={preferences}
-              webType={webType}
-              onChange={changePreferences}
-            />
           </fieldset>
           {form.formState.errors.preferences && (
             <Notice tone="error">
@@ -605,10 +597,6 @@ export function ProjectEditor({
                 <dd>
                   {resolved.style.direction} · {resolved.style.layout}
                 </dd>
-              </div>
-              <div>
-                <dt>Skill aktif</dt>
-                <dd>{selectedSkills.map((skill) => skill.name).join(", ")}</dd>
               </div>
             </dl>
             <p>

@@ -1,9 +1,17 @@
 # Aturan agent proyek target
 
+## Langkah pertama: pasang skill
+
+Baca [SKILLS.md](SKILLS.md) terlebih dahulu. Pasang skill yang belum tersedia,
+verifikasi checksum dan akses agent, lalu catat hasil di `specs/progress.md`.
+Jangan menjalankan perintah proyek, memasang dependency aplikasi atau mengubah
+kode sebelum langkah ini selesai. Jika skill tidak dapat dipasang atau dibaca,
+hentikan dan laporkan blocker; jangan melewati persiapan skill.
+
 ## Tujuan dan urutan baca
 
 Paket spesifikasi ini mendeskripsikan website target. Baca dokumen sesuai urutan
-berikut; tautkan hanya file yang tersedia dalam paket:
+berikut setelah persiapan skill selesai; tautkan hanya file yang tersedia dalam paket:
 
 1. `specs/brief.md` — ringkasan masalah, pengguna, tujuan dan batasan.
 2. `specs/prd.md` — kebutuhan produk dan acceptance criteria.

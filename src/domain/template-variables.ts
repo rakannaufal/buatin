@@ -2,6 +2,7 @@ import type { WebType, CatalogEntry, ResolvedPlan } from "./types";
 import type { ProjectContext, ReferenceSnapshot } from "./project-context";
 import type { ResolvedPreferences } from "./preferences";
 import { webTypes } from "./catalog";
+import { skillSetup } from "./skill-setup";
 
 export interface TemplateVariables {
   projectName: string;
@@ -50,6 +51,7 @@ export interface TemplateVariables {
     license: string;
     documents: string[];
   }[];
+  skillSetup: ReturnType<typeof skillSetup>;
   // References
   references: {
     id: string;
@@ -191,6 +193,7 @@ export function resolveVariables(input: {
       license: s.license,
       documents: s.documents,
     })),
+    skillSetup: skillSetup(skills),
     // References
     references: (references as ReferenceSnapshot[]).map((r) => ({
       id: r.id,

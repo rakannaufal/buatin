@@ -397,7 +397,7 @@ export async function saasApi(
   if (resource === "jobs" && id && action === "regenerate") {
     await requireFeature(user.id, "regeneration");
     const input = z
-      .object({ fileIds: z.array(z.string().min(1).max(60)).min(1).max(42) })
+      .object({ fileIds: z.array(z.string().min(1).max(60)).min(1).max(43) })
       .parse(await body());
     if (method === "POST")
       return reply(

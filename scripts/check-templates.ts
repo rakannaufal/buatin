@@ -16,8 +16,8 @@ for (const entry of catalog) {
   actual[entry.path] = createHash("sha256").update(text).digest("hex");
 }
 if (
-  catalog.length !== 42 ||
-  new Set(catalog.map((entry) => entry.path)).size !== 42
+  catalog.length !== 43 ||
+  new Set(catalog.map((entry) => entry.path)).size !== 43
 )
   throw new Error("Invalid document catalog");
 if (process.argv.includes("--update"))
@@ -29,4 +29,4 @@ else if (JSON.stringify(actual) !== JSON.stringify(expected))
   throw new Error(
     "Template checksums changed; review before updating checksums.",
   );
-console.log("42 structured document templates verified.");
+console.log("43 structured document templates verified.");

@@ -20,7 +20,7 @@ import { useJob } from "@/features/jobs/job";
 import { ResultTools } from "@/features/pro/result-tools";
 import { formatDate } from "@/domain/billing";
 const agentPrompt =
-  "Baca AGENTS.md, lalu dokumen specs/ sesuai urutan pada specs/index.md. Ringkas pemahaman, asumsi, pertanyaan terbuka, serta blocker sebelum coding. Setelah saya setujui, kerjakan specs/implementation-plan.md per fase. Jangan menganggap implementasi atau pengujian proyek sudah selesai tanpa bukti nyata.";
+  "Baca AGENTS.md. Jika paket memuat SKILLS.md, selesaikan pemasangan skill yang belum tersedia dan verifikasi sesuai dokumen itu sebelum menjalankan perintah proyek atau mengubah kode. Jika paket lama tidak memuatnya, laporkan kebutuhan pembaruan paket sebelum implementasi. Lalu baca dokumen specs/ sesuai urutan pada specs/index.md. Ringkas pemahaman, asumsi, pertanyaan terbuka, serta blocker sebelum coding. Setelah saya setujui, kerjakan specs/implementation-plan.md per fase. Jangan menganggap pemasangan skill, implementasi atau pengujian proyek sudah selesai tanpa bukti nyata.";
 export function ResultPage({ id }: { id: string }) {
   const query = useJob(id);
   const [selected, setSelected] = useState<string | null>(null);

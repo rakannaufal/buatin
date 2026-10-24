@@ -125,7 +125,7 @@ const schema = z.object({
   REFERENCE_S3_ACCESS_KEY: z.string().default(""),
   REFERENCE_S3_SECRET_KEY: z.string().default(""),
   LLM_VISION_MODEL: z.string().default(""),
-  MAX_DOC_FILES: z.coerce.number().int().min(11).max(42).default(42),
+  MAX_DOC_FILES: z.coerce.number().int().min(11).max(43).default(43),
   MAX_PLANS_PER_HOUR: z.coerce.number().int().positive().default(10),
   DRAFT_TTL_HOURS: z.coerce.number().int().positive().default(24),
   JOB_HEARTBEAT_SEC: z.coerce.number().int().min(1).default(30),

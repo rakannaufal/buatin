@@ -116,14 +116,14 @@ Memasukkan semua instruksi sekaligus meningkatkan konflik dan biaya konteks.
 
 Inventaris awal berdasarkan skill yang tersedia pada sesi ini:
 
-| Kelompok                          | Skill/koleksi                                                                                                   |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| UI, desain, dan interaksi         | `impeccable`, `ui-ux-pro-max`, `ui-craft`, `emil-design-eng`, dua varian `design-taste-frontend`, `superdesign` |
-| Gambar, visualisasi, dan video    | `imagegen`, `visualize`, `sparki-video-editor`                                                                  |
-| Dokumen                           | `documents`, `pdf`, `presentations`, `spreadsheets`, `excel-live-control`, `template-creator`                   |
-| Website dan integrasi             | `sites`, `plugin-management`                                                                                    |
-| Dokumentasi dan pengelolaan skill | `openai-docs`, `skill-creator`, `skill-installer`                                                               |
-| Companion khusus                  | `work-pets:create-pet`, `work-pets:pets`, `work-pets:update-pet`                                                |
+| Kelompok                          | Skill/koleksi                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| UI, desain, dan interaksi         | `impeccable`, `ui-ux-pro-max`, `ui-craft`, `emil-design-eng`, dua varian `design-taste-frontend`, `antislop` |
+| Gambar, visualisasi, dan video    | `imagegen`, `visualize`, `sparki-video-editor`                                                               |
+| Dokumen                           | `documents`, `pdf`, `presentations`, `spreadsheets`, `excel-live-control`, `template-creator`                |
+| Website dan integrasi             | `sites`, `plugin-management`                                                                                 |
+| Dokumentasi dan pengelolaan skill | `openai-docs`, `skill-creator`, `skill-installer`                                                            |
+| Companion khusus                  | `work-pets:create-pet`, `work-pets:pets`, `work-pets:update-pet`                                             |
 
 Daftar ini membuktikan ketersediaan di lingkungan kerja, belum membuktikan hak
 redistribusi atau bahwa tool eksternalnya dapat dijalankan dari server Buatin.

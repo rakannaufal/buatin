@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import {
   ActionForm,
   DataTable,
@@ -24,9 +23,7 @@ export function ContentAdmin() {
   const query = useAdminData<{
     items: Entry[];
     templates: { key: string; name: string }[];
-    skills: { key: string; name: string }[];
   }>("content");
-  const [kind, setKind] = useState("template");
   return (
     <>
       <SectionHeading
@@ -37,23 +34,12 @@ export function ContentAdmin() {
       {query.data && (
         <>
           <details className="panel">
-            <summary>Draft template atau skill</summary>
-            <label className="field">
-              <span>Jenis panduan</span>
-              <select
-                value={kind}
-                onChange={(event) => setKind(event.target.value)}
-              >
-                <option value="template">Template dokumen</option>
-                <option value="skill">Skill yang sudah siap</option>
-              </select>
-            </label>
+            <summary>Draft template dokumen</summary>
             <ActionForm
-              key={kind}
               path="/admin/content"
               button="Simpan draft panduan"
               build={(form) => ({
-                kind,
+                kind: "template",
                 key: String(form.get("key")),
                 content: String(form.get("content")),
                 source: String(form.get("source")),
@@ -64,10 +50,10 @@ export function ContentAdmin() {
               <Field
                 name="key"
                 label="Panduan"
-                options={(kind === "template"
-                  ? query.data!.templates
-                  : query.data!.skills
-                ).map((entry) => ({ value: entry.key, label: entry.name }))}
+                options={query.data!.templates.map((entry) => ({
+                  value: entry.key,
+                  label: entry.name,
+                }))}
               />
               <Field
                 name="source"
@@ -96,7 +82,9 @@ export function ContentAdmin() {
             </ActionForm>
           </details>
           <DataTable
-            items={query.data.items}
+            items={query.data.items.filter(
+              (entry) => entry.kind === "template",
+            )}
             columns={[
               {
                 label: "Panduan",

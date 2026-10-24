@@ -418,74 +418,6 @@
   margin-top: 12px;
   font-size: 11px;
 }
-.skill-filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(140px, 0.6fr);
-  gap: 16px;
-}
-.skill-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  max-height: 520px;
-  overflow-y: auto;
-  scrollbar-color: var(--line) var(--canvas);
-}
-.skill-list > li {
-  border-top: 1px solid var(--line);
-  padding-block: 16px;
-}
-.skill-choice {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  cursor: pointer;
-}
-.skill-choice > input {
-  flex-shrink: 0;
-  margin-top: 4px;
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
-}
-.skill-choice > span:nth-child(2) {
-  flex: 1;
-  min-width: 0;
-}
-.skill-choice strong {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-}
-.skill-choice > span > span {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 4px 0;
-}
-.skill-choice small {
-  margin-top: 4px;
-  overflow-wrap: anywhere;
-}
-.skill-status {
-  flex-shrink: 0;
-  font-size: 10px;
-  color: var(--muted);
-  padding-top: 2px;
-}
-.skill-ready {
-  color: var(--accent);
-}
-.skill-source {
-  font-size: 11px;
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  margin: 8px 0 0 30px;
-  color: var(--accent);
-}
 .reference-drop {
   display: flex;
   align-items: center;
@@ -647,8 +579,7 @@
     padding: 18px;
   }
   .technology-fields,
-  .style-fields,
-  .skill-filters {
+  .style-fields {
     grid-template-columns: 1fr;
     gap: 0;
   }
@@ -678,13 +609,6 @@
   }
   .preview-navigation span {
     display: none;
-  }
-  .skill-choice {
-    flex-wrap: wrap;
-  }
-  .skill-status {
-    margin-left: 30px;
-    flex-basis: 100%;
   }
   .preference-body input,
   .preference-body select,

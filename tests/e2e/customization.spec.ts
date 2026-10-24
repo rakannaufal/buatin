@@ -4,7 +4,7 @@ const section = (page: import("@playwright/test").Page, name: string) =>
   page
     .locator("details.preference-section")
     .filter({ has: page.getByRole("heading", { name, exact: true }) });
-test("desktop: customize reference, stack, 10 HEX colors, typography and skills through generation", async ({
+test("desktop: customize reference, stack, colors and typography with internal skills through generation", async ({
   page,
   testAccount,
 }) => {
@@ -80,16 +80,8 @@ test("desktop: customize reference, stack, 10 HEX colors, typography and skills 
   await style.screenshot({
     path: "test-results/customization-desktop-style.png",
   });
-  const skills = section(page, "Skill dan panduan");
-  await skills.locator("summary").click();
-  await skills.getByRole("radio", { name: "Manual", exact: true }).check();
-  await skills.getByLabel("Cari skill", { exact: true }).fill("Webapp Testing");
-  await skills.getByRole("checkbox").check();
-  await skills
-    .getByLabel("Cari skill", { exact: true })
-    .fill("Keamanan aplikasi");
-  await expect(skills.getByRole("checkbox")).toBeChecked();
-  await expect(skills.getByRole("checkbox")).toBeDisabled();
+  await expect(section(page, "Skill dan panduan")).toHaveCount(0);
+  await expect(page.getByText("Skill aktif", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Simpan draft", exact: true }).click();
   await expect(page).toHaveURL(/\/projects\/[a-f0-9-]+$/);
   await page.reload();
@@ -112,8 +104,11 @@ test("desktop: customize reference, stack, 10 HEX colors, typography and skills 
   ).toBeVisible({ timeout: 45000 });
   await page.locator(".plan-customization > summary").click();
   await expect(page.locator(".plan-customization")).toContainText("Astro");
-  await expect(page.locator(".plan-customization")).toContainText(
+  await expect(page.locator(".plan-customization")).not.toContainText(
     "Webapp Testing",
+  );
+  await expect(page.locator(".plan-customization")).not.toContainText(
+    "Anti-slop",
   );
   await page
     .getByRole("button", { name: "Mulai generasi", exact: true })
@@ -124,6 +119,12 @@ test("desktop: customize reference, stack, 10 HEX colors, typography and skills 
     page.getByRole("heading", { name: "Dokumen siap ditinjau.", exact: true }),
   ).toBeVisible({ timeout: 90000 });
   const jobId = page.url().split("/jobs/")[1].split("/")[0];
+  const setupOutput = await page.request.get(`/api/jobs/${jobId}/files/skills`);
+  expect(setupOutput.status()).toBe(200);
+  const setup = (await setupOutput.json()).file;
+  expect(setup.path).toBe("SKILLS.md");
+  expect(setup.content).toContain("buatin-antislop/SKILL.md");
+  expect(setup.content).toContain("belum diverifikasi");
   const output = await page.request.get(`/api/jobs/${jobId}/files/design`);
   expect(output.status()).toBe(200);
   const { file } = await output.json();
@@ -176,15 +177,8 @@ test("mobile: accessible customization, retained manual choices and no overflow"
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  const skills = section(page, "Skill dan panduan");
-  await skills.locator("summary").click();
-  await skills
-    .getByLabel("Cari skill", { exact: true })
-    .fill("image generation");
-  await expect(
-    skills.getByText("Perlu koneksi", { exact: true }),
-  ).toBeVisible();
-  await expect(skills.getByRole("checkbox")).toBeDisabled();
+  await expect(section(page, "Skill dan panduan")).toHaveCount(0);
+  await expect(page.getByText("Skill aktif", { exact: true })).toHaveCount(0);
   await page.getByLabel("Pilih file referensi", { exact: true }).setInputFiles({
     name: "unsafe.svg",
     mimeType: "image/svg+xml",

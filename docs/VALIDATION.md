@@ -1,5 +1,58 @@
 # Hasil verifikasi Buatin
 
+## Skill internal dan persiapan agent - 24 Oktober 2026
+
+- Anti-slop core dari `miqdadbadjuber/anti-slop` dipin pada commit
+  `671ab15c2ff6913cdd80717f602a89f0a9429a4b`, lisensi MIT. Sumber mentah,
+  atribusi/lisensi, adaptasi dan checksum disimpan. Enam pack siap lulus verifikasi;
+  wizard dan script upstream tidak dijalankan oleh Bantuin. Superdesign dihapus
+  dari katalog web. Total katalog tetap 27, delapan siap dan 19 belum siap.
+- Anti-slop juga dipasang dengan Skill Installer bawaan ke direktori skill Codex.
+  Byte `SKILL.md` dibandingkan dengan sumber yang dikunci, SHA-256
+  `64a1ff70bafbfb7a105083cdff0026a6f09baf7e19d3aa1bc3e880cf7233f90c`;
+  lisensi MIT disimpan. Ini membuktikan instalasi lokal, bukan aktivasi di sesi
+  agent lain atau instalasi pada mesin pengguna Bantuin.
+- Pemilih dan ringkasan nama skill di editor/planner serta pengelolaan skill pada
+  UI admin dihapus. Preferensi manual dan snapshot lama tetap disimpan; registry
+  dan enforcement server tetap berlaku.
+- Paket baru wajib memiliki `SKILLS.md`, sehingga katalog menjadi 43 Markdown
+  ditambah satu manifest. AGENTS dan index menempatkan pemasangan/verifikasi
+  sebelum perintah proyek. Definisi skill proyek berasal dari snapshot, memiliki
+  namespace Buatin dan SHA-256 per berkas; tidak menimpa skill berbeda atau
+  mengunduh/menjalankan installer upstream. Status instalasi target tetap belum
+  diverifikasi sampai agent target membuktikannya.
+
+Verifikasi memakai Node.js 24.22.0, production build terpisah pada
+`.local/antislop-fixture/next`, database PostgreSQL loopback baru khusus fixture,
+storage privat terpisah dan mock loopback. Wrapper `.local/antislop-fixture/run.mjs`
+menetapkan environment fixture tanpa mencetak kredensial; perintah integrasi dan
+browser berikut dijalankan melalui wrapper tersebut. Dua belas migration yang
+sudah ada diterapkan pada database fixture; tidak ada migration baru.
+
+| Perintah                                                                                                                                                | Hasil aktual                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `node --import tsx node_modules/vitest/vitest.mjs run tests/unit/customization.test.ts tests/unit/domain.test.ts tests/unit/template-variables.test.ts` | Baseline sebelum edit: 43 test / tiga file lulus                                                                              |
+| `npm test`                                                                                                                                              | 156 test / 22 file lulus, termasuk setup skill sembilan tipe website, checksum definisi dan penolakan Superdesign             |
+| `npm run format:check`, `npm run lint`, `npm run typecheck`                                                                                             | Lulus                                                                                                                         |
+| `npm run skills:verify`, `npm run templates:verify`                                                                                                     | Enam pack ditinjau dan 43 template lulus                                                                                      |
+| `npm run build:worker`, `npm run build`                                                                                                                 | Build worker dan production web lulus; build web diulang di luar sandbox setelah Turbopack sandbox tidak bergerak             |
+| `node_modules/vitest/vitest.mjs run tests/integration/workflow.test.ts tests/integration/customization.test.ts --maxWorkers=1`                          | 14 test / dua file lulus; termasuk 43 dokumen plus tepat satu manifest dalam ZIP, persistence, ownership, revisi dan snapshot |
+| `node_modules/@playwright/test/cli.js test tests/e2e/customization.spec.ts`                                                                             | Dua skenario desktop/mobile lulus dalam mode worker, lalu dua skenario yang sama lulus dalam mode request tanpa worker        |
+| `node_modules/vitest/vitest.mjs run tests/request --maxWorkers=1`                                                                                       | Enam test lulus pada production build mode request; continuation, lease, kuota, parser dan ZIP                                |
+| `scripts/check-hosted-assets.mjs`                                                                                                                       | 145 file trace; parser terisolasi, normalisasi gambar dan penghapusan EXIF lulus                                              |
+| `npm audit --omit=dev --audit-level=high`                                                                                                               | Nol kerentanan; akses registry diulang dengan izin jaringan setelah DNS sandbox gagal                                         |
+| `npm run security:scan`, `git diff --check`                                                                                                             | Lulus; 375 file source/config/dokumen diperiksa sebelum penambahan catatan ini                                                |
+
+Browser membuktikan daftar/ringkasan skill tidak terlihat pada editor dan planner,
+pilihan warna/font tetap tersimpan, layout mobile tidak overflow, serta API hasil
+memuat `SKILLS.md` dengan Anti-slop dan status belum diverifikasi. Output semua
+sembilan tipe diperiksa terhadap tautan internal dan checksum definisi. Build
+tidak membuktikan integrasi provider nyata. Full suite integrasi/E2E, rehearsal
+migration, recovery proses dan image Docker tidak diulang lokal untuk perubahan
+ini; tetap menjadi gate CI. Produksi belum diperbarui dalam verifikasi lokal.
+Perubahan `next-env.d.ts` milik pengguna dipertahankan persis dari baseline;
+perubahan konfigurasi Next akibat build fixture dipulihkan dan tidak di-stage.
+
 ## Audit domain dan aktivasi Google - 23 Oktober 2026
 
 Laporan rinci: `PRODUCTION_AUDIT_2026-10-23_DOMAIN_AUTH.md`. Audit dimulai dari

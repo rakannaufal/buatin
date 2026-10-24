@@ -1,4 +1,5 @@
 {
+  "SKILLS.md": "2e5e5850b7636c2221c1d8ecf4896870f36019de1472a9a56c2070e66e63d903",
   "specs/brief.md": "0c97a6eecc8d5eedee8423f03c2436f57ca2d9277d539156e75f4c6a71f58316",
   "specs/prd.md": "3653a85c55d17f911a8778c8510be5783fb02e72aa437b4bdddd5a9ecc27d2f6",
   "specs/business-rules.md": "46c6fb4f4612caca5f34405a14b7790e3082c660df0fcc7df85482c7c577c8ba",
@@ -39,6 +40,6 @@
   "specs/operations.md": "0aa62774ec8a6956e057f0b786a61c2f12273761046c182a6d53cc5ddbbe99f8",
   "specs/decisions.md": "946e877e62fa828b6bdbceafbe76751d0b8e9c86ac5e90790cf735d474430432",
   "specs/progress.md": "0ca40af86dd796841eb5f4354856069a9aec3f86e1fd018b0359c18b9bb12626",
-  "specs/index.md": "38e20d2b8f56298168d2a895472fe90159bb94194bb2ced7e7bc391b824eedf2",
-  "AGENTS.md": "6960276dac91f2416773b896104c6d1cf1f81fcdcabdc66fae5752198d7ca0ab"
+  "specs/index.md": "b51a0dee0aee77fc196b0cff4a32509ae6e26348bd24096cee8d416c3cebf0b6",
+  "AGENTS.md": "ad4eb54a9ae5c254807cdbd73e80114b403fb44c077eee5adcb176b17baba23a"
 }

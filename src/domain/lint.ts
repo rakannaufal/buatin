@@ -29,7 +29,7 @@ export function safePath(value: string) {
     !value.startsWith("/") &&
     !value.includes("\\") &&
     !value.split("/").includes("..") &&
-    /^(?:AGENTS\.md|specs\/[a-z-]+\.(?:md|json))$/.test(value)
+    /^(?:(?:AGENTS|SKILLS)\.md|specs\/[a-z-]+\.(?:md|json))$/.test(value)
   );
 }
 export function lintOutput(

@@ -4,17 +4,24 @@ SaaS untuk mengubah brief website menjadi paket spesifikasi Markdown. Akun publi
 
 Editor menyediakan lampiran privat, teknologi otomatis/manual (40 kategori), palet
 HEX 2–10 warna, gaya/typography/layout terperinci, preview desktop/mobile dan
-katalog 27 skill. Preferensi mengikuti autosave, revisi, preset dan snapshot hasil.
+katalog internal 27 skill. Preferensi mengikuti autosave, revisi, preset dan snapshot hasil.
 Pengaturan tersebut mendeskripsikan website target; Buatin tetap menghasilkan
 spesifikasi Markdown.
+
+Skill dikelola internal dan tidak ditampilkan sebagai daftar/pemilih pada UI.
+Paket baru selalu memuat `SKILLS.md`: agent memasang definisi panduan proyek
+yang belum tersedia, memverifikasi SHA-256 dan aksesnya, lalu menjalankan perintah
+proyek. `AGENTS.md` mengunci urutan ini. Definisi berasal dari snapshot, tidak
+menjalankan installer/script pihak ketiga. File berbeda tidak ditimpa otomatis;
+pemasangan tetap pending sampai dibuktikan pada lingkungan agent pengguna.
 
 **Tanpa Docker, n8n, atau Telegram.** Stack: Next.js App Router + React + TypeScript, Tailwind CSS, komponen Radix, React Hook Form + Zod, TanStack Query, PostgreSQL + Prisma, Better Auth, dan pg-boss. Next.js melayani UI/API; worker Node.js menjalankan pekerjaan panjang. PostgreSQL menyimpan queue dan checkpoint sehingga Redis tidak diperlukan.
 
 ## Status dan batas
 
 - **Template-based generation** — dokumen dihasilkan dari template terstruktur, bukan AI. Tidak memerlukan provider LLM untuk menghasilkan spesifikasi. Biaya operasional per generasi nol.
-- Katalog tetap 42 Markdown + manifest otomatis, maksimum 43 entri ZIP.
-- 42 template builtin terstruktur dengan checksum dan variabel; brief, preferensi, referensi dan plan diisi ke template secara deterministik. Kit original dapat dipakai bila sumber/haknya jelas. Hasil selalu perlu ditinjau manusia.
+- Katalog tetap 43 Markdown + manifest otomatis, maksimum 44 entri ZIP.
+- 43 template builtin terstruktur dengan checksum dan variabel; brief, preferensi, referensi dan plan diisi ke template secara deterministik. Kit original dapat dipakai bila sumber/haknya jelas. Hasil selalu perlu ditinjau manusia.
 - Pendaftaran publik dengan verifikasi email. Admin/owner mengelola layanan; seluruh proyek tetap diisolasi per akun.
 - Free sekali seumur hidup; Starter 3/minggu, Plus 10/minggu, Max 25/minggu. Harga belum ditentukan, checkout dinonaktifkan sampai dikonfigurasi.
 - Satu proses worker dengan konkurensi konfigurabel (default 2 akun). Maksimal satu generasi berjalan per akun; Max dapat mengantrekan 10 proyek.
@@ -39,7 +46,7 @@ publish admin dapat mengubah penawaran baru. Pembelian lama memakai snapshot.
 | Revisi brief dan perbandingan hasil     | -              | -           | Ya           | Ya        |
 | Regenerasi pilihan + dokumen terdampak  | -              | -           | Ya           | Ya        |
 | Preset brief pribadi                    | -              | -           | 50           | 50        |
-| Template Markdown pribadi               | -              | -           | -            | 42        |
+| Template Markdown pribadi               | -              | -           | -            | 43        |
 | Antrean beberapa proyek                 | -              | -           | -            | 10 aktif  |
 | Prioritas                               | Standar        | Standar     | Lebih tinggi | Tertinggi |
 
@@ -189,7 +196,7 @@ Analisis mengirim gambar yang sudah disanitasi ke provider, maksimal 10/akun/jam
 satu request tanpa retry, usage tercatat; biaya mengikuti provider. Uji kemampuan
 model di staging lebih dahulu. Mode manual tetap tersedia tanpa vision.
 
-Teknologi, warna, gaya dan skill memiliki mode masing-masing. Manual boleh
+Teknologi, warna dan gaya memiliki mode masing-masing. Manual boleh
 sebagian, sisanya otomatis. Konflik stack ditampilkan dan ditolak server. Cari
 teknologi di 40 kategori atau tulis arahan tambahan. Pilihan manual dipertahankan
 saat mode berganti. Primary/Secondary tetap ada; tombol tambah membatasi palet
@@ -202,9 +209,10 @@ Preview memakai font lokal Manrope/Source Serif 4; font lain dicatat untuk targe
 dan memakai fallback dalam preview. Font custom perlu nama dan lisensi yang sah.
 
 Skill aktif masuk konteks dokumen yang relevan. Katalog memuat seluruh inventaris
-sesi: 5 panduan pihak ketiga yang diadaptasi, 2 panduan wajib Buatin, 20 entri
+sesi: 6 panduan pihak ketiga yang diadaptasi, 2 panduan wajib Buatin, 19 entri
 yang masih memerlukan koneksi/tinjauan atau tidak didukung. Plugin desktop tidak
-otomatis menjadi layanan web. Skill yang belum siap tidak dapat diaktifkan.
+otomatis menjadi layanan web. Skill dikelola internal; daftar dan pemilih tidak ditampilkan pada UI.
+Skill yang belum siap tidak dapat diaktifkan.
 Sumber, lisensi, commit/checksum tercatat; tidak ada script pihak ketiga dijalankan.
 Detail pengelolaan: `skill-packs/README.md`.
 
@@ -237,7 +245,7 @@ dibutuhkan revisi/job. Maintenance membersihkan lampiran lepas dan blob yatim
 setelah satu jam. Hapus proyek juga menjadwalkan cleanup melalui maintenance.
 `db:backup` mencakup database dan blob dalam satu bundle terenkripsi yang diverifikasi.
 
-Default `TEMPLATE_SOURCE=builtin` memakai 42 template terstruktur sesuai katalog.
+Default `TEMPLATE_SOURCE=builtin` memakai 43 template terstruktur sesuai katalog.
 `templates:verify` memeriksa kelengkapan/checksum; perubahan ditinjau sebelum
 `templates:verify -- --update`. Kit original dapat dipasang ke path katalog dengan
 `TEMPLATES_DIR` dan `TEMPLATE_SOURCE=original` setelah hak/isinya diverifikasi.

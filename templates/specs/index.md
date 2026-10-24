@@ -1,5 +1,10 @@
 # {{projectName}}
 
+## Mulai dari pemasangan skill
+
+Baca [SKILLS.md](../SKILLS.md), pasang skill yang belum tersedia dan verifikasi
+sebelum menjalankan perintah proyek. Aturan lengkap ada di [AGENTS.md](../AGENTS.md).
+
 ## Proyek
 
 | Aspek        | Detail                |

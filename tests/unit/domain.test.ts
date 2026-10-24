@@ -21,12 +21,12 @@ import { dayKey } from "../../src/server/config";
 import { retryAfter } from "../../src/server/llm";
 
 describe("catalog and plans", () => {
-  it("contains exactly 42 unique, safe documents, nine types, and an acyclic graph", () => {
-    expect(catalog).toHaveLength(42);
+  it("contains exactly 43 unique, safe documents, nine types, and an acyclic graph", () => {
+    expect(catalog).toHaveLength(43);
     expect(webTypes).toHaveLength(9);
-    expect(new Set(catalog.map((f) => f.path)).size).toBe(42);
+    expect(new Set(catalog.map((f) => f.path)).size).toBe(43);
     expect(catalog.every((f) => safePath(f.path))).toBe(true);
-    expect(closure(catalog.map((f) => f.id)).size).toBe(42);
+    expect(closure(catalog.map((f) => f.id)).size).toBe(43);
     expect(() =>
       closure(
         ["agents"],
@@ -51,7 +51,7 @@ describe("catalog and plans", () => {
       expect(closure(plan.selected.map((f) => f.id)).size).toBe(
         plan.selected.length,
       );
-      expect(plan.selected.length).toBeLessThanOrEqual(42);
+      expect(plan.selected.length).toBeLessThanOrEqual(43);
     });
   it("honors negation, rejects hallucinated evidence, preserves required files", () => {
     expect(
@@ -101,7 +101,7 @@ describe("catalog and plans", () => {
     expect(() => editPlan(expanded, "api", false)).toThrow();
     let full = plan;
     for (const file of catalog) full = editPlan(full, file.id, true);
-    expect(full.selected).toHaveLength(42);
+    expect(full.selected).toHaveLength(43);
     expect(() => resolvePlan(input, "brief", "landing", 11)).toThrow(
       "MAX_FILES_BELOW_MINIMUM",
     );

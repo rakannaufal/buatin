@@ -117,7 +117,7 @@ export function resolvePlan(
   input: PlannerOutput,
   brief: string,
   type: WebType,
-  maxFiles = 42,
+  maxFiles = catalog.length,
   entries: CatalogEntry[] = catalog,
   fallback = false,
 ): ResolvedPlan {
@@ -230,7 +230,7 @@ export function editPlan(
   plan: ResolvedPlan,
   id: string,
   include: boolean,
-  maxFiles = 42,
+  maxFiles = catalog.length,
   entries: CatalogEntry[] = catalog,
 ): ResolvedPlan {
   const map = new Map(entries.map((e) => [e.id, e]));

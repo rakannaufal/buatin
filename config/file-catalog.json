@@ -1,5 +1,17 @@
 [
   {
+    "id": "skills",
+    "path": "SKILLS.md",
+    "kind": "core",
+    "title": "Persiapan agent",
+    "purpose": "Pemasangan dan verifikasi skill wajib sebelum perintah proyek",
+    "requires": [],
+    "triggers": [],
+    "order": -1,
+    "context_from": [],
+    "max_output_tokens": 8000
+  },
+  {
     "id": "brief",
     "path": "specs/brief.md",
     "kind": "core",
@@ -525,7 +537,7 @@
     "kind": "core",
     "title": "Agents",
     "purpose": "Aturan agent, urutan baca, batas akses, bukti penyelesaian",
-    "requires": [],
+    "requires": ["skills"],
     "triggers": [],
     "order": 41,
     "context_from": ["index", "implementation-plan"],

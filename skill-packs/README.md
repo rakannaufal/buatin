@@ -10,7 +10,10 @@ Pack lokal: Impeccable (Apache-2.0), UI Craft, UI/UX Pro Max dan Emil Design
 Engineering (MIT). Provenance menggunakan hash konten lokal karena commit asal
 instalasi tidak tersedia. Pack GitHub: Anthropic `webapp-testing`, Apache-2.0,
 commit `ef740771ac901e03fbca3ce4e1c453a96010f30a`, dengan tautan sumber dan lisensi
-spesifik skill. Attribution asli dipertahankan. Script/helper upstream tidak
+spesifik skill. Anti-slop dari `miqdadbadjuber/anti-slop` dipin pada commit
+`671ab15c2ff6913cdd80717f602a89f0a9429a4b`, berlisensi MIT. Core diadaptasi
+tanpa wizard pemasangan, preferensi global atau runtime script.
+Attribution asli dipertahankan. Script/helper upstream tidak
 diimpor. Panduan Playwright diadaptasi ke stack target dan readiness UI.
 
 ## Impor atau pembaruan admin

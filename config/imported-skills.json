@@ -82,5 +82,36 @@
     },
     "sourceChecksum": "51b7349e77ec63b7744a6f63647e7566a0b4d2e301121cc10e8c2113af6556a2",
     "checksum": "c45fab3739a56611bd287d2dfc03a95e17092ac0333ec07c38e32745a3229292"
+  },
+  {
+    "id": "antislop",
+    "name": "Anti-slop",
+    "category": "Desain",
+    "description": "Filter desain generik, konten rekaan dan interaksi tanpa fungsi.",
+    "status": "ready",
+    "source": "miqdadbadjuber/anti-slop; adaptasi Buatin",
+    "url": "https://github.com/miqdadbadjuber/anti-slop/tree/671ab15c2ff6913cdd80717f602a89f0a9429a4b/skills/antislop",
+    "version": "671ab15c2ff6913cdd80717f602a89f0a9429a4b",
+    "license": "MIT",
+    "dependencies": [],
+    "documents": [
+      "agents",
+      "design",
+      "components",
+      "content",
+      "accessibility",
+      "testing"
+    ],
+    "guidance": "Apply Anti-slop as a purpose test on the existing brand and locked user preferences. Explain major choices in layout, typography, color and motion. Build composition around real product content; avoid generic template sections and decoration without a purpose. Never invent testimonials, statistics, team identities, security claims or working features. Use specific action labels and real navigation targets. Specify responsive layouts, keyboard access, visible focus, contrast, reduced motion and truthful loading, empty and error states. Review design direction, purpose, identity and functional completeness before delivery; record actual checks and unresolved failures. Do not force new colors, fonts, themes or features, run the upstream installation wizard or execute third-party scripts.",
+    "upstream": {
+      "repository": "miqdadbadjuber/anti-slop",
+      "commit": "671ab15c2ff6913cdd80717f602a89f0a9429a4b",
+      "skillPath": "skills/antislop/SKILL.md",
+      "licensePath": "LICENSE",
+      "sourceChecksum": "64a1ff70bafbfb7a105083cdff0026a6f09baf7e19d3aa1bc3e880cf7233f90c",
+      "licenseChecksum": "9fd83fb1fda52ca0094b96e2ed5a3d6c42a81b95a6c6326553f5bbe570f443de"
+    },
+    "sourceChecksum": "64a1ff70bafbfb7a105083cdff0026a6f09baf7e19d3aa1bc3e880cf7233f90c",
+    "checksum": "12d3e1a7f827130c142679f731f3cd23699889462e192712e26a16d6472ae0f7"
   }
 ]

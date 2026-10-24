@@ -214,7 +214,7 @@ export function planDeterministic(input: HeuristicInput) {
     output,
     input.brief,
     input.webType,
-    input.maxFiles ?? 42,
+    input.maxFiles ?? catalog.length,
     entries,
     false,
   );

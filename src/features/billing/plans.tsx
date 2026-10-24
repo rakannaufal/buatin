@@ -20,7 +20,7 @@ export function PlanComparison({
 }) {
   const baseFeatures = [
     { label: "Jenis website", cell: () => "9" },
-    { label: "Markdown + manifest", cell: () => "Hingga 42 + 1" },
+    { label: "Markdown + manifest", cell: () => "Hingga 43 + 1" },
     { label: "Preview, source, ZIP", cell: () => "Tersedia" },
     { label: "Lanjutkan proses yang sama", cell: () => "Tanpa kuota tambahan" },
     ...(
@@ -43,7 +43,7 @@ export function PlanComparison({
         {
           key: "templates",
           label: "Template Markdown pribadi",
-          available: "42 template",
+          available: "43 template",
         },
         {
           key: "batch",
