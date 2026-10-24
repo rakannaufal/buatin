@@ -1,4 +1,4 @@
-# Adaptation for Buatin
+# Adaptation for Bantuin
 
 Derived guidance for specification writing; desktop tools and scripts are not executed.
 

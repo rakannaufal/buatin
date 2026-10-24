@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Kebijakan privasi",
   "/privacy",
-  "Data yang diproses Buatin, tujuan penggunaannya, penyimpanan dan hak Anda.",
+  "Data yang diproses Bantuin, tujuan penggunaannya, penyimpanan dan hak Anda.",
 );
 
 export default function Page() {
@@ -15,9 +15,10 @@ export default function Page() {
       <h1>Kebijakan privasi</h1>
       <ServiceUpdated />
       <p>
-        Kebijakan ini menjelaskan pengelolaan data saat Anda menggunakan Buatin.
-        Pengelola Buatin bertindak sebagai pengendali data pribadi untuk layanan
-        ini. Jalur permintaan dan kontak dijelaskan pada halaman ini.
+        Kebijakan ini menjelaskan pengelolaan data saat Anda menggunakan
+        Bantuin. Pengelola Bantuin bertindak sebagai pengendali data pribadi
+        untuk layanan ini. Jalur permintaan dan kontak dijelaskan pada halaman
+        ini.
       </p>
 
       <h2>Data yang dikumpulkan</h2>

@@ -23,9 +23,9 @@ const directory = path.join(root, "public/assets");
 const entries = [];
 const { ink, ocean, oceanInk, paper, white } = colors;
 const illustrationBrief =
-  "Original editorial doodle for Buatin, a service turning website briefs into planning documents. Controlled hand-drawn rounded ink lines, slight irregularity, simple shapes, generous negative space. Sea & Sun palette: ocean blue #167DAD, ink #173444, pale sky #DFF2FA, sunshine yellow #FFD35A, blue-white paper #F0FBFF. Transparent background. No written words, gradients, 3D, heavy shadows, watermarks, stock characters, or certification badges. Match this asset family's geometry.";
+  "Original editorial doodle for Bantuin, a service turning website briefs into planning documents. Controlled hand-drawn rounded ink lines, slight irregularity, simple shapes, generous negative space. Sea & Sun palette: ocean blue #167DAD, ink #173444, pale sky #DFF2FA, sunshine yellow #FFD35A, blue-white paper #F0FBFF. Transparent background. No written words, gradients, 3D, heavy shadows, watermarks, stock characters, or certification badges. Match this asset family's geometry.";
 const logoBrief =
-  "Original Buatin mark: a capital B formed by folded planning-document shapes and deliberate negative space. Friendly geometry, compact silhouette, legible at small sizes. Flat single color with clean paths. Derive variants from one parent mark.";
+  "Original Bantuin mark: a capital B formed by folded planning-document shapes and deliberate negative space. Friendly geometry, compact silhouette, legible at small sizes. Flat single color with clean paths. Derive variants from one parent mark.";
 const fonts = {
   bold: await outlineFont(
     path.join(
@@ -156,7 +156,7 @@ for (const item of ornaments) {
 }
 
 const wordmark = (size, x, y, color = ocean) =>
-  fonts.bold.text("Buatin", size, { x, y, fill: color, tracking: -0.6 });
+  fonts.bold.text("Bantuin", size, { x, y, fill: color, tracking: -0.6 });
 function logoBody(kind, color) {
   if (kind === "symbol" || kind === "symbol-micro")
     return {
@@ -204,7 +204,7 @@ for (const kind of Object.keys(logoIds)) {
     ["white", white],
   ]) {
     const drawing = logoBody(kind, color);
-    const file = `logos/buatin-${kind}-${variant}.svg`;
+    const file = `logos/bantuin-${kind}-${variant}.svg`;
     const details = {
       id:
         variant === "black"
@@ -213,7 +213,7 @@ for (const kind of Object.keys(logoIds)) {
             ? "B06"
             : logoIds[kind],
       group: "logos",
-      title: `Buatin ${kind} ${variant}`,
+      title: `Bantuin ${kind} ${variant}`,
       prompt: `${logoBrief} ${kind} composition, ${variant} variant. Lettering outlined from the pinned Manrope font.`,
     };
     const source = await saveSvg(
@@ -226,7 +226,7 @@ for (const kind of Object.keys(logoIds)) {
     if (["symbol", "wordmark", "horizontal", "stacked"].includes(kind))
       for (const width of variant === "primary" ? [512, 1024, 2048] : [1024])
         await raster(
-          `logos/png/buatin-${kind}-${variant}-${width}.png`,
+          `logos/png/bantuin-${kind}-${variant}-${width}.png`,
           source,
           width,
           { ...details, id: "B12", source: file },
@@ -257,7 +257,7 @@ for (const [id, name, body] of [
 }
 
 const micro = await readFile(
-  path.join(directory, "logos/buatin-symbol-micro-primary.svg"),
+  path.join(directory, "logos/bantuin-symbol-micro-primary.svg"),
 );
 await save("icons/favicon.svg", micro, {
   id: "B08",
@@ -265,8 +265,8 @@ await save("icons/favicon.svg", micro, {
   format: "svg",
   width: 64,
   height: 64,
-  title: "Favicon Buatin",
-  source: "logos/buatin-symbol-micro-primary.svg",
+  title: "Favicon Bantuin",
+  source: "logos/bantuin-symbol-micro-primary.svg",
 });
 const icoImages = [];
 for (const size of [16, 32, 48])
@@ -325,22 +325,22 @@ for (const [name, sizes, maskable] of [
     });
 }
 const avatar = await saveSvg(
-  "logos/buatin-avatar.svg",
+  "logos/bantuin-avatar.svg",
   `<path fill="${ocean}" d="M0 0H1024V1024H0Z"/>${group(symbol(white), 253, 249, 8)}`,
   1024,
   1024,
   {
     id: "B10",
     group: "logos",
-    title: "Avatar Buatin",
+    title: "Avatar Bantuin",
     prompt: `${logoBrief} White symbol on ocean blue, centered and safe under a circular crop.`,
   },
 );
-await raster("logos/png/buatin-avatar-1024.png", avatar, 1024, {
+await raster("logos/png/bantuin-avatar-1024.png", avatar, 1024, {
   id: "B10",
   group: "logos",
-  title: "Avatar Buatin",
-  source: "logos/buatin-avatar.svg",
+  title: "Avatar Bantuin",
+  source: "logos/bantuin-avatar.svg",
 });
 
 // Seeded, seamless low-contrast grain, with no SVG filter or random build output.
@@ -377,7 +377,7 @@ const socialPages = [
   [
     "landing",
     "S01",
-    ["Ide website Anda,", "buatin rencananya."],
+    ["Ide website Anda,", "bantuin rencananya."],
     "Dari brief menjadi dokumen perencanaan.",
     "hero-planning",
   ],
@@ -385,14 +385,14 @@ const socialPages = [
     "pricing",
     "S02",
     ["Ruang untuk", "setiap tahap ide."],
-    "Bandingkan paket Buatin.",
+    "Bandingkan paket Bantuin.",
     "pricing-documents",
   ],
   [
     "terms",
     "S02",
     ["Ketentuan", "layanan."],
-    "Akun, paket, dan penggunaan Buatin.",
+    "Akun, paket, dan penggunaan Bantuin.",
     "terms-document",
   ],
   [
@@ -406,7 +406,7 @@ const socialPages = [
     "faq",
     "S02",
     ["Pertanyaan?", "Temukan jawabannya."],
-    "Panduan penggunaan Buatin.",
+    "Panduan penggunaan Bantuin.",
     "faq-conversation",
   ],
   [
@@ -470,7 +470,7 @@ for (const page of socialPages) {
     id: page[1],
     group: "social",
     title: `Pratinjau ${page[0]}`,
-    prompt: `Buatin ${page[0]} sharing card: working L01 parent logo, corresponding doodle, blue-white paper, and separately outlined factual Indonesian text. No prices or unverified claims.`,
+    prompt: `Bantuin ${page[0]} sharing card: working L01 parent logo, corresponding doodle, blue-white paper, and separately outlined factual Indonesian text. No prices or unverified claims.`,
   };
   const file = `social/og-${page[0]}.svg`;
   const source = await saveSvg(
@@ -487,7 +487,7 @@ for (const page of socialPages) {
 }
 const squareScene = socialScene(socialPages[0], true);
 const square = await saveSvg(
-  "social/buatin-square.svg",
+  "social/bantuin-square.svg",
   squareScene.body,
   1080,
   1080,
@@ -499,11 +499,11 @@ const square = await saveSvg(
       "Recompose the sharing-card system into a square, preserving logo proportions, generous margins, and a short separately outlined Indonesian headline.",
   },
 );
-await raster("social/buatin-square.png", square, 1080, {
+await raster("social/bantuin-square.png", square, 1080, {
   id: "S03",
   group: "social",
-  title: "Buatin persegi",
-  source: "social/buatin-square.svg",
+  title: "Bantuin persegi",
+  source: "social/bantuin-square.svg",
 });
 
 for (const [name, packageName, fontFile] of [
@@ -544,7 +544,7 @@ await writeFile(
   path.join(directory, "PROMPTS.md"),
   await format(
     [
-      "# Brief dan prompt aset Buatin",
+      "# Brief dan prompt aset Bantuin",
       "",
       "Aset digambar langsung sebagai geometri SVG. Prompt adalah brief sumber, bukan klaim penggunaan model gambar.",
       "",
@@ -587,7 +587,7 @@ await writeFile(
   path.join(directory, "manifest.json"),
   await format(
     JSON.stringify({
-      brand: "Buatin",
+      brand: "Bantuin",
       version: 2,
       created: "2026-10-24",
       palette: colors,

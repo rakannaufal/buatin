@@ -1,11 +1,11 @@
-# Buatin
+# Bantuin
 
 SaaS untuk mengubah brief website menjadi paket spesifikasi Markdown. Akun publik terverifikasi, paket Free serta tiga tingkat Pro, pembayaran QRIS Duitku. Seluruh interaksi melalui website: login, sembilan tipe website, impor teks, draft, rencana dokumen, klarifikasi, checklist, generasi persisten, pembatalan/resume, preview, unduhan ZIP, dan riwayat.
 
 Editor menyediakan lampiran privat, teknologi otomatis/manual (40 kategori), palet
 HEX 2–10 warna, gaya/typography/layout terperinci, preview desktop/mobile dan
 katalog internal 27 skill. Preferensi mengikuti autosave, revisi, preset dan snapshot hasil.
-Pengaturan tersebut mendeskripsikan website target; Buatin tetap menghasilkan
+Pengaturan tersebut mendeskripsikan website target; Bantuin tetap menghasilkan
 spesifikasi Markdown.
 
 Skill dikelola internal dan tidak ditampilkan sebagai daftar/pemilih pada UI.
@@ -241,7 +241,7 @@ Preview memakai font lokal Manrope/Source Serif 4; font lain dicatat untuk targe
 dan memakai fallback dalam preview. Font custom perlu nama dan lisensi yang sah.
 
 Skill aktif masuk konteks dokumen yang relevan. Katalog memuat seluruh inventaris
-sesi: 6 panduan pihak ketiga yang diadaptasi, 2 panduan wajib Buatin, 19 entri
+sesi: 6 panduan pihak ketiga yang diadaptasi, 2 panduan wajib Bantuin, 19 entri
 yang masih memerlukan koneksi/tinjauan atau tidak didukung. Plugin desktop tidak
 otomatis menjadi layanan web. Skill dikelola internal; daftar dan pemilih tidak ditampilkan pada UI.
 Skill yang belum siap tidak dapat diaktifkan.
@@ -316,7 +316,7 @@ CI memakai PostgreSQL native Ubuntu, tanpa service container. Lihat `docs/VALIDA
 
 Uji crash proses nyata: hentikan worker normal, lalu jalankan `npm run test:recovery` dengan DB lokal dan mock aktif. Script membuat worker anak khusus, menghentikannya dengan SIGKILL setelah checkpoint, menunggu lease uji 30 detik, lalu menguji restart/resume. Script hanya menghentikan proses anak buatannya dan membersihkan akun fixture. Jalankan kembali worker normal sesudahnya.
 
-Kontrak SaaS lengkap tersedia di `docs/PROMPT_WEB.md`; aturan pembayaran serta pengoperasian di `docs/BILLING.md`; keputusan implementasi di `docs/BUATIN_IMPLEMENTATION.md`.
+Kontrak SaaS lengkap tersedia di `docs/PROMPT_WEB.md`; aturan pembayaran serta pengoperasian di `docs/BILLING.md`; keputusan implementasi di `docs/BANTUIN_IMPLEMENTATION.md`.
 
 ## Alternatif deploy native
 

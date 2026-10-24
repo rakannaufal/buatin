@@ -30,9 +30,9 @@ Generator menghasilkan instruksi, bukan bukti skill terpasang di mesin pengguna.
 
 ## Sumber dan batas pemasangan
 
-Definisi berikut adalah adaptasi panduan Buatin yang dibekukan bersama snapshot
+Definisi berikut adalah adaptasi panduan Bantuin yang dibekukan bersama snapshot
 proyek, bukan salinan penuh tool atau plugin upstream. Nama skill diberi scope
-Buatin agar tidak menimpa skill asli. Pertahankan atribusi dan lisensinya.
+Bantuin agar tidak menimpa skill asli. Pertahankan atribusi dan lisensinya.
 Sumber/versi upstream hanya untuk provenance; tidak perlu mengunduh atau
 menjalankan installer pihak ketiga untuk menggunakan definisi ini.
 

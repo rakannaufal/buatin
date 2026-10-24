@@ -15,7 +15,7 @@ export function publicAuthReady() {
       challengeReady() &&
       env.EMAIL_PROVIDER === "resend" &&
       env.RESEND_API_KEY &&
-      env.EMAIL_FROM !== "Buatin <noreply@example.com>" &&
+      !env.EMAIL_FROM.toLowerCase().includes("noreply@example.com") &&
       env.TURNSTILE_SITE_KEY &&
       env.TURNSTILE_SECRET_KEY,
     )

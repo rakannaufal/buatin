@@ -227,7 +227,7 @@ export async function reportsApi(
     return new Response(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="buatin-payments.csv"',
+        "Content-Disposition": 'attachment; filename="bantuin-payments.csv"',
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
       },

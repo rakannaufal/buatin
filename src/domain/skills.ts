@@ -19,6 +19,7 @@ export interface SkillEntry {
   guidance?: string;
   required?: boolean;
 }
+// Keep persisted IDs stable across the product rename.
 const builtins: SkillEntry[] = [
   {
     id: "buatin-security",
@@ -27,7 +28,7 @@ const builtins: SkillEntry[] = [
     description:
       "Batas akses, validasi, secrets, upload, dan privasi sesuai fitur target.",
     status: "ready",
-    source: "Buatin",
+    source: "Bantuin",
     version: "1",
     license: "Project-owned",
     dependencies: [],
@@ -51,7 +52,7 @@ const builtins: SkillEntry[] = [
     description:
       "Test relevan setelah perubahan; bukti hasil dan batas mock tetap jelas.",
     status: "ready",
-    source: "Buatin",
+    source: "Bantuin",
     version: "1",
     license: "Project-owned",
     dependencies: [],

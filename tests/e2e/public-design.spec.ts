@@ -44,10 +44,10 @@ test("FAQ answers open with the keyboard and section links reach their content",
 }) => {
   await page.goto("/faq");
   const question = page.locator("summary").filter({
-    hasText: "Apakah Buatin langsung membuat website?",
+    hasText: "Apakah Bantuin langsung membuat website?",
   });
   const answer = page.getByText(
-    "Buatin membuat dokumen perencanaan website dalam format Markdown, bukan website yang sudah berjalan.",
+    "Bantuin membuat dokumen perencanaan website dalam format Markdown, bukan website yang sudah berjalan.",
     { exact: false },
   );
   await expect(answer).toBeHidden();
@@ -148,7 +148,7 @@ test("empty pricing can be checked again and retains the comparison table", asyn
   empty = false;
   await page.getByRole("button", { name: "Periksa kembali" }).click();
   const comparison = page.getByRole("region", {
-    name: "Perbandingan paket Buatin",
+    name: "Perbandingan paket Bantuin",
   });
   await expect(comparison).toBeVisible();
   await comparison.focus();

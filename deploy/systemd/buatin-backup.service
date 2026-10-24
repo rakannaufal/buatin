@@ -1,5 +1,5 @@
 [Unit]
-Description=Buatin encrypted database and attachment backup
+Description=Bantuin encrypted database and attachment backup
 After=postgresql.service
 
 [Service]

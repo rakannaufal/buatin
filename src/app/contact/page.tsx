@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Kontak dan pengaduan",
   "/contact",
-  "Jalur bantuan untuk akun, dokumen, tagihan dan permintaan privasi Buatin.",
+  "Jalur bantuan untuk akun, dokumen, tagihan dan permintaan privasi Bantuin.",
 );
 
 export default function Page() {

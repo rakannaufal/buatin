@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Ketentuan layanan",
   "/terms",
-  "Ketentuan akun, paket, pembayaran dan penggunaan dokumen Buatin.",
+  "Ketentuan akun, paket, pembayaran dan penggunaan dokumen Bantuin.",
 );
 
 export default function Page() {
@@ -15,7 +15,7 @@ export default function Page() {
       <h1>Ketentuan layanan</h1>
       <ServiceUpdated />
       <p>
-        Ketentuan ini mengatur penggunaan Buatin dan pembelian paketnya. Baca
+        Ketentuan ini mengatur penggunaan Bantuin dan pembelian paketnya. Baca
         bersama <Link href="/privacy">Kebijakan Privasi</Link>,{" "}
         <Link href="/refund">Kebijakan Pengembalian Dana</Link> dan{" "}
         <Link href="/disclaimer">Batas Penggunaan Hasil</Link>.
@@ -23,7 +23,7 @@ export default function Page() {
 
       <h2>Layanan yang Anda terima</h2>
       <p>
-        Buatin menyusun brief website menjadi dokumen perencanaan dalam format
+        Bantuin menyusun brief website menjadi dokumen perencanaan dalam format
         Markdown. Anda dapat meninjau rencana, memilih dokumen dan mengunduh
         hasilnya. Dokumen inti disusun dari template terstruktur. Analisis
         gambar dengan AI merupakan fitur terpisah yang digunakan atas permintaan
@@ -45,7 +45,7 @@ export default function Page() {
       </p>
       <p>
         Anda harus memiliki kecakapan hukum untuk menyetujui ketentuan ini. Jika
-        menggunakan Buatin untuk organisasi atau klien, pastikan Anda berwenang
+        menggunakan Bantuin untuk organisasi atau klien, pastikan Anda berwenang
         mewakilinya dan membagikan materi proyek tersebut.
       </p>
 
@@ -71,7 +71,7 @@ export default function Page() {
         Pembayaran menggunakan QRIS melalui Duitku. Periksa paket, diskon dan
         total pada ringkasan tagihan sebelum membayar. Paket aktif setelah
         pembayaran dikonfirmasi melalui pemeriksaan server. Bukti pembayaran
-        dari aplikasi bank saja belum mengubah status tagihan di Buatin.
+        dari aplikasi bank saja belum mengubah status tagihan di Bantuin.
       </p>
       <p>
         Satu pembayaran membeli satu bulan kalender. Tidak ada autodebit.
@@ -106,7 +106,7 @@ export default function Page() {
       <h2>Materi proyek dan penggunaan hasil</h2>
       <p>
         Hak atas brief, gambar dan materi yang Anda unggah tetap pada
-        pemiliknya. Anda memberikan izin kepada Buatin untuk memproses materi
+        pemiliknya. Anda memberikan izin kepada Bantuin untuk memproses materi
         tersebut sepanjang diperlukan untuk menyediakan layanan yang Anda minta.
         Pastikan Anda memiliki hak atau izin untuk mengunggah dan memprosesnya.
       </p>
@@ -147,7 +147,7 @@ export default function Page() {
       <p>
         Pemeliharaan dan gangguan dapat membatasi akses sementara. Jika layanan
         berbayar tidak diberikan sebagaimana disepakati, Anda dapat meminta
-        penyelesaian melalui bantuan. Buatin tetap bertanggung jawab atas
+        penyelesaian melalui bantuan. Bantuin tetap bertanggung jawab atas
         kewajiban yang ditetapkan oleh hukum yang berlaku.
       </p>
 

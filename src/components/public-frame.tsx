@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { serviceLinks } from "@/domain/legal";
 import { Brand } from "./brand";
@@ -10,7 +9,7 @@ const footerGroups = [
     links: [
       { href: "/#cara-kerja", label: "Cara kerja" },
       { href: "/pricing", label: "Paket" },
-      { href: "/about", label: "Tentang Buatin" },
+      { href: "/about", label: "Tentang Bantuin" },
     ],
   },
   {
@@ -79,16 +78,8 @@ export function PublicFrame({
           ))}
         </nav>
         <div className="footer-bottom">
-          <Link href="/">
-            <span>Website made with</span>
-            <Image
-              src="/assets/logos/buatin-wordmark-primary.svg"
-              alt="Buatin"
-              width={125}
-              height={48}
-              unoptimized
-            />
-          </Link>
+          <span>Website made with</span>
+          <Link href="/">Bantuin</Link>
         </div>
       </footer>
     </div>

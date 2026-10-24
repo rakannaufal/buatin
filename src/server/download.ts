@@ -109,7 +109,7 @@ export async function download(userId: string, id: string, fileId?: string) {
     headers: {
       ...headers,
       "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${snapshot.plan.project_slug}-buatin${missing.length ? "-partial" : ""}.zip"`,
+      "Content-Disposition": `attachment; filename="${snapshot.plan.project_slug}-bantuin${missing.length ? "-partial" : ""}.zip"`,
     },
   });
 }

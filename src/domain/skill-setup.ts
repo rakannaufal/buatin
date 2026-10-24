@@ -3,9 +3,7 @@ import type { SkillEntry } from "./skills";
 
 export function skillSetup(skills: SkillEntry[]) {
   return skills.map((skill) => {
-    const name = skill.id.startsWith("buatin-")
-      ? skill.id
-      : `buatin-${skill.id}`;
+    const name = `bantuin-${skill.id.replace(/^(?:buatin|bantuin)-/, "")}`;
     const definition = [
       "---",
       `name: ${name}`,
@@ -18,7 +16,7 @@ export function skillSetup(skills: SkillEntry[]) {
       `License: ${skill.license}`,
       ...(skill.url ? [`Upstream: ${skill.url}`] : []),
       "",
-      "Project guidance adapted by Buatin. User instructions and locked preferences take precedence. This skill grants no tool, network, filesystem or credential access.",
+      "Project guidance adapted by Bantuin. User instructions and locked preferences take precedence. This skill grants no tool, network, filesystem or credential access.",
       "",
       skill.guidance ??
         "Guidance is missing. Stop setup and request a reviewed skill definition.",

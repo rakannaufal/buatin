@@ -20,8 +20,9 @@ test("account MFA, recovery setup, privacy requests and second-factor login work
   ]);
   expect(response.status()).toBe(200);
   const setup = (await response.json()) as { totpURI: string };
+  expect(new URL(setup.totpURI).searchParams.get("issuer")).toBe("Bantuin");
   await expect(
-    page.getByAltText("Kode QR pengaturan autentikator Buatin"),
+    page.getByAltText("Kode QR pengaturan autentikator Bantuin"),
   ).toBeVisible();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
@@ -30,7 +31,7 @@ test("account MFA, recovery setup, privacy requests and second-factor login work
     animations: "disabled",
     maskColor: "#dce2dc",
     mask: [
-      page.getByAltText("Kode QR pengaturan autentikator Buatin"),
+      page.getByAltText("Kode QR pengaturan autentikator Bantuin"),
       page.getByLabel("Kode pemulihan dua faktor", { exact: true }),
     ],
   });
@@ -47,7 +48,7 @@ test("account MFA, recovery setup, privacy requests and second-factor login work
     animations: "disabled",
     maskColor: "#dce2dc",
     mask: [
-      page.getByAltText("Kode QR pengaturan autentikator Buatin"),
+      page.getByAltText("Kode QR pengaturan autentikator Bantuin"),
       page.getByLabel("Kode pemulihan dua faktor", { exact: true }),
     ],
   });
@@ -79,9 +80,7 @@ test("account MFA, recovery setup, privacy requests and second-factor login work
       page.waitForResponse(
         (value) => new URL(value.url()).pathname === "/api/auth/sign-in/email",
       ),
-      page
-        .getByRole("button", { name: "Masuk ke workspace", exact: true })
-        .click(),
+      page.getByRole("button", { name: "Masuk", exact: true }).click(),
     ]);
     if (signedIn.status() !== 429) {
       expect(signedIn.ok()).toBe(true);

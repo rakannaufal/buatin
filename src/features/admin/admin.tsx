@@ -32,7 +32,7 @@ export function AdminPage() {
       <div className="page-heading compact">
         <div>
           <h1>Kendali layanan.</h1>
-          <p>Pengguna, penjualan, generasi dan kesiapan Buatin.</p>
+          <p>Pengguna, penjualan, generasi dan kesiapan Bantuin.</p>
         </div>
       </div>
       <QueryState pending={query.isPending} error={query.error} />

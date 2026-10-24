@@ -1,4 +1,4 @@
-# Buatin
+# Bantuin
 
 Indonesian SaaS document workshop for individuals turning website briefs into actionable specifications. Public verified accounts; Free once lifetime, Pro Starter/Plus/Max with weekly allowances.
 Manual monthly QRIS renewal through Duitku. No Docker.

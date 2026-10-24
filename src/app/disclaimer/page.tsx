@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Disclaimer dan batas penggunaan hasil",
   "/disclaimer",
-  "Cakupan dokumen Buatin, hal yang perlu ditinjau dan batas analisis gambar AI.",
+  "Cakupan dokumen Bantuin, hal yang perlu ditinjau dan batas analisis gambar AI.",
 );
 
 export default function Page() {
@@ -15,7 +15,7 @@ export default function Page() {
       <h1>Batas penggunaan hasil</h1>
       <ServiceUpdated />
       <p>
-        Buatin membantu menyusun rencana website. Dokumen yang dihasilkan perlu
+        Bantuin membantu menyusun rencana website. Dokumen yang dihasilkan perlu
         ditinjau sesuai kebutuhan proyek sebelum dijadikan dasar pengerjaan.
       </p>
 
@@ -53,7 +53,7 @@ export default function Page() {
 
       <h2>Tanggung jawab layanan</h2>
       <p>
-        Buatin tidak menjanjikan hasil bisnis, peringkat pencarian atau
+        Bantuin tidak menjanjikan hasil bisnis, peringkat pencarian atau
         penerimaan proyek oleh pihak lain. Batas penggunaan hasil ini tidak
         membebaskan pengelola dari kewajiban memberikan layanan sesuai pembelian
         maupun tanggung jawab yang ditetapkan undang-undang. Untuk kendala

@@ -1,4 +1,4 @@
-# Template bawaan Buatin
+# Template bawaan Bantuin
 
 43 template instruksi terstruktur sesuai katalog, disusun untuk produk ini.
 `SKILLS.md` wajib di setiap paket baru. `AGENTS.md` mewajibkan pemasangan dan

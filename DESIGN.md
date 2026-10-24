@@ -1,5 +1,5 @@
 ---
-name: Buatin - Halaman Publik
+name: Bantuin - Halaman Publik
 description: Doodle dokumen dan tulisan tangan untuk membawa ide menjadi rencana website.
 colors:
   ocean: "#167dad"
@@ -81,7 +81,7 @@ components:
     padding: "20px 28px 30px"
 ---
 
-# Design System: Buatin - Halaman Publik
+# Design System: Bantuin - Halaman Publik
 
 ## Overview
 
@@ -110,7 +110,7 @@ Palet **Laut & Matahari** memakai biru laut untuk tindakan, kuning untuk sorotan
 dan latar biru pucat. Warna publik dibatasi pada `.public-theme`; dashboard
 mempertahankan token aplikasinya.
 
-Palet berasal dari aset Buatin; warna mendukung hierarki isi dan tindakan.
+Palet berasal dari aset Bantuin; warna mendukung hierarki isi dan tindakan.
 
 ### Primary
 
@@ -249,8 +249,9 @@ tetap tampil tanpa accordion atau kontrol tambahan.
 
 Pada tablet, identitas berpindah ke atas kelompok tautan. Pada ponsel, Produk dan
 Bantuan berdampingan, lalu Kebijakan mengisi baris berikutnya dengan daftar dua
-kolom. Bilah bawah biru pucat menampilkan kredit "Website made with" dan wordmark
-Buatin rata tengah pada desktop maupun ponsel, dengan tautan ke beranda. Teks
+kolom. Bilah bawah biru pucat menampilkan kredit "Website made with Bantuin"
+rata tengah pada desktop maupun ponsel. Kedua bagian memakai Manrope dengan
+ukuran dan ketebalan sama; hanya kata Bantuin bertautan ke beranda. Teks
 deskripsi produk dan tautan kembali ke atas dihapus sesuai permintaan pemilik.
 
 ### Not Found
@@ -289,3 +290,12 @@ Satu gerakan singkat pada hero memakai ease-out; reduced motion mematikannya.
 - **Don't** tampilkan katalog skill internal pada antarmuka.
 - **Don't** tambahkan harga, testimoni, sertifikasi atau janji produk yang belum ada.
 - **Don't** letakkan dekorasi di atas paragraf kebijakan atau kontrol formulir.
+
+### Authentication controls
+
+Form email menjadi tindakan pertama. Tombol utama memakai label "Masuk" atau
+"Daftar", disusul garis pemisah "atau" dan tombol "Lanjutkan dengan Google".
+Tautan pindah halaman ditempatkan terpisah di bawah; persetujuan signup hanya
+satu kali. Kirim ulang verifikasi muncul saat login memerlukan verifikasi,
+bukan pada tampilan awal. Google yang belum dikonfigurasi tetap terlihat dalam
+keadaan nonaktif, dengan penjelasan singkat tanpa rincian konfigurasi internal.

@@ -48,7 +48,7 @@ export function ReportsAdmin() {
       const url = URL.createObjectURL(await response.blob());
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "buatin-payments.csv";
+      anchor.download = "bantuin-payments.csv";
       anchor.click();
       URL.revokeObjectURL(url);
     },

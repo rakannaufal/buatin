@@ -385,7 +385,7 @@ export async function reconcilePayment(id: string) {
       });
       await queueEmail(
         user.email,
-        "Pembayaran Buatin diterima",
+        "Pembayaran Bantuin diterima",
         `${payment.planName}: ${rupiah(payment.amount)}.\nPeriode ${formatDate(startsAt)} sampai ${formatDate(endsAt)}.\nKuota mingguan tetap mengikuti Senin 00.00 WIB.\nTagihan: ${getEnv().APP_URL}/billing/${id}`,
         `receipt:${id}`,
         tx,
@@ -460,7 +460,7 @@ export async function maintainBilling() {
     if (!renewed)
       await queueEmail(
         subscription.user.email,
-        "Masa Pro Buatin segera berakhir",
+        "Masa Pro Bantuin segera berakhir",
         `${subscription.plan.name} berakhir ${formatDate(subscription.endsAt)}.\nPerpanjang manual melalui QRIS: ${getEnv().APP_URL}/billing\nTidak ada penagihan otomatis.`,
         `renewal:${subscription.id}`,
       );

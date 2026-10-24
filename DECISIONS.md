@@ -1,4 +1,4 @@
-# Keputusan arsitektur Buatin
+# Keputusan arsitektur Bantuin
 
 ## Satu aplikasi, proses worker terpisah
 
@@ -14,7 +14,7 @@ menjalankan satu worker tetap. Pilihan pengguna ini memisahkan request web dari
 generasi panjang tanpa mengganti model data atau menambah Redis. Vercel memakai
 transaction pooler dan pool kecil; migration/backup dan advisory lock worker
 memakai direct/session. Tabel aplikasi tertutup RLS serta revoke role publik.
-Browser hanya memakai API Buatin. Heartbeat scanner dan receipt backup disimpan
+Browser hanya memakai API Bantuin. Heartbeat scanner dan receipt backup disimpan
 di DB bersama karena filesystem kedua host berbeda. Resource dan OAuth produksi
 masih perlu dihubungkan; detail dan batas paket ada di `docs/DEPLOYMENT.md`.
 

@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button, Notice } from "@/components/ui";
 import { AuthShell } from "@/components/auth-shell";
@@ -22,6 +21,7 @@ export function LoginForm({
   initialError?: string;
 }) {
   const [error, setError] = useState(initialError);
+  const [needsVerification, setNeedsVerification] = useState(false);
   const [challenge, setChallenge] = useState(false);
   const [recovery, setRecovery] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -35,6 +35,7 @@ export function LoginForm({
   });
   async function submit(values: z.infer<typeof schema>) {
     setError("");
+    setNeedsVerification(false);
     try {
       const response = await fetch("/api/auth/sign-in/email", {
         method: "POST",
@@ -42,9 +43,15 @@ export function LoginForm({
         body: JSON.stringify(values),
       });
       if (!response.ok) {
+        const failure: { code?: string } | null = await response
+          .json()
+          .catch(() => null);
+        const unverified =
+          response.status === 403 && failure?.code === "EMAIL_NOT_VERIFIED";
+        setNeedsVerification(unverified);
         setError(
-          response.status === 403
-            ? "Email perlu diverifikasi sebelum masuk. Gunakan tautan kirim ulang verifikasi."
+          unverified
+            ? "Verifikasi email Anda sebelum masuk."
             : "Email atau password tidak sesuai, atau akses sementara dibatasi.",
         );
         return;
@@ -92,8 +99,17 @@ export function LoginForm({
       <div className="auth-form">
         <h2>Selamat datang kembali.</h2>
         <p className="muted">Masuk untuk melanjutkan rencana proyek Anda.</p>
-        {error && <Notice tone="error">{error}</Notice>}
-        {googleReady && !challenge && <GoogleLogin siteKey={siteKey} />}
+        {error && (
+          <Notice tone="error">
+            {error}
+            {needsVerification && (
+              <>
+                {" "}
+                <Link href="/verify-email">Kirim ulang verifikasi</Link>
+              </>
+            )}
+          </Notice>
+        )}
         {challenge ? (
           <form onSubmit={verify}>
             <p>Verifikasi dua faktor untuk menyelesaikan proses masuk.</p>
@@ -179,19 +195,15 @@ export function LoginForm({
               busy={form.formState.isSubmitting}
               className="full-width"
             >
-              Masuk ke workspace
-              <ArrowRight size={17} />
+              Masuk
             </Button>
           </form>
         )}
+        {!challenge && <GoogleLogin siteKey={siteKey} ready={googleReady} />}
         <p className="login-hint">
           Belum punya akun?{" "}
           <Link className="text-button" href="/signup">
-            Daftar gratis
-          </Link>
-          <br />
-          <Link className="text-button" href="/verify-email">
-            Kirim ulang verifikasi email
+            Daftar
           </Link>
         </p>
       </div>

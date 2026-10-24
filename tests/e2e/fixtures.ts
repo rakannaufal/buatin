@@ -124,7 +124,7 @@ export async function login(page: Page, account: TestAccount) {
   await page.getByLabel("Email").fill(account.email);
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   const submit = page.getByRole("button", {
-    name: "Masuk ke workspace",
+    name: "Masuk",
     exact: true,
   });
   for (let attempt = 0; attempt < 3; attempt++) {

@@ -238,7 +238,7 @@ export async function usersApi(
         });
         await queueEmail(
           input.email,
-          "Undangan admin Buatin",
+          "Undangan admin Bantuin",
           `Masuk/daftar dengan email ini, lalu terima undangan di ${getEnv().APP_URL}/account?invitation=${token}\nBerlaku 24 jam. MFA wajib untuk operator pada domain publik.`,
           `admin-invite:${invite.id}`,
           tx,

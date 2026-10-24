@@ -51,7 +51,8 @@ export function ResultPage({ id }: { id: string }) {
       }
       const blob = await response.blob();
       const disposition = response.headers.get("Content-Disposition") ?? "";
-      const name = disposition.match(/filename="([^"]+)"/)?.[1] ?? "buatin.zip";
+      const name =
+        disposition.match(/filename="([^"]+)"/)?.[1] ?? "bantuin.zip";
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;

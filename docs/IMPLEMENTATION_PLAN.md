@@ -1,6 +1,6 @@
-# Implementasi Buatin tanpa Docker
+# Implementasi Bantuin tanpa Docker
 
-Lihat `BUATIN_IMPLEMENTATION.md` untuk irisan teknis dan keputusan data.
+Lihat `BANTUIN_IMPLEMENTATION.md` untuk irisan teknis dan keputusan data.
 
 | Fase            | Implementasi                                                  | Penerimaan                                                                        |
 | --------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------- |

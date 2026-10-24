@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily Buatin database backup
+Description=Daily Bantuin database backup
 
 [Timer]
 OnCalendar=*-*-* 02:00:00 Asia/Jakarta

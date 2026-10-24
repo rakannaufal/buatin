@@ -1,4 +1,4 @@
-# Pengujian Buatin
+# Pengujian Bantuin
 
 Profil tanpa worker diuji terpisah dengan `npm run test:request` pada web fixture
 `PROCESSING_MODE=request` dan database loopback. CI menjalankannya setelah worker

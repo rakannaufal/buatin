@@ -259,7 +259,7 @@ describe("SaaS entitlements and durable quotas", () => {
       body: { email, redirectTo: `${process.env.APP_URL}/reset-password` },
     });
     const reset = await db.emailMessage.findFirstOrThrow({
-      where: { to: email, subject: "Atur ulang password Buatin" },
+      where: { to: email, subject: "Atur ulang password Bantuin" },
     });
     const resetUrl = new URL(reset.text.match(/https?:\/\/\S+/)![0]);
     const token = resetUrl.pathname.split("/").at(-1)!;

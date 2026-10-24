@@ -1,5 +1,5 @@
 [Unit]
-Description=Buatin runtime dependency and queue checks
+Description=Bantuin runtime dependency and queue checks
 After=buatin-web.service buatin-worker.service
 
 [Service]

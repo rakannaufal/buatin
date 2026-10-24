@@ -9,7 +9,7 @@ export function galleryHtml(entries, colors) {
   const groups = [
     [
       "logos",
-      "Identitas Buatin",
+      "Identitas Bantuin",
       entries.filter(
         (item) =>
           item.group === "logos" &&
@@ -48,7 +48,7 @@ export function galleryHtml(entries, colors) {
     ],
   ];
   return `<!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Aset Buatin</title><style>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Aset Bantuin</title><style>
 @font-face{font-family:Manrope;src:url(fonts/manrope.woff2) format('woff2');font-display:swap}
 @font-face{font-family:SourceSerif;src:url(fonts/source-serif-4.woff2) format('woff2');font-display:swap}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:${paper};color:${ink};font:15px/1.65 Manrope,sans-serif}
@@ -64,5 +64,5 @@ figure img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;o
 @media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-preview{grid-template-columns:1fr}header{padding-top:30px}}
 @media(max-width:480px){.grid,.grid.social{grid-template-columns:1fr}h2{font-size:28px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-</style></head><body><header><img src="logos/buatin-horizontal-primary.svg" width="210" height="70" alt="Buatin"><div class="hero-preview"><div><h1>Dari coretan,<br>jadi terarah.</h1><p>Keluarga aset untuk halaman publik Buatin. Logo, ilustrasi, dan ornamen dibuat sebagai vektor. Palet Laut &amp; Matahari dipakai pada halaman publik dan autentikasi.</p><p>Logo L01 menjadi induk kerja. Persetujuan merek dan pemeriksaan kemiripan tetap terbuka.</p></div><img src="illustrations/hero-planning.svg" alt="Brief berubah menjadi kumpulan dokumen perencanaan"></div><nav aria-label="Kelompok aset">${groups.map(([id, title]) => `<a href="#${id}">${title}</a>`).join("")}<a href="README.md">Panduan</a></nav></header><main>${groups.map(([id, title, items]) => `<section id="${id}" aria-labelledby="${id}-heading"><h2 id="${id}-heading">${title}</h2><div class="grid ${id}">${items.map((item) => `<figure${item.file.includes("white.svg") ? ' class="dark"' : ""}><a href="${item.file}" aria-label="Buka ${xml(item.title)}"><img src="${item.file}" width="${item.width}" height="${item.height}" loading="lazy" alt="${xml(item.title)}"></a><figcaption>${xml(item.id ?? "")} ${xml(item.title)}<span>${xml(item.file)} &middot; ${item.format.toUpperCase()}${item.width ? ` &middot; ${item.width} &times; ${item.height}` : ""}</span></figcaption></figure>`).join("")}</div></section>`).join("")}</main><footer><p>Gambar asli disusun langsung dari path SVG. Lettering memakai Manrope dan Source Serif 4 dengan lisensi SIL OFL yang disertakan. Tidak menggunakan ilustrasi stok atau logo provider. Setiap aset dapat dibuka dari galeri.</p><a href="manifest.json">Manifest berkas dan checksum</a></footer></body></html>\n`;
+</style></head><body><header><img src="logos/bantuin-horizontal-primary.svg" width="210" height="70" alt="Bantuin"><div class="hero-preview"><div><h1>Dari coretan,<br>jadi terarah.</h1><p>Keluarga aset untuk halaman publik Bantuin. Logo, ilustrasi, dan ornamen dibuat sebagai vektor. Palet Laut &amp; Matahari dipakai pada halaman publik dan autentikasi.</p><p>Logo L01 menjadi induk kerja. Persetujuan merek dan pemeriksaan kemiripan tetap terbuka.</p></div><img src="illustrations/hero-planning.svg" alt="Brief berubah menjadi kumpulan dokumen perencanaan"></div><nav aria-label="Kelompok aset">${groups.map(([id, title]) => `<a href="#${id}">${title}</a>`).join("")}<a href="README.md">Panduan</a></nav></header><main>${groups.map(([id, title, items]) => `<section id="${id}" aria-labelledby="${id}-heading"><h2 id="${id}-heading">${title}</h2><div class="grid ${id}">${items.map((item) => `<figure${item.file.includes("white.svg") ? ' class="dark"' : ""}><a href="${item.file}" aria-label="Buka ${xml(item.title)}"><img src="${item.file}" width="${item.width}" height="${item.height}" loading="lazy" alt="${xml(item.title)}"></a><figcaption>${xml(item.id ?? "")} ${xml(item.title)}<span>${xml(item.file)} &middot; ${item.format.toUpperCase()}${item.width ? ` &middot; ${item.width} &times; ${item.height}` : ""}</span></figcaption></figure>`).join("")}</div></section>`).join("")}</main><footer><p>Gambar asli disusun langsung dari path SVG. Lettering memakai Manrope dan Source Serif 4 dengan lisensi SIL OFL yang disertakan. Tidak menggunakan ilustrasi stok atau logo provider. Setiap aset dapat dibuka dari galeri.</p><a href="manifest.json">Manifest berkas dan checksum</a></footer></body></html>\n`;
 }

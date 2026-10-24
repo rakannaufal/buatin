@@ -47,7 +47,7 @@ export default function Home() {
           <h1 id="hero-heading">
             <span>Ide website Anda,</span>
             <em>
-              buatin <span className="ink-highlight">rencananya.</span>
+              bantuin <span className="ink-highlight">rencananya.</span>
             </em>
           </h1>
           <p>
@@ -101,7 +101,7 @@ export default function Home() {
           <h2 id="workflow-heading">
             Dari brief ke <em>arah kerja.</em>
           </h2>
-          <p>Anda membawa idenya. Buatin membantu menyusun dokumennya.</p>
+          <p>Anda membawa idenya. Bantuin membantu menyusun dokumennya.</p>
         </div>
         <ol className="workflow-steps">
           {steps.map((step, index) => (
@@ -166,7 +166,7 @@ export default function Home() {
               rencananya Anda tinjau.
             </p>
             <Link href="/faq" className="text-button">
-              Kenali hasil Buatin <ArrowRight size={17} />
+              Kenali hasil Bantuin <ArrowRight size={17} />
             </Link>
           </div>
         </div>

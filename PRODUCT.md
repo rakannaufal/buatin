@@ -1,6 +1,6 @@
-# Buatin
+# Bantuin
 
-Buatin membantu pengguna mengubah brief website menjadi dokumen perencanaan
+Bantuin membantu pengguna mengubah brief website menjadi dokumen perencanaan
 Markdown untuk ditinjau dan dibawa ke coding agent atau tim pengembang.
 Produk tidak langsung menghasilkan website yang sudah berjalan.
 
@@ -31,9 +31,14 @@ kebijakan dan autentikasi. Tipografi santai, ilustrasi, kartu dan tombol perlu
 membentuk satu keluarga. Screenshot Odoo, Authority Hawk, Doodle Design dan
 Open Doodles menjadi referensi gaya, bukan komposisi yang harus disalin persis.
 
-Nama yang digunakan aplikasi dan aset adalah Buatin. Logo induk L01 dan palet
+Nama yang digunakan aplikasi dan aset adalah Bantuin. Logo induk L01 dan palet
 dari `public/assets/` menjadi identitas kerja. Persetujuan visual akhir serta
 pemeriksaan kemiripan merek masih tercatat di panduan aset.
+
+Nama merek dikoreksi pada 24 Oktober 2026. ID skill tersimpan, format backup,
+nama bucket, unit layanan dan alamat proyek hosting/repository lama dipertahankan
+agar data serta konfigurasi aktif tetap dapat digunakan. Ekspor skill baru
+memakai namespace `bantuin-`. Snapshot dan arsip lama tidak ditulis ulang.
 
 Dashboard dan workspace mempertahankan sistem visual aplikasi. Detail hasil
 penerapan publik tercatat di `DESIGN.md`; perubahan layanan dan kesiapan

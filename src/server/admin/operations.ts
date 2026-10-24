@@ -298,7 +298,7 @@ export async function operationsAdminApi(
             if (prior.user && input.status !== "processing")
               await queueEmail(
                 prior.user.email,
-                "Pembaruan permintaan data Buatin",
+                "Pembaruan permintaan data Bantuin",
                 `Permintaan ${id}: ${input.status}.\n${input.reason}\nHubungi bantuan untuk rincian.`,
                 `privacy:${id}:${input.status}`,
                 tx,

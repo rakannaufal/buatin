@@ -1,5 +1,5 @@
 [Unit]
-Description=Check Buatin runtime every minute
+Description=Check Bantuin runtime every minute
 
 [Timer]
 OnBootSec=60

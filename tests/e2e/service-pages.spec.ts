@@ -43,7 +43,7 @@ for (const viewport of [
       );
       await expect(page.locator('meta[name="description"]')).toHaveAttribute(
         "content",
-        /Buatin/,
+        /Bantuin/,
       );
       expect(await page.locator("article").innerText()).not.toMatch(
         /lorem ipsum|\[nama|\[email|belum dikonfigurasi|seamless|revolutionary/i,
@@ -57,11 +57,16 @@ for (const viewport of [
       await expect(footer.locator(".footer-bottom")).toContainText(
         "Website made with",
       );
+      const credit = footer.locator(".footer-bottom");
+      await expect(credit.getByRole("link")).toHaveCount(1);
+      await expect(
+        credit.getByRole("link", { name: "Bantuin", exact: true }),
+      ).toHaveAttribute("href", "/");
       await expect(
         footer.getByRole("link", { name: "Kembali ke atas" }),
       ).toHaveCount(0);
       await expect(footer).not.toContainText(
-        "Buatin. Dokumen perencanaan website.",
+        "Bantuin. Dokumen perencanaan website.",
       );
       for (const group of ["Produk", "Bantuan", "Kebijakan"]) {
         await expect(
@@ -108,7 +113,7 @@ test("policy content arrives in HTML without an account or marketing trackers", 
     expect(response.status()).toBe(200);
     const html = await response.text();
     expect(html).toContain(title);
-    expect(html).toContain("Buatin dikelola secara perorangan");
+    expect(html).toContain("Bantuin dikelola secara perorangan");
     expect(html).not.toMatch(
       /<script[^>]+(?:google-analytics|googletagmanager|_vercel\/insights|_vercel\/speed-insights)/i,
     );

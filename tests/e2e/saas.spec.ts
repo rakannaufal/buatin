@@ -15,15 +15,13 @@ test("public registration, email verification and login", async ({
     await page.getByLabel("Nama", { exact: true }).fill("Public E2E account");
     await page.getByLabel("Email", { exact: true }).fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
-    await page
-      .getByRole("button", { name: "Buat akun gratis", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Daftar", exact: true }).click();
     await expect(page.getByText(/tautan sudah disiapkan/)).toBeVisible();
     const user = await db.user.findUniqueOrThrow({ where: { email } });
     expect(user.emailVerified).toBe(false);
     expect(user.role).toBe("user");
     const mail = await db.emailMessage.findFirstOrThrow({
-      where: { to: email, subject: "Verifikasi email Buatin" },
+      where: { to: email, subject: "Verifikasi email Bantuin" },
     });
     const link = mail.text.match(/https?:\/\/\S+/)![0];
     await page.goto(link);
@@ -78,7 +76,7 @@ test("public landing, pricing, registration, privacy stay readable on mobile", a
     fullPage: true,
   });
   const comparison = page.getByRole("region", {
-    name: "Perbandingan paket Buatin",
+    name: "Perbandingan paket Bantuin",
     exact: true,
   });
   await comparison.focus();

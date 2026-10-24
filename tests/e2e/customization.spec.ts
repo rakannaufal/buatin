@@ -123,7 +123,7 @@ test("desktop: customize reference, stack, colors and typography with internal s
   expect(setupOutput.status()).toBe(200);
   const setup = (await setupOutput.json()).file;
   expect(setup.path).toBe("SKILLS.md");
-  expect(setup.content).toContain("buatin-antislop/SKILL.md");
+  expect(setup.content).toContain("bantuin-antislop/SKILL.md");
   expect(setup.content).toContain("belum diverifikasi");
   const output = await page.request.get(`/api/jobs/${jobId}/files/design`);
   expect(output.status()).toBe(200);

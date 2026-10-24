@@ -1,4 +1,4 @@
-# Aset Buatin
+# Aset Bantuin
 
 Keluarga doodle editorial untuk landing, harga, FAQ, kebijakan dan autentikasi.
 Tema diterapkan pada halaman publik dan autentikasi. Dashboard dan halaman

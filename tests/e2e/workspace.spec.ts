@@ -43,9 +43,10 @@ test("desktop: login, brief, plan, persistent job, safe preview, ZIP, delete", a
     page.getByText("Mode pengujian aktif.", { exact: false }),
   ).toBeVisible();
   await expect(page.locator(".markdown-document h1")).toBeVisible();
+  await page.getByRole("button", { name: "prd.md", exact: true }).click();
   await page.getByRole("button", { name: "Source", exact: true }).click();
   await expect(page.locator(".markdown-source")).toContainText(
-    "# Studio Karsa E2E",
+    /^# [^\n]*Studio Karsa E2E/,
   );
   await expect(page.locator(".markdown-source")).toContainText(
     "Layanan desain, portofolio",
@@ -54,7 +55,7 @@ test("desktop: login, brief, plan, persistent job, safe preview, ZIP, delete", a
     page.waitForEvent("download"),
     page.getByRole("button", { name: "Unduh ZIP", exact: true }).click(),
   ]);
-  expect(download.suggestedFilename()).toMatch(/buatin.zip$/);
+  expect(download.suggestedFilename()).toMatch(/bantuin.zip$/);
   await download.saveAs("test-results/landing-spec-kit.zip");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({

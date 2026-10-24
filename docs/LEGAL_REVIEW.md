@@ -1,4 +1,4 @@
-# Dokumen layanan Buatin
+# Dokumen layanan Bantuin
 
 ## Lingkup dan rencana
 

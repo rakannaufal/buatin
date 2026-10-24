@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Kebijakan cookie",
   "/cookies",
-  "Penggunaan cookie untuk sesi akun, autentikasi dan keamanan Buatin.",
+  "Penggunaan cookie untuk sesi akun, autentikasi dan keamanan Bantuin.",
 );
 
 export default function Page() {
@@ -16,7 +16,7 @@ export default function Page() {
       <ServiceUpdated />
       <p>
         Cookie adalah data kecil yang disimpan browser untuk membantu website
-        mengenali sesi dan menjalankan fungsi tertentu. Buatin menggunakan
+        mengenali sesi dan menjalankan fungsi tertentu. Bantuin menggunakan
         cookie untuk autentikasi dan keamanan akun.
       </p>
 
@@ -45,7 +45,7 @@ export default function Page() {
 
       <h2>Analitik dan iklan</h2>
       <p>
-        Aplikasi Buatin saat ini tidak memasang cookie iklan atau memuat alat
+        Aplikasi Bantuin saat ini tidak memasang cookie iklan atau memuat alat
         analitik pemasaran. Catatan teknis untuk keamanan dan operasional tetap
         dapat diproses sebagaimana dijelaskan dalam{" "}
         <Link href="/privacy">Kebijakan Privasi</Link>.
@@ -66,7 +66,7 @@ export default function Page() {
       <p>
         Ketika membuka Google atau aplikasi pembayaran, pemrosesan pada layanan
         tersebut mengikuti kebijakannya sendiri. Pertanyaan tentang cookie
-        Buatin dapat disampaikan melalui{" "}
+        Bantuin dapat disampaikan melalui{" "}
         <Link href="/contact">kontak bantuan</Link>.
       </p>
     </ServicePage>

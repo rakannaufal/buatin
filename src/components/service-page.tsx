@@ -124,7 +124,7 @@ export async function ServicePage({
             <section aria-labelledby="service-contact-heading">
               <h2 id="service-contact-heading">Pengelola dan kontak</h2>
               <p>
-                {`Buatin dikelola secara perorangan${contact.name ? ` oleh ${contact.name}` : ""}.`}
+                {`Bantuin dikelola secara perorangan${contact.name ? ` oleh ${contact.name}` : ""}.`}
               </p>
               {contact.address && (
                 <p className="preserve-lines">

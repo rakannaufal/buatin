@@ -1,4 +1,4 @@
-# Plan pengembangan brief Buatin
+# Plan pengembangan brief Bantuin
 
 Tanggal: 21 Oktober 2026. Status: implementasi tersedia; bukti pemeriksaan aktual
 dan batas integrasi dicatat di `docs/VALIDATION.md`.
@@ -18,7 +18,7 @@ tersimpan dan benar-benar memengaruhi hasil, bukan sekadar menjadi kontrol di UI
 
 Temuan dari source saat penyusunan plan:
 
-- Buatin menghasilkan spesifikasi Markdown dan ZIP, belum membangun atau men-deploy
+- Bantuin menghasilkan spesifikasi Markdown dan ZIP, belum membangun atau men-deploy
   website target. Cakupan pengembangan ini tetap pada penyusunan spesifikasi.
 - Editor baru menyimpan nama, sembilan jenis website, dan brief teks. Impor `.txt`
   atau `.md` menambahkan isi ke textarea; belum ada penyimpanan lampiran gambar.
@@ -126,7 +126,7 @@ Inventaris awal berdasarkan skill yang tersedia pada sesi ini:
 | Companion khusus                  | `work-pets:create-pet`, `work-pets:pets`, `work-pets:update-pet`                                             |
 
 Daftar ini membuktikan ketersediaan di lingkungan kerja, belum membuktikan hak
-redistribusi atau bahwa tool eksternalnya dapat dijalankan dari server Buatin.
+redistribusi atau bahwa tool eksternalnya dapat dijalankan dari server Bantuin.
 Skill khusus Excel/Pets tetap terlihat dengan batas dukungannya; tidak otomatis
 diaktifkan untuk spesifikasi website biasa.
 
@@ -147,7 +147,7 @@ Proses pemasukan skill:
 2. Periksa lisensi, isi, dependensi, serta tool yang diperlukan. Skill dengan hak
    penggunaan belum jelas hanya memiliki metadata/tautan sampai terselesaikan.
 3. Impor instruksi dan resource yang boleh dipakai; adaptasi format ke kontrak
-   konteks Buatin. Resource besar dimuat sesuai kebutuhan dokumen.
+   konteks Bantuin. Resource besar dimuat sesuai kebutuhan dokumen.
 4. Skill yang belum ada dicari dari GitHub, diprioritaskan dari pemilik asli.
    Kandidat yang sudah ditinjau keberadaannya: koleksi
    [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills) untuk React
@@ -176,7 +176,7 @@ dan konten pihak ketiga tidak bisa mengubah otorisasi atau menjalankan perintah.
 ## 5. Teknologi otomatis dan manual
 
 Pilihan ini mendeskripsikan teknologi **website target**, bukan mengganti stack
-Buatin atau memasang semua paket ke aplikasi Buatin.
+Bantuin atau memasang semua paket ke aplikasi Bantuin.
 
 Otomatis menghasilkan satu rekomendasi utama dengan alasan, kompleksitas,
 konsekuensi operasional, kebutuhan akun, dan alternatif yang relevan. Dasarnya
@@ -322,7 +322,7 @@ komponen memiliki keputusan yang sama.
 Perkuat dokumen pada dua tingkat. Markdown memberi aturan dan bukti; kontrol
 server, test, dan CI yang benar-benar menegakkannya.
 
-Untuk repo Buatin:
+Untuk repo Bantuin:
 
 - Tambahkan `SECURITY.md`: batas kepercayaan, akses data, upload, secrets, provider,
   dependency, pelaporan kerentanan, retensi, dan tindakan insiden.
@@ -349,7 +349,7 @@ Pertahankan kontrak 42 dokumen + manifest dengan memperkuat dokumen yang sudah
 ada. Penambahan file hasil generasi baru hanya dilakukan lewat perubahan katalog,
 batas, dependency, manifest, dan test secara bersamaan.
 
-Verifikasi otomatis repo Buatin:
+Verifikasi otomatis repo Bantuin:
 
 1. Selama perubahan: test yang relevan dan regression test untuk bug yang diperbaiki.
 2. Sebelum satu irisan dinyatakan selesai: format, lint, typecheck, unit test,

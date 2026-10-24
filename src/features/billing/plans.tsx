@@ -72,11 +72,11 @@ export function PlanComparison({
       <div
         className="table-scroll pricing-comparison"
         role="region"
-        aria-label="Perbandingan paket Buatin"
+        aria-label="Perbandingan paket Bantuin"
         tabIndex={0}
       >
         <table>
-          <caption className="sr-only">Perbandingan paket Buatin</caption>
+          <caption className="sr-only">Perbandingan paket Bantuin</caption>
           <thead>
             <tr>
               <th scope="col">Pilih ruang untuk ide Anda.</th>

@@ -24,7 +24,7 @@ const result = await lock.query<{ locked: boolean }>(
 if (!result.rows[0].locked) {
   await lock.end();
   throw new Error(
-    "A Buatin worker is already running. Use WORKER_CONCURRENCY in this process.",
+    "A Bantuin worker is already running. Use WORKER_CONCURRENCY in this process.",
   );
 }
 lock.on("error", () => {
@@ -149,7 +149,7 @@ const auxiliaryTimer = setInterval(() => {
 void auxiliary();
 await dispatch();
 console.log(
-  `Buatin worker ready (native Node.js + PostgreSQL, concurrency ${getEnv().WORKER_CONCURRENCY}).`,
+  `Bantuin worker ready (native Node.js + PostgreSQL, concurrency ${getEnv().WORKER_CONCURRENCY}).`,
 );
 let stopping = false;
 async function stop() {

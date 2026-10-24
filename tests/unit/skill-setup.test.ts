@@ -62,7 +62,7 @@ describe("skill installation handoff", () => {
       expect(setup.path).toBe("SKILLS.md");
       expect(setup.content).toContain("sebelum menjalankan");
       expect(setup.content).toContain("belum diverifikasi");
-      expect(setup.content).toContain("buatin-antislop/SKILL.md");
+      expect(setup.content).toContain("bantuin-antislop/SKILL.md");
       expect(setup.content).not.toContain("{{");
       expect(
         result.files.find((file) => file.id === "agents")!.content,
@@ -101,5 +101,17 @@ describe("skill installation handoff", () => {
     expect(installed.definitionBlock).toContain(snapshot.guidance);
     expect(installed.definitionBlock.startsWith("````markdown\n")).toBe(true);
     expect(skillSetup([])).toEqual([]);
+  });
+
+  it("exports legacy built-in IDs under the current brand namespace", () => {
+    const skills = skillCatalog.filter((skill) => skill.required);
+    expect(skills.map((skill) => skill.id)).toEqual([
+      "buatin-security",
+      "buatin-verification",
+    ]);
+    expect(skillSetup(skills).map((skill) => skill.installPath)).toEqual([
+      ".agents/skills/bantuin-security/SKILL.md",
+      ".agents/skills/bantuin-verification/SKILL.md",
+    ]);
   });
 });

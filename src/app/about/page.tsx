@@ -4,13 +4,13 @@ import { PublicShell } from "@/components/public-shell";
 import { publicMetadata } from "@/server/seo";
 
 export const metadata = publicMetadata(
-  "Tentang Buatin",
+  "Tentang Bantuin",
   "/about",
-  "Kenali Buatin: tujuan layanan, pengguna, alur penyusunan brief, dokumen yang dihasilkan dan batas penggunaannya.",
+  "Kenali Bantuin: tujuan layanan, pengguna, alur penyusunan brief, dokumen yang dihasilkan dan batas penggunaannya.",
 );
 
 const contents = [
-  ["tujuan", "Tujuan Buatin"],
+  ["tujuan", "Tujuan Bantuin"],
   ["pengguna", "Untuk siapa"],
   ["cara-kerja", "Cara kerja"],
   ["dokumen", "Isi dokumen"],
@@ -53,14 +53,14 @@ export default function AboutPage() {
         <header className="about-hero">
           <div>
             <h1>
-              Tentang <em>Buatin.</em>
+              Tentang <em>Bantuin.</em>
             </h1>
             <p>
               Tempat merapikan ide website menjadi rencana yang bisa dibaca,
               ditinjau, dan dibawa ke pengerjaan.
             </p>
             <p>
-              Anda membawa tujuan dan kebutuhan proyek. Buatin membantu
+              Anda membawa tujuan dan kebutuhan proyek. Bantuin membantu
               menyusunnya menjadi dokumen perencanaan dalam format Markdown.
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function AboutPage() {
 
         <div className="about-reading">
           <nav className="about-contents" aria-label="Isi halaman tentang">
-            <p>Kenali Buatin</p>
+            <p>Kenali Bantuin</p>
             <ul>
               {contents.map(([id, label]) => (
                 <li key={id}>
@@ -89,7 +89,7 @@ export default function AboutPage() {
                 bagian mana yang perlu didahulukan.
               </p>
               <p>
-                Buatin membantu menata kebutuhan tersebut sebelum kode ditulis.
+                Bantuin membantu menata kebutuhan tersebut sebelum kode ditulis.
                 Rencana dan dokumen memberi bahan pembicaraan yang lebih jelas
                 antara pemilik ide, desainer, pengembang, dan alat bantu
                 pemrograman. Asumsi yang belum tepat tetap perlu Anda tinjau dan
@@ -204,7 +204,7 @@ export default function AboutPage() {
               </p>
               <p>
                 Pembuatan kode website, pembelian domain, penyediaan hosting,
-                dan pekerjaan pengembang berada di luar layanan Buatin. Dokumen
+                dan pekerjaan pengembang berada di luar layanan Bantuin. Dokumen
                 perencanaan juga tidak menggantikan pengujian aplikasi,
                 pemeriksaan keamanan, atau nasihat profesional untuk kebutuhan
                 hukum dan bidang khusus.
@@ -238,7 +238,7 @@ export default function AboutPage() {
             <section id="pengelola" aria-labelledby="pengelola-heading">
               <h2 id="pengelola-heading">Pengelola dan bantuan.</h2>
               <p>
-                Buatin dikelola secara perorangan. Informasi kontak dan jalur
+                Bantuin dikelola secara perorangan. Informasi kontak dan jalur
                 pengaduan tersedia pada{" "}
                 <Link href="/contact">halaman kontak</Link>. Untuk pertanyaan
                 tentang akun, dokumen, kuota, atau pembayaran, Anda juga dapat

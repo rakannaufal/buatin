@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "Kebijakan pengembalian dana",
   "/refund",
-  "Cara mengajukan pengembalian dana, penanganan tagihan dan pengembalian kuota Buatin.",
+  "Cara mengajukan pengembalian dana, penanganan tagihan dan pengembalian kuota Bantuin.",
 );
 
 export default function Page() {
@@ -15,7 +15,7 @@ export default function Page() {
       <h1>Kebijakan pengembalian dana</h1>
       <ServiceUpdated />
       <p>
-        Kebijakan ini berlaku untuk pembelian paket Buatin. Pengembalian dana
+        Kebijakan ini berlaku untuk pembelian paket Bantuin. Pengembalian dana
         berarti pengembalian uang yang sudah dibayar. Pengembalian kuota hanya
         memulihkan kesempatan penggunaan di akun; keduanya ditangani terpisah.
       </p>
@@ -51,7 +51,7 @@ export default function Page() {
           tidak diperlukan.
         </li>
         <li>
-          Pengelola mencocokkan catatan Buatin dengan penyedia pembayaran dan
+          Pengelola mencocokkan catatan Bantuin dengan penyedia pembayaran dan
           menyampaikan hasil pemeriksaan beserta langkah penyelesaiannya.
         </li>
       </ol>

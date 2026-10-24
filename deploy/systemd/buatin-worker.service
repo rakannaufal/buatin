@@ -1,5 +1,5 @@
 [Unit]
-Description=Buatin persistent worker
+Description=Bantuin persistent worker
 After=network.target postgresql.service
 Requires=postgresql.service
 

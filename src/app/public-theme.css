@@ -688,12 +688,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--muted);
-}
-.footer-bottom img {
-  width: 88px;
-  height: auto;
-  flex-shrink: 0;
+  color: var(--accent-ink);
+  font: inherit;
 }
 .footer-bottom a:hover {
   text-decoration: underline;
@@ -1337,7 +1333,21 @@
   font-size: 12px;
 }
 .auth-form form > .button {
-  margin-top: 10px;
+  margin-top: 4px;
+}
+.auth-form .field-error:empty {
+  display: none;
+}
+.auth-form .google-login {
+  margin: 20px 0 0;
+  gap: 16px;
+}
+.auth-form .auth-divider {
+  margin: 0;
+}
+.auth-form .google-unavailable {
+  font-size: 12px;
+  text-align: center;
 }
 .public-theme .auth-form .auth-consent {
   max-width: 40ch;
@@ -1362,6 +1372,7 @@
   font-size: 12px;
   line-height: 1.85;
   margin-top: 22px;
+  text-align: center;
 }
 .auth-form .login-hint a {
   text-decoration: underline;

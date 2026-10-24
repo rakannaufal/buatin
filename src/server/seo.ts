@@ -25,19 +25,19 @@ export function publicMetadata(
     description,
     alternates: { canonical: path },
     openGraph: {
-      title: `${title} | Buatin`,
+      title: `${title} | Bantuin`,
       description,
       url: path,
-      siteName: "Buatin",
+      siteName: "Bantuin",
       locale: "id_ID",
       type: "website",
       images: [
-        { url: image, width: 1200, height: 630, alt: `${title} | Buatin` },
+        { url: image, width: 1200, height: 630, alt: `${title} | Bantuin` },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | Buatin`,
+      title: `${title} | Bantuin`,
       description,
       images: [image],
     },

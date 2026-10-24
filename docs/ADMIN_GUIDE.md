@@ -1,4 +1,4 @@
-# Pengelolaan admin Buatin
+# Pengelolaan admin Bantuin
 
 Implementasi 21 Oktober 2026. Hosting, domain, database produksi serta fasilitas
 merchant tetap disiapkan terpisah. Panel tidak menyatakan layanan siap produksi

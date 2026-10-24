@@ -106,7 +106,7 @@ export function createAuth(bootstrap = false) {
     onAPIError: { errorURL: `${env.APP_URL}/login` },
     plugins: [
       twoFactor({
-        issuer: "Buatin",
+        issuer: "Bantuin",
         backupCodeOptions: { storeBackupCodes: "encrypted" },
         accountLockout: {
           enabled: true,
@@ -126,7 +126,7 @@ export function createAuth(bootstrap = false) {
       sendResetPassword: async ({ user, url }) => {
         await queueEmail(
           user.email,
-          "Atur ulang password Buatin",
+          "Atur ulang password Bantuin",
           `Buka tautan berikut untuk mengatur password baru:\n${url}\n\nAbaikan pesan ini jika Anda tidak meminta perubahan.`,
           `password:${url}`,
         );
@@ -139,8 +139,8 @@ export function createAuth(bootstrap = false) {
       sendVerificationEmail: async ({ user, url }) => {
         await queueEmail(
           user.email,
-          "Verifikasi email Buatin",
-          `Verifikasi alamat email untuk memakai Buatin:\n${url}\n\nTautan berlaku satu jam.`,
+          "Verifikasi email Bantuin",
+          `Verifikasi alamat email untuk memakai Bantuin:\n${url}\n\nTautan berlaku satu jam.`,
           `verify:${url}`,
         );
       },

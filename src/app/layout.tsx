@@ -14,8 +14,8 @@ import "./public-theme.css";
 export const metadata: Metadata = {
   metadataBase: new URL(getEnv().APP_URL),
   title: {
-    default: "Buatin | Dari ide, jadi terarah",
-    template: "%s | Buatin",
+    default: "Bantuin | Dari ide, jadi terarah",
+    template: "%s | Bantuin",
   },
   description:
     "Ubah brief website menjadi paket spesifikasi yang relevan dan siap ditinjau.",

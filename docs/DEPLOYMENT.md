@@ -9,7 +9,7 @@ Pilihan pengguna: Vercel untuk web, Supabase untuk PostgreSQL dan storage privat
 Provider worker AI ditunda setelah kendala login Railway; konfigurasi Railway
 di bawah tetap menjadi contoh. Fokus saat ini database dan build Vercel.
 Satu URL HTTPS melayani semua pengguna. Browser hanya
-mengakses API Buatin; kredensial database, Google secret dan S3 tetap di server.
+mengakses API Bantuin; kredensial database, Google secret dan S3 tetap di server.
 Tidak perlu menjalankan database di komputer pengguna.
 
 Konfigurasi repository belum berarti layanan sudah live. Project, domain,
@@ -75,7 +75,7 @@ Migration `20261021110000_server_only_data` mengaktifkan RLS tanpa policy pada
 Supabase `anon`/`authenticated` bila role tersedia. Koneksi server memakai role
 pemilik migration atau role server yang memiliki izin/bypass RLS yang ditinjau.
 Jangan menggunakan role anon/authenticated sebagai user koneksi Prisma.
-Authorization per user tetap dilakukan oleh API Buatin, termasuk ownership dan
+Authorization per user tetap dilakukan oleh API Bantuin, termasuk ownership dan
 role admin; RLS ini melindungi akses Data API yang tidak disengaja.
 
 Bootstrap pertama memakai Supabase CLI Management API yang sudah terautentikasi,
@@ -191,10 +191,11 @@ keberhasilan restore. Bukti tersebut tetap harus diperiksa operator.
 4. Simpan `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` di environment server,
    lalu redeploy. Tidak ada prefix `NEXT_PUBLIC_`, wildcard domain atau kredensial
    lokal pada produksi. Staging memakai client/redirect terpisah.
-5. Tombol **Lanjutkan dengan Google** muncul jika credential dan Turnstile lengkap.
+5. Tombol **Lanjutkan dengan Google** aktif jika credential dan Turnstile lengkap;
+   jika belum siap, tombol nonaktif dengan keterangan ketersediaan.
    Uji akun baru/lama, cancel, suspend, dan signup pause pada domain tujuan.
 
-Konfigurasi domain aktif Buatin:
+Konfigurasi domain aktif Bantuin:
 
 - Production `APP_URL` dan `BETTER_AUTH_URL`: `https://bantuin.ai.id`.
 - Google project `bantuin-512507`, client Web application `Buatin production web`.

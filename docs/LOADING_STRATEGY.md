@@ -1,6 +1,6 @@
 # Strategi lazy loading dan skeleton loading
 
-Panduan ini berlaku untuk spesifikasi yang dihasilkan Buatin. Pilihan ditentukan
+Panduan ini berlaku untuk spesifikasi yang dihasilkan Bantuin. Pilihan ditentukan
 per halaman/komponen, bukan dipasang ke semua website. Ini bukan klaim bahwa
 website target atau Core Web Vitals-nya sudah diuji.
 
@@ -72,7 +72,7 @@ navigasi saat fetch, keyboard, pembaca layar dan reduced motion. Target awal
 persentil ke-75: LCP <=2,5 detik, CLS <=0,1, INP <=200 ms. Catat hasil terukur;
 hasil lab tunggal atau mock bukan bukti metrik lapangan memenuhi target.
 
-## Integrasi Buatin
+## Integrasi Bantuin
 
 Snapshot menyimpan rekomendasi jenis website dan rendering. Prompt writer serta
 bagian konfigurasi tersimpan memberi aturan sesuai peran dokumen di AGENTS,

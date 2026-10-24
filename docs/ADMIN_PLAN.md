@@ -1,4 +1,4 @@
-# Rencana panel admin Buatin
+# Rencana panel admin Bantuin
 
 Tanggal tinjauan: 21 Oktober 2026. Dokumen ini menyimpan rancangan awal sebelum
 implementasi. Status akhir dan batas fitur ada di `ADMIN_GUIDE.md`, bukti pengujian
@@ -8,7 +8,7 @@ provider fixture untuk pengujian transaksi.
 
 ## 1. Kondisi sekarang
 
-Buatin sudah memiliki admin dasar. Role `owner`, `admin` dan `user` tersedia;
+Bantuin sudah memiliki admin dasar. Role `owner`, `admin` dan `user` tersedia;
 akses halaman dan API operator diperiksa di server. Owner dan admin saat ini
 memiliki izin luas yang sama, belum berupa pembagian izin per tindakan.
 

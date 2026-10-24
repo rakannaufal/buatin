@@ -171,7 +171,7 @@ describe("brief customization", () => {
     expect(
       skillCatalog
         .filter(
-          (skill) => skill.source !== "Buatin" && skill.status === "ready",
+          (skill) => skill.source !== "Bantuin" && skill.status === "ready",
         )
         .every((skill) => Boolean(skill.checksum && skill.license)),
     ).toBe(true);

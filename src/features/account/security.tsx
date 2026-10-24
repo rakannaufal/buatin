@@ -119,7 +119,7 @@ export function AccountSecurity({ enabled }: { enabled: boolean }) {
           </p>
           <Image
             src={setup.qr}
-            alt="Kode QR pengaturan autentikator Buatin"
+            alt="Kode QR pengaturan autentikator Bantuin"
             width={256}
             height={256}
             unoptimized

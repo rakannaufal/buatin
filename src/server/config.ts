@@ -14,7 +14,7 @@ const schema = z.object({
   OWNER_EMAIL: z.email().default("owner@localhost.test"),
   SUPPORT_EMAIL: z.union([z.email(), z.literal("")]).default(""),
   EMAIL_PROVIDER: z.enum(["local", "resend"]).default("local"),
-  EMAIL_FROM: z.string().default("Buatin <noreply@example.com>"),
+  EMAIL_FROM: z.string().default("Bantuin <noreply@example.com>"),
   RESEND_API_KEY: z.string().optional(),
   TURNSTILE_SITE_KEY: z.string().default(""),
   TURNSTILE_SECRET_KEY: z.string().default(""),

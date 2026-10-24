@@ -5,8 +5,8 @@ export function Brand() {
   return (
     <Link href="/" className="public-brand">
       <Image
-        src="/assets/logos/buatin-horizontal-primary.svg"
-        alt="Buatin"
+        src="/assets/logos/bantuin-horizontal-primary.svg"
+        alt="Bantuin"
         width={176}
         height={56}
         loading="eager"

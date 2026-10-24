@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata = publicMetadata(
   "FAQ",
   "/faq",
-  "Jawaban tentang dokumen, kuota, QRIS, masa aktif paket dan privasi di Buatin.",
+  "Jawaban tentang dokumen, kuota, QRIS, masa aktif paket dan privasi di Bantuin.",
 );
 
 export default function Page() {
@@ -16,9 +16,9 @@ export default function Page() {
       <ServiceUpdated />
 
       <h2>Dokumen dan penggunaan</h2>
-      <h3>Apakah Buatin langsung membuat website?</h3>
+      <h3>Apakah Bantuin langsung membuat website?</h3>
       <p>
-        Buatin membuat dokumen perencanaan website dalam format Markdown, bukan
+        Bantuin membuat dokumen perencanaan website dalam format Markdown, bukan
         website yang sudah berjalan. Dokumen tersebut dapat Anda gunakan sebagai
         arahan untuk pengembang atau alat bantu pemrograman.
       </p>

@@ -127,7 +127,7 @@ export async function createQris(input: {
         merchantOrderId: input.id,
         paymentAmount: input.amount,
         paymentMethod: env.DUITKU_QRIS_METHOD,
-        productDetails: `${input.name} Buatin, satu bulan`,
+        productDetails: `${input.name} Bantuin, satu bulan`,
         email: input.email,
         customerVaName: input.customer.slice(0, 100),
         callbackUrl: `${env.APP_URL}/api/billing/duitku/callback`,

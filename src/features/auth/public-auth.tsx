@@ -11,7 +11,7 @@ import { Challenge } from "./challenge";
 import { GoogleLogin } from "./google";
 type Mode = "signup" | "forgot" | "reset" | "verify";
 const titles = {
-  signup: "Buat ruang untuk ide Anda.",
+  signup: "Daftar di Bantuin.",
   forgot: "Lupa password?",
   reset: "Password baru.",
   verify: "Verifikasi email Anda.",
@@ -122,7 +122,7 @@ export function PublicAuthForm({
         <h2>{titles[mode]}</h2>
         <p className="muted">
           {mode === "signup"
-            ? "Free: satu generasi per akun, tanpa pembayaran."
+            ? "Mulai dengan satu generasi gratis."
             : mode === "reset"
               ? "Buat password baru untuk akun Anda."
               : "Tautan dikirim ke alamat email terdaftar."}
@@ -133,9 +133,6 @@ export function PublicAuthForm({
           </Notice>
         )}
         {error && <Notice tone="error">{error}</Notice>}
-        {mode === "signup" && googleReady && !success && (
-          <GoogleLogin siteKey={siteKey} />
-        )}
         {success ? (
           <Notice tone="info">
             {mode === "reset"
@@ -235,12 +232,15 @@ export function PublicAuthForm({
               }
             >
               {mode === "signup"
-                ? "Buat akun gratis"
+                ? "Daftar"
                 : mode === "reset"
                   ? "Simpan password baru"
                   : "Kirim tautan email"}
             </Button>
           </form>
+        )}
+        {mode === "signup" && !success && (
+          <GoogleLogin siteKey={siteKey} ready={googleReady} />
         )}
         {mode === "signup" && !success && (
           <p className="auth-consent">
@@ -254,15 +254,6 @@ export function PublicAuthForm({
           <Link className="text-button" href="/login">
             Masuk
           </Link>
-          {mode !== "verify" && (
-            <>
-              {" "}
-              ·{" "}
-              <Link className="text-button" href="/verify-email">
-                Kirim ulang verifikasi
-              </Link>
-            </>
-          )}
         </p>
       </div>
     </AuthShell>

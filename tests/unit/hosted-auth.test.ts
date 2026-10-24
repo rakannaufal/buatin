@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { googleLoginError } from "../../src/domain/auth";
 import { getEnv } from "../../src/server/config";
 import { hostedConfigurationIssues } from "../../src/server/hosted";
+import { publicAuthReady } from "../../src/server/challenge";
 import {
   directDatabaseUrl,
   workerDatabaseUrl,
@@ -35,6 +36,20 @@ it("requires a complete Google configuration and public HTTPS/challenge", () => 
   vi.stubEnv("APP_URL", "https://fixture.example");
   vi.stubEnv("TURNSTILE_SECRET_KEY", "");
   expect(googleAuthReady()).toBe(false);
+});
+
+it("rejects the placeholder sender regardless of the product display name", () => {
+  vi.stubEnv("APP_URL", "https://fixture.example");
+  vi.stubEnv("EMAIL_PROVIDER", "resend");
+  vi.stubEnv("RESEND_API_KEY", "test-only-resend");
+  vi.stubEnv("TURNSTILE_SITE_KEY", "test-only-site");
+  vi.stubEnv("TURNSTILE_SECRET_KEY", "test-only-secret");
+  for (const brand of ["Buatin", "Bantuin"]) {
+    vi.stubEnv("EMAIL_FROM", `${brand} <noreply@example.com>`);
+    expect(publicAuthReady()).toBe(false);
+  }
+  vi.stubEnv("EMAIL_FROM", "Bantuin <no-reply@fixture.example>");
+  expect(publicAuthReady()).toBe(true);
 });
 
 it("requires verified identities and honors signup pause without locking out existing users", async () => {
@@ -127,7 +142,7 @@ it("rejects a local deployment and accepts complete hosted configuration without
     DATABASE_WORKER_URL: "",
     ADMIN_REQUIRE_2FA: "true",
     EMAIL_PROVIDER: "resend",
-    EMAIL_FROM: "Buatin <no-reply@fixture.example>",
+    EMAIL_FROM: "Bantuin <no-reply@fixture.example>",
     RESEND_API_KEY: "test-only-resend",
     TURNSTILE_SITE_KEY: "test-only-site",
     TURNSTILE_SECRET_KEY: "test-only-secret",

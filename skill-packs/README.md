@@ -1,4 +1,4 @@
-# Katalog skill Buatin
+# Katalog skill Bantuin
 
 `config/imported-skills.json` adalah registry panduan yang sudah ditinjau. Sumber
 asli dan lisensi disimpan per direktori; `ADAPTATION.md` menjelaskan perubahan
@@ -23,7 +23,7 @@ diimpor. Panduan Playwright diadaptasi ke stack target dan readiness UI.
 2. Pin commit SHA 40 karakter. Unduh hanya sumber/lisensi yang diperlukan,
    maksimal 256 KiB/file; jangan mengeksekusi script atau mengimpor kredensial.
 3. Tambahkan `SKILL.upstream.md`, `LICENSE.txt`, `ADAPTATION.md`. Tulis panduan
-   ringkas; manual preferences dan keamanan Buatin selalu lebih tinggi.
+   ringkas; manual preferences dan keamanan Bantuin selalu lebih tinggi.
 4. Daftarkan metadata, `guidance`, `documents` dan checksum. `sourceChecksum`
    adalah SHA256 sumber mentah. `checksum` adalah SHA256 konkatenasi byte sumber,
    lisensi, adaptasi, lalu UTF-8 guidance, sesuai urutan tersebut. Untuk GitHub

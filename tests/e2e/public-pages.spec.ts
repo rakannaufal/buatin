@@ -28,7 +28,7 @@ for (const width of [1440, 390]) {
       .click();
     await expect(page).toHaveURL(/\/about$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Tentang Buatin.",
+      "Tentang Bantuin.",
     );
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
@@ -47,16 +47,16 @@ for (const width of [1440, 390]) {
       page.getByRole("heading", { name: "Apa yang ada di dalam hasilnya?" }),
     ).toBeInViewport();
     await expect(page.locator("article")).toContainText(
-      "Buatin dikelola secara perorangan",
+      "Bantuin dikelola secara perorangan",
     );
     await expect(page.locator("article")).toContainText("template terstruktur");
     await expect(page.locator("article")).toContainText(
-      "berada di luar layanan Buatin",
+      "berada di luar layanan Bantuin",
     );
     await expect(
       page
         .getByRole("contentinfo")
-        .getByRole("link", { name: "Tentang Buatin", exact: true }),
+        .getByRole("link", { name: "Tentang Bantuin", exact: true }),
     ).toHaveAttribute("aria-current", "page");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),

@@ -1,12 +1,12 @@
-# Spesifikasi pembangunan Buatin
+# Spesifikasi pembangunan Bantuin
 
-Dokumen ini menjadi acuan aplikasi web Buatin, menggantikan rancangan workflow
+Dokumen ini menjadi acuan aplikasi web Bantuin, menggantikan rancangan workflow
 n8n/Telegram dan MVP satu pemilik. Semua interaksi pengguna diproses pada website.
 Tidak ada Docker, Docker Compose, n8n atau bot Telegram dalam runtime.
 
 ## Produk
 
-Buatin mengubah brief website menjadi paket spesifikasi Markdown. Pengguna
+Bantuin mengubah brief website menjadi paket spesifikasi Markdown. Pengguna
 memilih satu dari sembilan tipe website, menulis/impor brief, menjawab klarifikasi,
 menyetujui checklist dokumen, memulai generasi, meninjau hasil dan mengunduhnya
 untuk coding agent. Produk menghasilkan dokumen, bukan website target siap deploy.

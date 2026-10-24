@@ -1,10 +1,69 @@
-# Hasil verifikasi Buatin
+# Hasil verifikasi Bantuin
+
+## Nama Bantuin, kredit footer dan form akun - 24 Oktober 2026
+
+Nama publik, metadata, email, ekspor baru dan aset merek memakai Bantuin.
+Lettering logo digambar ulang dari font sumber; manifest, galeri, SVG, PNG dan
+PDF mengikuti nama baru. ID skill tersimpan, format backup, bucket serta alamat
+resource deployment lama tetap kompatibel. Snapshot/arsip pengguna tidak diubah.
+Kredit footer memakai teks Manrope dengan ukuran/bobot sama; hanya Bantuin
+menjadi tautan ke beranda.
+
+Form akun memakai tombol "Masuk"/"Daftar", garis pemisah dan tombol Google di
+bawahnya. Tautan kirim ulang verifikasi tidak tampil pada keadaan awal. Tautan
+tersebut muncul hanya untuk kode `EMAIL_NOT_VERIFIED`; penolakan akses lain
+tidak diarahkan ke verifikasi. Persetujuan signup muncul sekali. Google yang
+belum siap terlihat nonaktif; kredensial dan pemeriksaan keamanan tetap wajib
+sebelum social sign-in diaktifkan.
+
+Verifikasi pada Node.js 24, build produksi lokal 3191, database loopback dan
+`MOCK_LLM=true`, melalui `.local/doodle-fixture/run.mjs`:
+
+- `npm run build`, `npm run build:worker`, `npm run lint`, `npm run typecheck`,
+  `npm run format:check`: lulus. Pemeriksaan format sempat membaca tsconfig yang
+  sedang ditambahkan Next; sesudah konfigurasi sementara dipulihkan, lulus.
+- `npm test`: 161 tes / 23 file lulus.
+- Playwright `public-design.spec.ts`, `service-pages.spec.ts` dan
+  `public-pages.spec.ts`: 13 tes lulus.
+- Playwright terpilih pada `saas.spec.ts`, `account-security.spec.ts`,
+  `workspace.spec.ts` dan `customization.spec.ts`: pendaftaran/verifikasi email,
+  issuer autentikator Bantuin, MFA, form ponsel, kustomisasi desktop/ponsel,
+  namespace skill baru serta generasi sampai ZIP dan hapus proyek lulus.
+- `playwright test tests/e2e/google-auth.spec.ts`: empat tes lulus pada build
+  akhir; urutan kontrol, keyboard, retry, tujuan redirect, persetujuan tunggal,
+  verifikasi kontekstual dan penolakan akses lain diperiksa.
+- Tes workspace lama sempat menganggap dokumen awal PRD dan judulnya hanya nama
+  proyek. Tes kini memilih `prd.md` secara eksplisit dan memeriksa nama proyek
+  pada heading. Pengulangan tes desktop sampai ZIP/delete lulus. Selector alert
+  tes baru dibatasi pada main agar tidak bertabrakan dengan route announcer.
+- `vitest run tests/integration/saas.test.ts --maxWorkers=1 -t 'public signup
+requires actual email verification'`: satu tes lulus, 13 dilewati; email dan
+  reset password sekali pakai diperiksa.
+- `.local/doodle-fixture/rebrand-inspect.mjs`: 32 kombinasi dari 16 route pada
+  1440/390px lulus. Tidak ada merek/aset lama pada tampilan, gambar utama rusak,
+  overflow atau page error. HTTP 404 tetap benar. Kredit footer memiliki satu
+  link, font/ukuran/bobot sama, rata tengah dan berfungsi dengan keyboard.
+  Urutan tombol akun diperiksa. Screenshot desktop/ponsel dan aset sosial
+  benar-benar diamati.
+- `node scripts/build-brand-assets.mjs`: 163 aset; `node
+scripts/export-brand-pdf.mjs`: 22 PDF; `node scripts/check-brand-assets.mjs`:
+  lulus, termasuk 79 SVG, 81 raster dan 48 ID brief.
+- `npm run skills:verify`: enam pack lulus; `npm run templates:verify`: 43
+  template lulus. Checksum adaptasi dan template diperbarui.
+- `npm audit --omit=dev --audit-level=high`: 0 vulnerabilities.
+- `npm run security:scan`: lulus; `git diff --check`: lulus.
+
+Perubahan awal pengguna pada `next-env.d.ts` dipertahankan dan tidak disertakan
+commit. Tidak ada migration, deployment publik atau perubahan resource provider.
+Google memakai respons fixture pada tes browser; email memakai outbox lokal.
+Hasil tersebut bukan bukti OAuth/email/payment nyata. Identitas pengelola,
+alamat korespondensi dan email bantuan tetap menunggu audit `docs/LEGAL_REVIEW.md`.
 
 ## Kredit footer - 24 Oktober 2026
 
-Bilah bawah footer publik kini memuat "Website made with" dan wordmark Buatin
+Bilah bawah footer publik kini memuat "Website made with" dan wordmark Bantuin
 dengan tautan ke beranda, rata tengah pada desktop/ponsel. Pemilik memilih merek
-Buatin. Teks "Buatin. Dokumen perencanaan website.", tautan kembali ke atas,
+Bantuin. Teks "Bantuin. Dokumen perencanaan website.", tautan kembali ke atas,
 ikon panah dan target fokus header yang tidak lagi dipakai dihapus. Gaya doodle,
 palet, isi utama footer dan kelompok tautan dipertahankan.
 
@@ -386,7 +445,7 @@ Produksi belum diperbarui.
 - Paket baru wajib memiliki `SKILLS.md`, sehingga katalog menjadi 43 Markdown
   ditambah satu manifest. AGENTS dan index menempatkan pemasangan/verifikasi
   sebelum perintah proyek. Definisi skill proyek berasal dari snapshot, memiliki
-  namespace Buatin dan SHA-256 per berkas; tidak menimpa skill berbeda atau
+  namespace Bantuin dan SHA-256 per berkas; tidak menimpa skill berbeda atau
   mengunduh/menjalankan installer upstream. Status instalasi target tetap belum
   diverifikasi sampai agent target membuktikannya.
 
@@ -615,7 +674,7 @@ Tidak ada migration baru atau fixture yang dijalankan pada database produksi.
 
 ### Koneksi deployment otomatis
 
-- Pengguna mengizinkan token khusus proyek Buatin selama 90 hari, disimpan
+- Pengguna mengizinkan token khusus proyek Bantuin selama 90 hari, disimpan
   terenkripsi pada GitHub Environment `production`. Token CLI akun tidak disalin.
 - Permintaan resmi Vercel dengan `projectId` dan expiry 90 hari semula ditolak
   HTTP 403: `Cannot create tokens for this app.`. Token kemudian dibuat melalui

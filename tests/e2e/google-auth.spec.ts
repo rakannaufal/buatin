@@ -12,6 +12,8 @@ test("Google login offers keyboard access, mobile layout and retryable errors", 
   ).toBeFocused();
   await page.keyboard.press("Enter");
   await page.keyboard.press("Tab");
+  await expect(page.getByLabel("Email", { exact: true })).toBeFocused();
+  for (let index = 0; index < 4; index++) await page.keyboard.press("Tab");
   await expect(google).toBeFocused();
   await page.route("**/api/auth/sign-in/social", async (route) => {
     expect(route.request().postDataJSON()).toEqual({
@@ -60,6 +62,71 @@ test("Google login offers keyboard access, mobile layout and retryable errors", 
   await expect(
     consent.getByRole("link", { name: "kebijakan privasi" }),
   ).toHaveAttribute("href", "/privacy");
+});
+
+test("authentication keeps email first, Google below, and verification contextual", async ({
+  page,
+}) => {
+  for (const [path, action] of [
+    ["/login", "Masuk"],
+    ["/signup", "Daftar"],
+  ]) {
+    await page.goto(path);
+    const form = page.locator(".auth-form");
+    const primary = form.getByRole("button", { name: action, exact: true });
+    const divider = form.locator(".auth-divider");
+    const google = form.getByRole("button", {
+      name: "Lanjutkan dengan Google",
+    });
+    await expect(primary).toBeVisible();
+    await expect(divider).toHaveText("atau");
+    await expect(google).toBeVisible();
+    await expect(
+      form.getByRole("link", { name: /Kirim ulang verifikasi/ }),
+    ).toHaveCount(0);
+    const primaryBounds = (await primary.boundingBox())!;
+    const dividerBounds = (await divider.boundingBox())!;
+    const googleBounds = (await google.boundingBox())!;
+    expect(dividerBounds.y).toBeGreaterThanOrEqual(
+      primaryBounds.y + primaryBounds.height,
+    );
+    expect(googleBounds.y).toBeGreaterThanOrEqual(
+      dividerBounds.y + dividerBounds.height,
+    );
+  }
+  await page.goto("/login");
+  await page.route("**/api/auth/sign-in/email", (route) =>
+    route.fulfill({
+      status: 403,
+      contentType: "application/json",
+      body: JSON.stringify({ code: "EMAIL_NOT_VERIFIED" }),
+    }),
+  );
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("unverified@localhost.test");
+  await page.getByLabel("Password", { exact: true }).fill("test-only-password");
+  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Verifikasi email Anda sebelum masuk.",
+  );
+  await expect(
+    page.getByRole("link", { name: "Kirim ulang verifikasi", exact: true }),
+  ).toHaveAttribute("href", "/verify-email");
+  await page.route("**/api/auth/sign-in/email", (route) =>
+    route.fulfill({
+      status: 403,
+      contentType: "application/json",
+      body: JSON.stringify({ code: "account_unavailable" }),
+    }),
+  );
+  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "akses sementara dibatasi",
+  );
+  await expect(
+    page.getByRole("link", { name: /Kirim ulang verifikasi/ }),
+  ).toHaveCount(0);
 });
 
 test("OAuth callback errors use safe, actionable messages", async ({

@@ -5,9 +5,9 @@
     "category": "Desain",
     "description": "Arah visual, hierarki, warna, aksesibilitas dan kualitas hasil.",
     "status": "ready",
-    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Buatin",
+    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Bantuin",
     "version": "local-58c0252bca04",
-    "checksum": "42dd9c48ecd007cbbdf55da84d55d051733255bb0b7f5c8e60b6fc736c192c96",
+    "checksum": "35dd78005d0473036a540fcbeecb9614d98a520c44a01c023f4d14f42382f7c0",
     "license": "Apache-2.0",
     "dependencies": [],
     "documents": ["design", "components", "accessibility", "content"],
@@ -20,9 +20,9 @@
     "category": "Desain",
     "description": "Form, state, layout dan aksesibilitas yang dapat diterapkan.",
     "status": "ready",
-    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Buatin",
+    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Bantuin",
     "version": "local-581bce5c1772",
-    "checksum": "7c2660b584e848ac158fbef3168a69e43aab6850035c18bb1428069a555a7ffb",
+    "checksum": "c74af5210ee0fd4557a23197ef0a4f2b04eb80f5e8feca50240862cc9faeb389",
     "license": "MIT",
     "dependencies": [],
     "documents": ["design", "components", "user-flows", "accessibility"],
@@ -35,9 +35,9 @@
     "category": "Desain",
     "description": "Pencocokan jenis produk, tipografi, palet dan pola antarmuka.",
     "status": "ready",
-    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Buatin",
+    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Bantuin",
     "version": "local-ea087c341bfb",
-    "checksum": "47e458b9592da546d955a182da18d9cd70108a8da91e9517e10162785828a290",
+    "checksum": "343a9a7703308a0b814892294b233da94e7fc54811446a722414f5eda7e4e8a3",
     "license": "MIT",
     "dependencies": [],
     "documents": ["design", "components", "accessibility", "routes"],
@@ -50,9 +50,9 @@
     "category": "Interaksi",
     "description": "Motion, detail komponen dan interaksi yang proporsional.",
     "status": "ready",
-    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Buatin",
+    "source": "Koleksi lokal pengguna; adaptasi panduan untuk Bantuin",
     "version": "local-ffbe68e6007f",
-    "checksum": "08df47678344e4f1399ef180834e6522fca9766c25a9bcf31d00d7016c91e7be",
+    "checksum": "fe6c0f1ed15b49c5e0f4bca2d53d4e8adf294e09400d8a847f8dda63c547c245",
     "license": "MIT",
     "dependencies": [],
     "documents": ["design", "components", "accessibility", "performance"],
@@ -65,13 +65,13 @@
     "category": "Testing",
     "description": "Panduan Playwright, alur kritis, screenshot dan isolasi fixture dari Anthropic.",
     "status": "ready",
-    "source": "anthropics/skills; adaptasi Buatin",
+    "source": "anthropics/skills; adaptasi Bantuin",
     "url": "https://github.com/anthropics/skills/tree/ef740771ac901e03fbca3ce4e1c453a96010f30a/skills/webapp-testing",
     "version": "ef740771ac901e03fbca3ce4e1c453a96010f30a",
     "license": "Apache-2.0",
     "dependencies": [],
     "documents": ["agents", "testing", "acceptance", "implementation-plan"],
-    "guidance": "Specify Playwright browser tests for the critical user journeys. Inspect the rendered interface before choosing selectors; prefer accessible roles and stable labels. Wait for visible application readiness rather than arbitrary delays or network-idle on polling pages. Cover validation, permissions, network errors, mobile widths and keyboard focus. Capture screenshots and browser errors. Use isolated test accounts and synthetic fixtures, clean them up, never claim tests passed until they run. Third-party helper scripts are not executed by Buatin.",
+    "guidance": "Specify Playwright browser tests for the critical user journeys. Inspect the rendered interface before choosing selectors; prefer accessible roles and stable labels. Wait for visible application readiness rather than arbitrary delays or network-idle on polling pages. Cover validation, permissions, network errors, mobile widths and keyboard focus. Capture screenshots and browser errors. Use isolated test accounts and synthetic fixtures, clean them up, never claim tests passed until they run. Third-party helper scripts are not executed by Bantuin.",
     "upstream": {
       "repository": "anthropics/skills",
       "commit": "ef740771ac901e03fbca3ce4e1c453a96010f30a",
@@ -81,7 +81,7 @@
       "licenseChecksum": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     "sourceChecksum": "51b7349e77ec63b7744a6f63647e7566a0b4d2e301121cc10e8c2113af6556a2",
-    "checksum": "c45fab3739a56611bd287d2dfc03a95e17092ac0333ec07c38e32745a3229292"
+    "checksum": "e764821c28638dfec80eb30e4739e2e4c01e7a0dcca1de56e654308b2c3a9b63"
   },
   {
     "id": "antislop",
@@ -89,7 +89,7 @@
     "category": "Desain",
     "description": "Filter desain generik, konten rekaan dan interaksi tanpa fungsi.",
     "status": "ready",
-    "source": "miqdadbadjuber/anti-slop; adaptasi Buatin",
+    "source": "miqdadbadjuber/anti-slop; adaptasi Bantuin",
     "url": "https://github.com/miqdadbadjuber/anti-slop/tree/671ab15c2ff6913cdd80717f602a89f0a9429a4b/skills/antislop",
     "version": "671ab15c2ff6913cdd80717f602a89f0a9429a4b",
     "license": "MIT",
@@ -112,6 +112,6 @@
       "licenseChecksum": "9fd83fb1fda52ca0094b96e2ed5a3d6c42a81b95a6c6326553f5bbe570f443de"
     },
     "sourceChecksum": "64a1ff70bafbfb7a105083cdff0026a6f09baf7e19d3aa1bc3e880cf7233f90c",
-    "checksum": "12d3e1a7f827130c142679f731f3cd23699889462e192712e26a16d6472ae0f7"
+    "checksum": "702f03901420a45b5fd36354d6baa365c50f3601635d1be1713d8eed14363b57"
   }
 ]

@@ -100,7 +100,7 @@ export function Shell({
             <BookOpen size={22} strokeWidth={1.5} />
           </span>
           <span>
-            Buatin<span className="brand-sub">Dari ide, jadi terarah</span>
+            Bantuin<span className="brand-sub">Dari ide, jadi terarah</span>
           </span>
         </Link>
         <div className="workspace-label">Ruang kerja pribadi</div>
@@ -135,7 +135,7 @@ export function Shell({
         <div className="sidebar-bottom">
           <Modal
             title="Dari ide ke spesifikasi"
-            description="Alur kerja Buatin"
+            description="Alur kerja Bantuin"
             trigger={
               <button className="sidebar-help">
                 <BookOpen size={17} />
@@ -211,7 +211,7 @@ export function Shell({
           {children}
         </main>
         <footer className="app-footer">
-          <Link href="/">Buatin</Link>
+          <Link href="/">Bantuin</Link>
           <span>Rencana yang jelas. Pengerjaan yang terarah.</span>
         </footer>
       </div>

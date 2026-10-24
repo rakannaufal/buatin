@@ -3,7 +3,13 @@ import { useState } from "react";
 import { Button, Notice } from "@/components/ui";
 import { Challenge } from "./challenge";
 
-export function GoogleLogin({ siteKey }: { siteKey: string }) {
+export function GoogleLogin({
+  siteKey,
+  ready = true,
+}: {
+  siteKey: string;
+  ready?: boolean;
+}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
@@ -60,13 +66,18 @@ export function GoogleLogin({ siteKey }: { siteKey: string }) {
   }
   return (
     <div className="google-login">
+      <p className="auth-divider">atau</p>
       {error && <Notice tone="error">{error}</Notice>}
-      <Challenge siteKey={siteKey} onToken={setToken} attempt={attempt} />
+      {ready && (
+        <Challenge siteKey={siteKey} onToken={setToken} attempt={attempt} />
+      )}
       <Button
         type="button"
         variant="secondary"
         className="full-width"
         busy={busy}
+        disabled={!ready}
+        aria-describedby={!ready ? "google-unavailable" : undefined}
         onClick={signIn}
       >
         {!busy && (
@@ -91,7 +102,11 @@ export function GoogleLogin({ siteKey }: { siteKey: string }) {
         )}
         Lanjutkan dengan Google
       </Button>
-      <p className="auth-divider">atau gunakan email</p>
+      {!ready && (
+        <p id="google-unavailable" className="muted google-unavailable">
+          Login Google belum tersedia.
+        </p>
+      )}
     </div>
   );
 }
