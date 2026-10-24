@@ -1,5 +1,31 @@
 # Hasil verifikasi Buatin
 
+## Kartu jenis website pada landing - 24 Oktober 2026
+
+Daftar jenis website menjadi komponen server `WebsiteTypes`: sembilan kartu
+kertas dengan ikon Lucide, nama dan keterangan dari katalog yang sudah ada.
+Grid memakai tiga kolom desktop, dua kolom tablet dan satu kolom ponsel.
+Kategori Lainnya memakai aksen kertas kuning. Kartu tetap berupa informasi
+semantik, tanpa tombol, tautan atau JavaScript interaksi tambahan.
+
+Verifikasi memakai Node.js 24 dan production preview fixture loopback 3191.
+
+- `npm run build`, `npm run lint`, `npm run typecheck`, `npm run format:check`:
+  lulus.
+- `npm test`: 159 test / 23 file lulus.
+- Playwright, tes terpilih pada `public-design.spec.ts` dan `saas.spec.ts`:
+  tujuh tes lulus; navigasi keyboard/mobile, FAQ, status paket, isolasi dashboard
+  dan keterbacaan halaman publik tetap berjalan.
+- Pemeriksaan browser pada 1440/768/390/320px: sembilan kartu dan sembilan ikon,
+  grid 3/2/1/1 kolom, tanpa teks terpotong, overflow halaman atau page error.
+  Kontras minimum teks kartu 6,05:1. Screenshot desktop dan ponsel diperiksa.
+- JavaScript dinonaktifkan: sembilan kartu tetap tersedia pada HTML server.
+- `npm audit --omit=dev --audit-level=high`: 0 vulnerabilities.
+- `npm run security:scan`, `git diff --check`: lulus.
+
+Palet tetap mengikuti tema yang aktif; pilihan palet baru belum ditetapkan.
+Perubahan awal pengguna pada `next-env.d.ts` tetap dipertahankan.
+
 ## Harga paket dan formulir akun - 24 Oktober 2026
 
 Harga bulanan Pro Starter Rp29.000, Pro Plus Rp49.000 dan Pro Max Rp99.000

@@ -204,6 +204,11 @@ Kartu langkah menggabungkan ilustrasi, nomor urutan, judul dan penjelasan. Kartu
 paket mengutamakan nama, harga dari layanan, kuota, masa simpan dan tindakan.
 Warna Sage/Pale Yellow membedakan permukaan; informasi paket tetap ada di HTML.
 
+Jenis website pada landing memakai kartu kertas berisi ikon garis, nama dan
+keterangan dari katalog. Grid tiga kolom berubah menjadi dua kolom di tablet
+dan satu kolom di ponsel. Kategori Lainnya memakai kertas kuning dengan bingkai
+putus-putus. Kartu merupakan informasi, tanpa perilaku tombol atau hover palsu.
+
 ### Inputs / Fields
 
 Isian memakai latar Sheet, bingkai Input Line dan ukuran teks 16px. Fokus

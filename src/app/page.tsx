@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { Artwork } from "@/components/brand";
 import { PublicShell } from "@/components/public-shell";
-import { webTypes } from "@/domain/catalog";
+import { WebsiteTypes } from "@/components/website-types";
 import { publicMetadata } from "@/server/seo";
 
 export const metadata = publicMetadata("Dari ide, jadi terarah", "/");
@@ -91,17 +91,7 @@ export default function Home() {
           <figcaption>...jadi bekal untuk membangun.</figcaption>
         </figure>
       </section>
-      <section
-        className="website-types public-container"
-        aria-labelledby="types-heading"
-      >
-        <h2 id="types-heading">Apa pun ide websitenya.</h2>
-        <ul>
-          {webTypes.map((type) => (
-            <li key={type.id}>{type.label}</li>
-          ))}
-        </ul>
-      </section>
+      <WebsiteTypes />
       <section
         className="home-workflow public-container"
         id="cara-kerja"
