@@ -38,25 +38,40 @@ export function PublicNavigation({ path }: { path: string }) {
         className={`site-navigation${open ? " is-open" : ""}`}
         aria-label="Navigasi publik"
       >
-        <div className="site-navigation-pages">
-          <Link href="/#cara-kerja" onClick={() => setOpen(false)}>
-            Cara kerja
-          </Link>
-          <Link
-            href="/pricing"
-            aria-current={path === "/pricing" ? "page" : undefined}
-            onClick={() => setOpen(false)}
-          >
-            Paket
-          </Link>
-          <Link
-            href="/faq"
-            aria-current={path === "/faq" ? "page" : undefined}
-            onClick={() => setOpen(false)}
-          >
-            FAQ
-          </Link>
-        </div>
+        <ul className="site-navigation-pages">
+          <li>
+            <Link href="/#cara-kerja" onClick={() => setOpen(false)}>
+              Cara kerja
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/pricing"
+              aria-current={path === "/pricing" ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              Paket
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/faq"
+              aria-current={path === "/faq" ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              FAQ
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/about"
+              aria-current={path === "/about" ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              Tentang
+            </Link>
+          </li>
+        </ul>
         <div className="site-navigation-account">
           <Link href="/login" onClick={() => setOpen(false)}>
             Masuk

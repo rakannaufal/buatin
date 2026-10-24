@@ -1,5 +1,58 @@
 # Hasil verifikasi Buatin
 
+## Navbar, footer, About dan 404 - 24 Oktober 2026
+
+Navbar publik memakai bilah kertas, pengelompokan halaman/akses akun, penanda
+halaman aktif dan menu pada lebar 900px ke bawah. Footer mengelompokkan Produk,
+Bantuan dan Kebijakan, serta menyediakan tautan ke About dan kembali ke atas
+dengan fokus keyboard. Palet Laut & Matahari, font dan aset doodle dipertahankan.
+
+`/about` memuat tujuh bagian: tujuan, pengguna, cara kerja, cakupan dokumen,
+batas layanan, data/referensi, serta pengelola/bantuan. Konten mengikuti perilaku
+layanan yang sudah ada tanpa mengarang pendiri, sejarah, statistik atau identitas
+kontak. Halaman memiliki daftar isi, canonical, metadata sosial dan entri sitemap.
+URL yang tidak cocok menampilkan 404 dengan kerangka publik yang sama, noindex
+dan tindakan beranda/FAQ. Kerangka sinkron `PublicFrame` membuat 404 tetap statis
+tanpa pembacaan pengumuman database; `PublicShell` tetap membaca pengumuman pada
+halaman publik biasa.
+
+Pemeriksaan memakai Node.js 24, `MOCK_LLM=true`, database loopback dan build
+produksi lokal pada port 3191 melalui `.local/doodle-fixture/run.mjs`.
+
+| Perintah/pemeriksaan                                                                 | Hasil aktual                                                                                                                                                          |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run build`                                                                      | Lulus; `/about` terdaftar, `/_not-found` statis                                                                                                                       |
+| `npm run lint`, `npm run typecheck`, `npm run format:check`                          | Lulus                                                                                                                                                                 |
+| `npm test`                                                                           | 159 tes / 23 file lulus                                                                                                                                               |
+| Playwright: `public-design.spec.ts`, `service-pages.spec.ts`, `public-pages.spec.ts` | 13 tes lulus dalam 15,2 detik                                                                                                                                         |
+| `.local/doodle-fixture/navigation-inspect.mjs`                                       | 40 kombinasi, lima halaman pada 320/390/768/900/901/1024/1440/1996px; tanpa overflow halaman, target navbar/footer di bawah 44px, gambar eager hilang atau page error |
+| `.local/doodle-fixture/navigation-contrast.mjs`                                      | 16 halaman, 901 elemen teks terlihat; tanpa temuan kontras, termasuk FAQ dibuka/hover dan fokus isian signup                                                          |
+| `.local/doodle-fixture/navigation-confirm.mjs`                                       | About dan 404 pada 1440/390px; status 200/404 sesuai, tanpa overflow/page error, latar menutup bagian atas halaman                                                    |
+| `npm audit --omit=dev --audit-level=high`                                            | 0 vulnerabilities                                                                                                                                                     |
+| `npm run security:scan`, `git diff --check`                                          | Lulus; secret scan sebelum pencatatan hasil memeriksa 414 berkas                                                                                                      |
+
+Tes browser membuktikan penemuan About dari navbar, daftar isi dengan keyboard,
+tautan footer, sitemap/robots, noindex 404, navigasi beranda/FAQ serta status
+HTTP 404 untuk URL yang tidak ada. Menu mobile, skip link, loading/error/empty
+paket dan pemisahan desain dashboard juga lulus. Screenshot navbar/footer,
+About dan 404 desktop/mobile diperiksa. Celah latar di atas navbar diperbaiki
+dengan membatasi margin collapse pada kerangka publik, lalu dikonfirmasi ulang.
+
+Pengamatan Chromium lokal tanpa pembatasan CPU/jaringan pada empat kunjungan
+konfirmasi mencatat LCP 24-192 ms dan CLS 0-0,00741. Ini pengukuran fixture lokal,
+bukan hasil Core Web Vitals lapangan; INP dan perangkat fisik belum diukur.
+Ilustrasi awal dimuat eager dan isi About tersedia di HTML server.
+
+Detector Impeccable tidak berjalan karena launcher mengembalikan `Permission
+denied` (exit 126); hasil di atas berasal dari pemeriksaan browser dan tes,
+bukan kelulusan detector. Pemeriksaan dibatasi pada satu batch inspeksi,
+perbaikan celah latar, dan satu batch konfirmasi. Perubahan awal pengguna pada
+`next-env.d.ts` dipertahankan; path build sementara pada `tsconfig.json` dipulihkan.
+
+Tidak ada perubahan provider, autentikasi, kuota atau pembayaran. Hasil fixture
+bukan bukti provider nyata. Nama pengelola, alamat korespondensi dan email
+bantuan resmi tetap perlu diisi saat audit sesuai `docs/LEGAL_REVIEW.md`.
+
 ## Palet Laut & Matahari - 24 Oktober 2026
 
 Halaman publik dan autentikasi menggunakan biru laut `#167DAD`, sorotan kuning

@@ -6,7 +6,12 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/pricing", ...serviceLinks.map((link) => link.href)],
+      allow: [
+        "/",
+        "/pricing",
+        "/about",
+        ...serviceLinks.map((link) => link.href),
+      ],
       disallow: [
         "/api/",
         "/dashboard",

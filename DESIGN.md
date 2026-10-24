@@ -165,7 +165,7 @@ isi disusun berurutan dan hero memilih komposisi ilustrasi persegi. Kartu paket
 berubah dari empat menjadi dua kolom pada 1100px, lalu satu pada 520px. Area
 tindakan kartu menyediakan ruang keterangan agar tombol pada satu baris sejajar.
 
-Navigasi menjadi menu buka-tutup pada 800px. Daftar isi kebijakan yang melekat di
+Navigasi menjadi menu buka-tutup pada 900px. Daftar isi kebijakan yang melekat di
 desktop menjadi daftar horizontal yang dapat digeser pada layar kecil. Tabel
 perbandingan paket mempertahankan lebar isi dan bergeser di dalam region sendiri,
 termasuk melalui keyboard, tanpa melebarkan halaman.
@@ -224,10 +224,41 @@ error dan challenge dari alur autentikasi yang sudah ada.
 
 ### Navigation
 
-Logo dan tautan utama terlihat di desktop. Menu mobile memiliki status expanded,
-menutup setelah pemilihan halaman, dan Escape mengembalikan fokus ke tombol.
-Halaman aktif memiliki underline. Tautan lewati konten tersedia pada publik dan
-autentikasi; target formulir menerima fokus sebelum Tab ke kontrol pertama.
+Navbar berupa bilah kertas putih berbingkai tinta, dengan logo di kiri, tautan
+utama di tengah dan tindakan akun di kanan. Pemisah tipis mengelompokkan akses
+akun. Halaman aktif memakai latar kuning pucat dan underline; hover memakai biru
+pucat. Bentuk ini membatasi area navigasi tanpa dekorasi besar.
+
+Pada 900px ke bawah, menu terbuka di dalam bilah: daftar halaman berurutan lalu
+dua tindakan akun sejajar. Menu memiliki status expanded, menutup setelah
+pemilihan halaman, dan Escape mengembalikan fokus ke tombol. Tautan lewati konten
+tersedia pada publik dan autentikasi; target formulir menerima fokus sebelum Tab
+ke kontrol pertama.
+
+Tautan Tentang mengarah ke `/about`; halaman tersebut menjelaskan tujuan,
+pengguna, proses, isi dokumen, batas layanan, data dan pengelola. Hero memakai
+ilustrasi buku catatan, lalu isi beralih menjadi kolom baca dengan daftar isi.
+Daftar definisi memisahkan topik dokumen tanpa membuat kartu untuk tiap paragraf.
+
+### Footer
+
+Footer berupa lembar kertas berbingkai dengan satu selotip doodle kuning. Identitas
+dan tagline berada di kiri; tautan dikelompokkan menjadi Produk, Bantuan dan
+Kebijakan di kanan. Judul kelompok memakai Manrope agar mudah dipindai. Tautan
+tetap tampil tanpa accordion atau kontrol tambahan.
+
+Pada tablet, identitas berpindah ke atas kelompok tautan. Pada ponsel, Produk dan
+Bantuan berdampingan, lalu Kebijakan mengisi baris berikutnya dengan daftar dua
+kolom. Bilah bawah biru pucat memisahkan keterangan produk dan tautan Kembali ke
+atas yang mengarahkan scroll serta fokus keyboard ke navbar.
+
+### Not Found
+
+Halaman 404 mempertahankan navbar, footer, warna dan ilustrasi doodle. Kode 404,
+penjelasan singkat serta tindakan ke beranda/FAQ membantu pengguna melanjutkan.
+Kerangka publik dipisahkan dari pembacaan pengumuman agar fallback ini tetap
+dapat dirender tanpa query database. URL yang tidak ada mengembalikan HTTP 404
+dan metadata noindex.
 
 ### FAQ and Reading Paper
 
