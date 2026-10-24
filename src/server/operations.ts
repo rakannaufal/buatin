@@ -296,7 +296,7 @@ export async function productionChecks(
     status: "manual",
     label: "Privasi dan prosedur dukungan",
     detail:
-      "Tetapkan identitas pengelola, retensi backup/pembayaran, pemroses data, tenggat serta penanganan permintaan pengguna.",
+      "Audit docs/LEGAL_REVIEW.md. Ingatkan pemilik: isi nama pengelola perorangan, alamat korespondensi dan email resmi pada pengaturan situs. Verifikasi retensi, pemroses data, penanganan keluhan/refund dan permintaan privasi sebelum peluncuran publik.",
   });
   return checks.sort((left, right) =>
     left.priority.localeCompare(right.priority),

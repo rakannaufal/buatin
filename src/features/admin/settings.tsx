@@ -11,6 +11,8 @@ import {
 } from "./shared";
 type Site = {
   announcement: string;
+  operatorName: string;
+  operatorAddress: string;
   supportEmail: string;
   faq: string;
   privacyNotice: string;
@@ -90,6 +92,19 @@ export function SettingsAdmin() {
           label="Pengumuman layanan"
           value={site.value.announcement}
           max={500}
+        />
+        <Field
+          name="operatorName"
+          label="Nama pengelola perorangan"
+          value={site.value.operatorName}
+          max={160}
+        />
+        <Field
+          name="operatorAddress"
+          label="Alamat korespondensi publik"
+          multiline
+          value={site.value.operatorAddress}
+          max={1000}
         />
         <Field
           name="supportEmail"

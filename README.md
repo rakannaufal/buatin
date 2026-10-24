@@ -152,6 +152,12 @@ worker. Untuk menjalankan komponen secara terpisah: `npm run dev:web`,
 
 Buka http://localhost:3000. Halaman publik di `/`, paket di `/pricing`, workspace di `/dashboard`. `APP_URL` harus cocok dengan URL browser, termasuk skema dan hostname, agar pemeriksaan Origin/session benar. Admin membuka `/settings` untuk memeriksa AI dan `/admin` untuk pengelolaan. Verifikasi ulang berlaku lima menit sebelum mutasi. Harga diterbitkan di `/admin/plans`; grant/kredit berbeda dari pembayaran dan refund uang.
 
+Dokumen layanan tersedia tanpa login di `/terms`, `/privacy`, `/refund`,
+`/disclaimer`, `/cookies`, `/faq` dan `/contact`. Nama pengelola perorangan,
+alamat korespondensi serta email publik dikelola melalui `/admin/settings`.
+Data ini belum diberikan pemilik; ingatkan saat audit sebelum peluncuran.
+Dasar isi dan pemeriksaan yang masih terbuka ada di `docs/LEGAL_REVIEW.md`.
+
 ### PostgreSQL yang sudah tersedia
 
 Gunakan `.env.example` sebagai acuan, isi `DATABASE_URL`, `BETTER_AUTH_SECRET` minimal 32 karakter acak, `OWNER_EMAIL`, `APP_URL`. Untuk DB managed atau service native lain, jalankan migration langsung; **jangan** menjalankan helper `db:local`. User DB membutuhkan hak membuat schema/tabel queue pg-boss. DB dan 9router tidak boleh dibuka publik.

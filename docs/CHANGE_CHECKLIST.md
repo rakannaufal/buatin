@@ -16,3 +16,7 @@
   migration/backup dan advisory lock worker memakai koneksi direct/session.
 - Skill/dependency baru memiliki sumber, versi terkunci, lisensi dan batas dukungan.
 - Hasil mock serta test pending tidak dilaporkan sebagai bukti produksi.
+- Perubahan publik, pembayaran atau data pribadi memeriksa `docs/LEGAL_REVIEW.md`.
+  Saat audit, ingatkan pemilik tentang nama pengelola perorangan, alamat
+  korespondensi dan email bantuan resmi yang belum tersedia. Jangan menutup
+  pemeriksaan ini hanya karena halaman kebijakan sudah ada.

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
-export function publicMetadata(title: string, path: string): Metadata {
-  const description =
-    "Ubah brief website menjadi paket spesifikasi yang relevan dan siap ditinjau.";
+export function publicMetadata(
+  title: string,
+  path: string,
+  description = "Ubah brief website menjadi paket spesifikasi yang relevan dan siap ditinjau.",
+): Metadata {
   return {
     title,
     description,

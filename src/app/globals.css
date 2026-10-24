@@ -2729,6 +2729,16 @@ svg {
   align-items: center;
   font-size: 12px;
 }
+.public-footer nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 20px;
+}
+.public-footer nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .public-header .brand {
   margin: 0;
 }
@@ -2886,13 +2896,36 @@ svg {
   font-size: 16px;
 }
 .legal-content {
-  max-width: 850px;
+  max-width: calc(75ch + 96px);
+  overflow-wrap: anywhere;
 }
 .legal-content h1 {
   margin-bottom: 12px;
 }
 .legal-content h2 {
   margin: 36px 0 16px;
+}
+.legal-content h3 {
+  margin: 28px 0 10px;
+  font-size: 16px;
+}
+.legal-content ul,
+.legal-content ol {
+  padding-left: 24px;
+  margin: 0 0 20px;
+  line-height: 1.9;
+}
+.legal-content ul {
+  list-style: disc;
+}
+.legal-content ol {
+  list-style: decimal;
+}
+.legal-content li + li {
+  margin-top: 10px;
+}
+.legal-content .service-updated {
+  margin-bottom: 28px;
 }
 .legal-content p {
   line-height: 1.9;
@@ -2967,6 +3000,7 @@ svg {
   }
   .public-footer nav {
     gap: 16px;
+    justify-content: flex-start;
   }
   .landing-hero,
   .landing-types,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { connection } from "next/server";
 import { siteSettings } from "@/server/admin/policies";
+import { serviceLinks } from "@/domain/legal";
 export async function PublicShell({ children }: { children: React.ReactNode }) {
   await connection();
   const { value: site } = await siteSettings();
@@ -29,27 +30,18 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
           {site.announcement}
         </aside>
       )}
-      <main id="main-content">
-        {children}
-        {site.faq && (
-          <section className="public-content">
-            <h2>Informasi layanan</h2>
-            <p className="preserve-lines">{site.faq}</p>
-          </section>
-        )}
-      </main>
+      <main id="main-content">{children}</main>
       <footer className="public-footer">
         <Link className="brand" href="/">
           Buatin
         </Link>
         <span>Dari ide, jadi terarah.</span>
         <nav aria-label="Informasi layanan">
-          {site.supportEmail && (
-            <a href={`mailto:${site.supportEmail}`}>Bantuan</a>
-          )}
-          <Link href="/privacy">Privasi</Link>
-          <Link href="/terms">Ketentuan</Link>
-          <Link href="/pricing">Paket</Link>
+          {serviceLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
       </footer>
     </div>

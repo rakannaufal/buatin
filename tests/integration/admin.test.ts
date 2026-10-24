@@ -229,6 +229,41 @@ afterAll(async () => {
 });
 
 describe("server-enforced admin management", () => {
+  it("publishes operator details with version checks and escapes public notices", async () => {
+    const current = await (await api(owner, "/admin/settings")).json();
+    const input = {
+      version: current.site.version,
+      reason,
+      value: {
+        ...current.site.value,
+        operatorName: "Fixture <script>alert(1)</script>",
+        operatorAddress: "Fixture correspondence address",
+        supportEmail: "legal-fixture@localhost.test",
+        termsNotice: "Fixture <strong>terms notice</strong>",
+      },
+    };
+    expect((await api(null, "/admin/settings/site", input)).status).toBe(401);
+    expect((await api(user, "/admin/settings/site", input)).status).toBe(403);
+    expect((await api(owner, "/admin/settings/site", input)).status).toBe(200);
+    const saved = await (await api(owner, "/admin/settings")).json();
+    expect(saved.site.value).toEqual(input.value);
+    expect(saved.site.version).toBe(current.site.version + 1);
+    expect((await api(owner, "/admin/settings/site", input)).status).toBe(409);
+    for (const path of ["/terms", "/privacy", "/contact"]) {
+      const response = await httpFetch(`${base}${path}`);
+      expect(response.status).toBe(200);
+      const html = await response.text();
+      expect(html).toContain("Fixture &lt;script&gt;alert(1)&lt;/script&gt;");
+      expect(html).toContain("Fixture correspondence address");
+      expect(html).toContain('href="mailto:legal-fixture@localhost.test"');
+      expect(html).not.toContain("<script>alert(1)</script>");
+      if (path === "/terms")
+        expect(html).toContain(
+          "Fixture &lt;strong&gt;terms notice&lt;/strong&gt;",
+        );
+    }
+  });
+
   it("denies anonymous/user writes, admin escalation and writes without fresh reauthentication", async () => {
     expect((await api(null, "/admin/users")).status).toBe(401);
     expect((await api(user, "/admin/users")).status).toBe(403);

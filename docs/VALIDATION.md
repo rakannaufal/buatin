@@ -1,5 +1,58 @@
 # Hasil verifikasi Buatin
 
+## Dokumen layanan dan identitas pengelola - 24 Oktober 2026
+
+Ketentuan layanan dan privasi ditulis ulang berdasarkan perilaku aplikasi.
+Halaman refund, batas penggunaan hasil, cookie, FAQ dan kontak ditambahkan.
+Ketujuh halaman tersedia tanpa login, mendapat metadata dan tautan footer,
+serta masuk sitemap/robots. FAQ tambahan admin kini hanya tampil di halaman FAQ.
+Tidak ada daftar skill baru pada UI.
+
+Pengelola dikonfirmasi perorangan. Nama, alamat korespondensi dan email resmi
+belum diberikan; tidak diisi dengan data rekaan. Pengaturan situs mendukung nama
+dan alamat publik, tetap membaca pengaturan lama, serta memakai SUPPORT_EMAIL
+sebagai fallback. Pengingat audit disimpan di `LEGAL_REVIEW.md`, checklist
+perubahan, kesiapan produksi dan pemeriksaan operasional. Dasar hukum dan fakta
+kode yang ditinjau tercatat di `LEGAL_REVIEW.md`.
+
+Verifikasi memakai Node.js 24.22.0, production build terpisah
+`.local/legal-fixture/next`, database PostgreSQL loopback khusus fixture sebelumnya
+dan `MOCK_LLM=true`. Wrapper `.local/legal-fixture/run.mjs` membaca konfigurasi
+privat tanpa mencetak kredensial. Tidak ada migration atau dependency baru.
+
+| Perintah                                                                                                                                                  | Hasil aktual                                                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit terfokus sebelum edit                                                                                                                                | 18 test / tiga file lulus                                                                                                                                |
+| `npm test`                                                                                                                                                | 159 test / 23 file lulus                                                                                                                                 |
+| `npm run format:check`, `npm run lint`, `npm run typecheck`                                                                                               | Lulus                                                                                                                                                    |
+| `npm run build:worker`, `npm run build`                                                                                                                   | Build worker dan production web lulus                                                                                                                    |
+| `node_modules/vitest/vitest.mjs run tests/integration/admin.test.ts --maxWorkers=1 -t 'publishes operator details'`                                       | Satu test lulus, 17 tidak dipilih: persistence identitas, 401/403, versi lama 409, HTML escape dan email publik                                          |
+| `node_modules/@playwright/test/cli.js test tests/e2e/service-pages.spec.ts tests/e2e/saas.spec.ts --grep 'service pages\|policy content\|public landing'` | Empat skenario lulus: tujuh halaman pada 1440/390px, navigasi keyboard, footer 44px, login guard, metadata, sitemap, robots, HTML awal dan halaman paket |
+| `npm run test:assets`                                                                                                                                     | 145 file trace; parser terisolasi, normalisasi gambar dan penghapusan EXIF lulus                                                                         |
+| `npm run skills:verify`, `npm run templates:verify`                                                                                                       | Enam pack dan 43 template lulus                                                                                                                          |
+| `npm audit --omit=dev --audit-level=high`                                                                                                                 | Nol kerentanan                                                                                                                                           |
+| `npm run security:scan`, `git diff --check`                                                                                                               | Lulus; 385 file source/config/dokumen diperiksa                                                                                                          |
+
+Halaman terms/refund juga diamati melalui browser pada desktop dan ponsel.
+Gaya dokumen mengikuti tampilan publik yang ada; lebar teks dibatasi untuk
+keterbacaan, daftar memiliki penanda, dan footer dapat membungkus pada ponsel.
+Tidak ada perubahan desain utama. HTML dokumen tidak memuat tracker pemasaran;
+hasil ini tidak mencakup perilaku domain/provider eksternal.
+
+Kendala lingkungan: listener loopback membutuhkan izin di luar sandbox. Cache
+Next development sempat gagal dengan ENOSPC; hanya cache fixture tugas ini yang
+dibersihkan. Uji landing berikutnya gagal karena PostgreSQL lokal berhenti,
+sehingga halaman paket menampilkan error. Setelah database lokal dipulihkan,
+empat skenario browser lulus pada build produksi. Perubahan otomatis Next pada
+konfigurasi dipulihkan dari snapshot baseline; perubahan pengguna pada
+`next-env.d.ts` dipertahankan dan tidak di-stage.
+
+Full suite integrasi/E2E, migration rehearsal, recovery proses dan image Docker
+tidak diulang untuk perubahan ini. Fixture bukan bukti provider nyata atau audit
+hukum final. Kontak tanpa akun, identitas, retensi finansial/backup, inventaris
+provider dan prosedur refund/privasi nyata masih wajib diaudit sebelum peluncuran.
+Produksi belum diperbarui.
+
 ## Skill internal dan persiapan agent - 24 Oktober 2026
 
 - Anti-slop core dari `miqdadbadjuber/anti-slop` dipin pada commit

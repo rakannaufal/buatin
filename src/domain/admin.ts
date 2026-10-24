@@ -134,6 +134,8 @@ export function discountFor(
 export const siteSchema = z
   .object({
     announcement: z.string().trim().max(500),
+    operatorName: z.string().trim().max(160).default(""),
+    operatorAddress: z.string().trim().max(1000).default(""),
     supportEmail: z.union([z.email(), z.literal("")]),
     faq: z.string().trim().max(12000),
     privacyNotice: z.string().trim().max(12000),

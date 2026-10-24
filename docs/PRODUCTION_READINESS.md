@@ -40,6 +40,12 @@ Bukti eksekusi terbaru ada pada `VALIDATION.md`.
 
 ## P0: sebelum menerima pengguna publik
 
+Pengelola dikonfirmasi perorangan pada 24 Oktober 2026. Nama, alamat
+korespondensi dan email bantuan resmi belum diberikan. **Ingatkan pemilik saat
+audit**; isi melalui pengaturan situs dan uji jalur kontak tanpa sesi akun.
+Periksa `LEGAL_REVIEW.md`, termasuk retensi dan provider. Halaman kebijakan
+yang sudah tersedia tidak menutup kebutuhan ini.
+
 | Kebutuhan                          | Tindakan dan bukti yang diperlukan                                                                                                                                                              |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Hosting, domain, database produksi | Hubungkan runtime Vercel dan worker ke schema Supabase yang sudah tersedia sesuai `DEPLOYMENT.md`. Pisahkan staging/produksi, HTTPS dan secrets; verifikasi build commit terbaru dan readiness. |

@@ -1,81 +1,170 @@
-import { PublicShell } from "@/components/public-shell";
-import { siteSettings } from "@/server/admin/policies";
-export const dynamic = "force-dynamic";
+import Link from "next/link";
+import { ServicePage, ServiceUpdated } from "@/components/service-page";
 import { publicMetadata } from "@/server/seo";
-export const metadata = publicMetadata("Ketentuan layanan", "/terms");
-export default async function Page() {
-  const { value: site } = await siteSettings();
+
+export const dynamic = "force-dynamic";
+export const metadata = publicMetadata(
+  "Ketentuan layanan",
+  "/terms",
+  "Ketentuan akun, paket, pembayaran dan penggunaan dokumen Buatin.",
+);
+
+export default function Page() {
   return (
-    <PublicShell>
-      <article className="public-content legal-content">
-        <h1>Ketentuan layanan.</h1>
-        {site.termsNotice && (
-          <section>
-            <h2>Ketentuan tambahan pengelola</h2>
-            <p className="preserve-lines">{site.termsNotice}</p>
-          </section>
-        )}
-        <p className="muted">Berlaku 20 Oktober 2026.</p>
-        <h2>Layanan dan akun</h2>
-        <p>
-          Buatin menghasilkan paket dokumen perencanaan website dari template
-          terstruktur. Dokumen dan analisis gambar opsional dapat mengandung
-          kekeliruan; tinjau sebelum dipakai untuk implementasi. Hasil bukan
-          jaminan kode sudah dibangun, aman, atau diuji. Anda bertanggung jawab
-          atas materi brief, hak penggunaannya, dan keamanan akun.
-        </p>
-        <h2>Paket dan kuota</h2>
-        <p>
-          Free menyediakan kuota seumur hidup yang ditampilkan pada halaman
-          paket. Pro menyediakan kuota mingguan sesuai paket dan harga yang
-          ditampilkan sebelum pembayaran. Kuota Pro reset Senin pukul 00.00 WIB
-          selama langganan aktif, tidak menumpuk. Bulan penagihan dan minggu
-          kuota dihitung terpisah.
-        </p>
-        <p>
-          Satu generasi berarti satu proses baru untuk satu paket dokumen.
-          Regenerasi pilihan memakai satu kuota baru, termasuk dokumen terdampak
-          dependensi. Edit, unduh, dan resume proses yang sama tidak menggunakan
-          kuota baru. Penyusunan rencana memiliki batas terpisah untuk
-          mengendalikan penggunaan AI.
-        </p>
-        <h2>Pembayaran dan perpanjangan</h2>
-        <p>
-          Pembayaran hanya QRIS Duitku. Tidak ada autodebit. Paket aktif setelah
-          pembayaran diverifikasi server. Perpanjangan awal menambahkan satu
-          bulan kalender setelah masa yang sudah dibayar berakhir. Perubahan
-          tingkat paket berlaku pada periode berikutnya. Pembayaran dan
-          perubahan paket tidak mereset pemakaian minggu berjalan.
-        </p>
-        <p>
-          Berhenti cukup dengan tidak memperpanjang; akses Pro berlangsung
-          sampai periode dibayar selesai. Setelah itu akun kembali ke Free
-          dengan kredit seumur hidup yang belum dipakai, jika ada. Hasil tetap
-          tersedia sampai tanggal penyimpanannya berakhir.
-        </p>
-        <h2>Gangguan dan pembatalan</h2>
-        <p>
-          Gangguan worker dapat dilanjutkan dari dokumen tersimpan. Kegagalan
-          sistem permanen mengembalikan kuota sekali ke periode asal; proses
-          yang dikembalikan kuotanya ditutup. Pengembalian ke minggu yang sudah
-          lewat tidak menambah kuota minggu ini. Pembatalan sebelum ada dokumen
-          berhasil atau request provider mengembalikan kuota. Setelah salah
-          satunya tersedia atau dimulai, kuota tetap dihitung. Pengembalian
-          kuota berbeda dari pengembalian pembayaran; masalah tagihan diperiksa
-          pengelola melalui catatan Duitku.
-        </p>
-        <h2>Penyimpanan</h2>
-        <p>
-          Masa penyimpanan hasil tercantum pada paket dan halaman hasil. Simpan
-          salinan unduhan Anda. Penyalahgunaan, pendaftaran otomatis, pengelakan
-          kuota, atau penggunaan layanan untuk merugikan pihak lain dapat
-          dibatasi. Lihat{" "}
-          <a className="text-button" href="/privacy">
-            kebijakan privasi
-          </a>{" "}
-          untuk data dan kontak pengelola.
-        </p>
-      </article>
-    </PublicShell>
+    <ServicePage path="/terms">
+      <h1>Ketentuan layanan</h1>
+      <ServiceUpdated />
+      <p>
+        Ketentuan ini mengatur penggunaan Buatin dan pembelian paketnya. Baca
+        bersama <Link href="/privacy">Kebijakan Privasi</Link>,{" "}
+        <Link href="/refund">Kebijakan Pengembalian Dana</Link> dan{" "}
+        <Link href="/disclaimer">Batas Penggunaan Hasil</Link>.
+      </p>
+
+      <h2>Layanan yang Anda terima</h2>
+      <p>
+        Buatin menyusun brief website menjadi dokumen perencanaan dalam format
+        Markdown. Anda dapat meninjau rencana, memilih dokumen dan mengunduh
+        hasilnya. Dokumen inti disusun dari template terstruktur. Analisis
+        gambar dengan AI merupakan fitur terpisah yang digunakan atas permintaan
+        Anda, jika tersedia.
+      </p>
+      <p>
+        Pembelian paket memberikan akses sesuai manfaat yang ditampilkan sebelum
+        pembayaran. Pembelian tersebut tidak mencakup pembuatan kode website,
+        domain, hosting atau pengerjaan proyek oleh pengembang.
+      </p>
+
+      <h2>Akun dan kewenangan</h2>
+      <p>
+        Gunakan informasi akun yang benar dan email yang dapat Anda akses.
+        Verifikasi email diperlukan untuk menggunakan akun yang didaftarkan
+        dengan password. Jaga password, akses email dan kode pemulihan Anda.
+        Laporkan penggunaan akun tanpa izin melalui{" "}
+        <Link href="/contact">kontak bantuan</Link>.
+      </p>
+      <p>
+        Anda harus memiliki kecakapan hukum untuk menyetujui ketentuan ini. Jika
+        menggunakan Buatin untuk organisasi atau klien, pastikan Anda berwenang
+        mewakilinya dan membagikan materi proyek tersebut.
+      </p>
+
+      <h2>Paket dan perhitungan kuota</h2>
+      <p>
+        Kuota Free berlaku sepanjang umur akun, bukan diperbarui setiap minggu.
+        Kuota Pro diperbarui setiap Senin pukul 00.00 WIB selama paket aktif.
+        Sisa kuota mingguan tidak dibawa ke minggu berikutnya. Jumlah kuota,
+        fitur dan masa penyimpanan mengikuti paket yang Anda pilih pada{" "}
+        <Link href="/pricing">halaman paket</Link>.
+      </p>
+      <p>
+        Satu generasi baru menggunakan satu kuota untuk satu paket dokumen.
+        Regenerasi dokumen pilihan juga menggunakan satu kuota, termasuk dokumen
+        lain yang perlu diperbarui karena saling berkaitan. Mengunduh hasil dan
+        melanjutkan proses yang sama tidak memakai kuota baru. Penyusunan
+        rencana memiliki batas pemakaian tersendiri. Menghapus proyek tidak
+        menambah kuota.
+      </p>
+
+      <h2>Harga, pembayaran dan perpanjangan</h2>
+      <p>
+        Pembayaran menggunakan QRIS melalui Duitku. Periksa paket, diskon dan
+        total pada ringkasan tagihan sebelum membayar. Paket aktif setelah
+        pembayaran dikonfirmasi melalui pemeriksaan server. Bukti pembayaran
+        dari aplikasi bank saja belum mengubah status tagihan di Buatin.
+      </p>
+      <p>
+        Satu pembayaran membeli satu bulan kalender. Tidak ada autodebit.
+        Perpanjangan sebelum masa aktif berakhir dimulai setelah periode yang
+        sudah dibayar selesai. Perubahan tingkat paket berlaku pada periode
+        berikutnya. Pembayaran tidak mereset pemakaian kuota minggu berjalan.
+        Harga dan manfaat pembelian yang sudah dibayar mengikuti catatan
+        transaksi tersebut.
+      </p>
+      <p>
+        Untuk berhenti, cukup tidak memperpanjang. Setelah masa aktif berakhir,
+        akun kembali ke Free dengan sisa kuota Free yang belum digunakan, jika
+        ada. Berhenti memperpanjang berbeda dari meminta pengembalian dana.
+      </p>
+
+      <h2>Proses gagal dan pengembalian</h2>
+      <p>
+        Jika proses terhenti, gunakan pilihan melanjutkan yang tersedia pada
+        halaman proses. Kegagalan permanen yang ditutup sistem mengembalikan
+        kuota satu kali ke sumber asal. Pembatalan sebelum ada dokumen yang
+        berhasil disimpan dan sebelum permintaan AI dimulai juga mengembalikan
+        kuota. Setelah salah satu terjadi, pembatalan tetap dihitung sebagai
+        pemakaian.
+      </p>
+      <p>
+        Kuota yang dikembalikan ke periode yang sudah lewat tidak menambah kuota
+        periode berjalan. Pengembalian kuota tidak mengembalikan uang. Keluhan
+        pembayaran dan layanan yang tidak sesuai pembelian ditangani menurut{" "}
+        <Link href="/refund">Kebijakan Pengembalian Dana</Link>.
+      </p>
+
+      <h2>Materi proyek dan penggunaan hasil</h2>
+      <p>
+        Hak atas brief, gambar dan materi yang Anda unggah tetap pada
+        pemiliknya. Anda memberikan izin kepada Buatin untuk memproses materi
+        tersebut sepanjang diperlukan untuk menyediakan layanan yang Anda minta.
+        Pastikan Anda memiliki hak atau izin untuk mengunggah dan memprosesnya.
+      </p>
+      <p>
+        Anda dapat menggunakan, mengubah dan membagikan dokumen hasil untuk
+        proyek pribadi maupun komersial. Izin ini tidak memindahkan hak atas
+        layanan, merek atau materi pihak ketiga. Materi pihak ketiga tetap
+        mengikuti lisensinya. Hasil tidak dijamin unik atau bebas dari seluruh
+        kemungkinan kemiripan dengan karya lain.
+      </p>
+
+      <h2>Penggunaan yang dilarang</h2>
+      <ul>
+        <li>Mengunggah materi yang melanggar hukum atau hak pihak lain.</li>
+        <li>
+          Membuat proyek untuk penipuan, pencurian data, penyebaran malware atau
+          tindakan yang merugikan orang lain.
+        </li>
+        <li>
+          Mengakses akun orang lain, menghindari batas kuota atau mengganggu
+          keamanan dan ketersediaan layanan.
+        </li>
+      </ul>
+      <p>
+        Akses dapat dibatasi untuk menangani pelanggaran atau ancaman keamanan.
+        Penjelasan dan permintaan peninjauan dapat diajukan melalui bantuan.
+        Pembatasan akun tidak menghapus hak Anda atas penyelesaian keluhan dan
+        pembayaran yang sah.
+      </p>
+
+      <h2>Penyimpanan dan ketersediaan</h2>
+      <p>
+        Hasil tersedia sampai tanggal penyimpanan yang tercantum pada halaman
+        hasil. Perubahan paket tidak memperpendek masa penyimpanan hasil lama.
+        Unduh salinan sebelum tanggal tersebut. Retensi data lainnya dijelaskan
+        pada <Link href="/privacy">Kebijakan Privasi</Link>.
+      </p>
+      <p>
+        Pemeliharaan dan gangguan dapat membatasi akses sementara. Jika layanan
+        berbayar tidak diberikan sebagaimana disepakati, Anda dapat meminta
+        penyelesaian melalui bantuan. Buatin tetap bertanggung jawab atas
+        kewajiban yang ditetapkan oleh hukum yang berlaku.
+      </p>
+
+      <h2>Perubahan ketentuan dan penyelesaian keluhan</h2>
+      <p>
+        Versi terbaru mencantumkan tanggal pembaruan. Perubahan yang memengaruhi
+        hak atau kewajiban secara material perlu diberitahukan melalui layanan
+        sebelum berlaku. Perubahan tidak mengurangi manfaat periode yang sudah
+        dibayar atau menghapus hak yang telah timbul dari transaksi sebelumnya.
+      </p>
+      <p>
+        Ketentuan ini menggunakan hukum Indonesia. Keluhan terlebih dahulu dapat
+        dibahas dengan pengelola. Jika tidak selesai, Anda tetap dapat
+        menggunakan Badan Penyelesaian Sengketa Konsumen atau pengadilan yang
+        berwenang sesuai ketentuan hukum. Tidak ada ketentuan di halaman ini
+        yang mengesampingkan hak konsumen yang dijamin undang-undang.
+      </p>
+    </ServicePage>
   );
 }

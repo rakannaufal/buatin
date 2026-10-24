@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getEnv } from "@/server/config";
+import { serviceLinks } from "@/domain/legal";
 export const dynamic = "force-dynamic";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/pricing", "/privacy", "/terms"],
+      allow: ["/", "/pricing", ...serviceLinks.map((link) => link.href)],
       disallow: [
         "/api/",
         "/dashboard",
