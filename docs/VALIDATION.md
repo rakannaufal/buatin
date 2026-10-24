@@ -1,5 +1,33 @@
 # Hasil verifikasi Buatin
 
+## Kredit footer - 24 Oktober 2026
+
+Bilah bawah footer publik kini memuat "Website made with" dan wordmark Buatin
+dengan tautan ke beranda, rata tengah pada desktop/ponsel. Pemilik memilih merek
+Buatin. Teks "Buatin. Dokumen perencanaan website.", tautan kembali ke atas,
+ikon panah dan target fokus header yang tidak lagi dipakai dihapus. Gaya doodle,
+palet, isi utama footer dan kelompok tautan dipertahankan.
+
+Verifikasi memakai Node.js 24, build produksi lokal 3191, database loopback dan
+`MOCK_LLM=true` melalui `.local/doodle-fixture/run.mjs`.
+
+- `npm run build`, `npm run lint`, `npm run typecheck`, `npm run format:check`:
+  lulus.
+- `npm test`: 159 tes / 23 file lulus.
+- Playwright `service-pages.spec.ts` dan `public-pages.spec.ts`: tujuh tes lulus
+  dalam 9,4 detik, termasuk tidak adanya dua elemen footer yang dihapus.
+- `.local/doodle-fixture/footer-credit-inspect.mjs`: 12 kombinasi beranda,
+  About dan 404 pada 320/390/768/1440px; tanpa overflow atau page error. Logo
+  berhasil dimuat, target kredit minimal 44px, posisi tepat di tengah pada
+  seluruh kombinasi. Tautan berfungsi memakai keyboard. Screenshot desktop dan
+  ponsel diperiksa.
+- `npm audit --omit=dev --audit-level=high`: 0 vulnerabilities.
+- `npm run security:scan`, `git diff --check`: lulus.
+
+Perubahan awal pengguna pada `next-env.d.ts` dipertahankan; konfigurasi build
+sementara dipulihkan. Provider nyata tidak diuji untuk perubahan footer ini.
+Audit identitas pada `docs/LEGAL_REVIEW.md` tetap terbuka.
+
 ## Navbar, footer, About dan 404 - 24 Oktober 2026
 
 Navbar publik memakai bilah kertas, pengelompokan halaman/akses akun, penanda

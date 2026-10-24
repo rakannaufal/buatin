@@ -249,8 +249,9 @@ tetap tampil tanpa accordion atau kontrol tambahan.
 
 Pada tablet, identitas berpindah ke atas kelompok tautan. Pada ponsel, Produk dan
 Bantuan berdampingan, lalu Kebijakan mengisi baris berikutnya dengan daftar dua
-kolom. Bilah bawah biru pucat memisahkan keterangan produk dan tautan Kembali ke
-atas yang mengarahkan scroll serta fokus keyboard ke navbar.
+kolom. Bilah bawah biru pucat menampilkan kredit "Website made with" dan wordmark
+Buatin rata tengah pada desktop maupun ponsel, dengan tautan ke beranda. Teks
+deskripsi produk dan tautan kembali ke atas dihapus sesuai permintaan pemilik.
 
 ### Not Found
 

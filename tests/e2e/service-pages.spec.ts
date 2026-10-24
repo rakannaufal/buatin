@@ -54,6 +54,15 @@ for (const viewport of [
         ),
       ).toBe(false);
       const footer = page.getByRole("contentinfo");
+      await expect(footer.locator(".footer-bottom")).toContainText(
+        "Website made with",
+      );
+      await expect(
+        footer.getByRole("link", { name: "Kembali ke atas" }),
+      ).toHaveCount(0);
+      await expect(footer).not.toContainText(
+        "Buatin. Dokumen perencanaan website.",
+      );
       for (const group of ["Produk", "Bantuan", "Kebijakan"]) {
         await expect(
           footer.getByRole("heading", { name: group, exact: true }),
@@ -77,13 +86,6 @@ for (const viewport of [
     await privacy.focus();
     await privacy.press("Enter");
     await expect(page).toHaveURL(/\/privacy$/);
-    const backToTop = page
-      .getByRole("contentinfo")
-      .getByRole("link", { name: "Kembali ke atas" });
-    await backToTop.focus();
-    await backToTop.press("Enter");
-    await expect(page.locator("#page-top")).toBeInViewport();
-    await expect(page.locator("#page-top")).toBeFocused();
     await page.getByRole("link", { name: "Akun", exact: true }).click();
     await expect(page).toHaveURL(/\/login/);
 

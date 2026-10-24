@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUp } from "lucide-react";
 import { serviceLinks } from "@/domain/legal";
 import { Brand } from "./brand";
 import { PublicNavigation } from "./public-navigation";
@@ -41,7 +41,7 @@ export function PublicFrame({
       <a className="skip-link" href="#main-content">
         Lewati ke konten
       </a>
-      <header className="site-header" id="page-top" tabIndex={-1}>
+      <header className="site-header">
         <Brand />
         <PublicNavigation path={path} />
       </header>
@@ -79,10 +79,16 @@ export function PublicFrame({
           ))}
         </nav>
         <div className="footer-bottom">
-          <span>Buatin. Dokumen perencanaan website.</span>
-          <a href="#page-top">
-            Kembali ke atas <ArrowUp size={16} aria-hidden="true" />
-          </a>
+          <Link href="/">
+            <span>Website made with</span>
+            <Image
+              src="/assets/logos/buatin-wordmark-primary.svg"
+              alt="Buatin"
+              width={125}
+              height={48}
+              unoptimized
+            />
+          </Link>
         </div>
       </footer>
     </div>

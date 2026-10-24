@@ -671,9 +671,10 @@
 .footer-bottom {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
   border-top: 1px solid var(--line);
   margin-inline: -40px;
   padding: 16px 40px;
@@ -687,8 +688,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--accent-ink);
-  font-weight: 600;
+  color: var(--muted);
+}
+.footer-bottom img {
+  width: 88px;
+  height: auto;
+  flex-shrink: 0;
 }
 .footer-bottom a:hover {
   text-decoration: underline;
@@ -1933,10 +1938,6 @@
   .footer-bottom {
     margin-inline: -24px;
     padding: 16px 24px;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 11px;
   }
   .pricing-hero {
     display: block;
