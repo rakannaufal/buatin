@@ -24,7 +24,7 @@ try {
     const name = `${path.basename(item.file, ".svg")}${whiteProof ? "-proof" : ""}.pdf`;
     const file = `logos/pdf/${name}`;
     await page.setContent(
-      `<html><head><style>@page{size:${item.width}px ${item.height}px;margin:0}html,body{margin:0;width:${item.width}px;height:${item.height}px;background:${whiteProof ? "#235c46" : "transparent"}}svg{display:block}</style></head><body>${source}</body></html>`,
+      `<html><head><style>@page{size:${item.width}px ${item.height}px;margin:0}html,body{margin:0;width:${item.width}px;height:${item.height}px;background:${whiteProof ? manifest.palette.ocean : "transparent"}}svg{display:block}</style></head><body>${source}</body></html>`,
     );
     const data = await page.pdf({
       width: `${item.width}px`,
@@ -44,7 +44,7 @@ try {
       bytes: data.length,
       sha256: createHash("sha256").update(data).digest("hex"),
       background: whiteProof
-        ? "forest-green proof; use SVG for transparent white artwork"
+        ? "ocean-blue proof; use SVG for transparent white artwork"
         : "none",
     });
   }

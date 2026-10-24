@@ -25,8 +25,9 @@ alternatif konsep, bukan logo tambahan untuk dipakai bersamaan. Lettering
 Manrope diubah menjadi outline; tidak diklaim sebagai lettering pesanan dari nol.
 Logo dan kartu berbagi tidak memerlukan font terpasang pada perangkat pembaca.
 
-Warna: hijau #235C46, tinta #202B27, sage #E4EEE7, kertas #FAF7EF,
-kuning #F3D37A. Utamakan hijau; kuning hanya aksen. Varian putih membutuhkan
+Palet Laut & Matahari: biru laut #167DAD, tinta #173444, biru pucat #DFF2FA,
+latar #F0FBFF, kuning #FFD35A. Utamakan biru; kuning untuk sorotan.
+Teks kecil berwarna biru memakai #0D5C83 agar kontras pada latar terang. Varian putih membutuhkan
 latar gelap.
 
 Area aman minimum: seperempat tinggi simbol di sekeliling logo. Ukuran minimum:
@@ -49,7 +50,7 @@ Manrope. Source Serif 4 tetap digunakan di workspace dan kartu berbagi.
 Favicon dipasang ke metadata aplikasi. Ikon maskable memiliki latar penuh
 dan tanda di dalam safe circle. ICO berisi 16/32/48px. Logo provider harus diambil
 dari sumber resmi secara terpisah; paket ini tidak membuat ulang Google/Duitku/QRIS.
-PDF varian putih memakai latar hijau dan akhiran `-proof`; gunakan SVG putih
+PDF varian putih memakai latar biru laut dan akhiran `-proof`; gunakan SVG putih
 untuk artwork transparan. PDF lainnya mempertahankan path vektor tanpa font.
 
 ## Asal dan batas review

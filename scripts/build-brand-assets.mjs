@@ -21,9 +21,9 @@ import { galleryHtml } from "./brand/gallery.mjs";
 const root = process.cwd();
 const directory = path.join(root, "public/assets");
 const entries = [];
-const { ink, green, paper, white } = colors;
+const { ink, ocean, oceanInk, paper, white } = colors;
 const illustrationBrief =
-  "Original editorial doodle for Buatin, a service turning website briefs into planning documents. Controlled hand-drawn rounded ink lines, slight irregularity, simple shapes, generous negative space. Forest green #235C46, ink #202B27, sage #E4EEE7, restrained yellow #F3D37A. Transparent background. No written words, gradients, 3D, heavy shadows, watermarks, stock characters, or certification badges. Match this asset family's geometry.";
+  "Original editorial doodle for Buatin, a service turning website briefs into planning documents. Controlled hand-drawn rounded ink lines, slight irregularity, simple shapes, generous negative space. Sea & Sun palette: ocean blue #167DAD, ink #173444, pale sky #DFF2FA, sunshine yellow #FFD35A, blue-white paper #F0FBFF. Transparent background. No written words, gradients, 3D, heavy shadows, watermarks, stock characters, or certification badges. Match this asset family's geometry.";
 const logoBrief =
   "Original Buatin mark: a capital B formed by folded planning-document shapes and deliberate negative space. Friendly geometry, compact silhouette, legible at small sizes. Flat single color with clean paths. Derive variants from one parent mark.";
 const fonts = {
@@ -155,7 +155,7 @@ for (const item of ornaments) {
   );
 }
 
-const wordmark = (size, x, y, color = green) =>
+const wordmark = (size, x, y, color = ocean) =>
   fonts.bold.text("Buatin", size, { x, y, fill: color, tracking: -0.6 });
 function logoBody(kind, color) {
   if (kind === "symbol" || kind === "symbol-micro")
@@ -199,7 +199,7 @@ const logoIds = {
 };
 for (const kind of Object.keys(logoIds)) {
   for (const [variant, color] of [
-    ["primary", green],
+    ["primary", ocean],
     ["black", "#000000"],
     ["white", white],
   ]) {
@@ -235,11 +235,11 @@ for (const kind of Object.keys(logoIds)) {
 }
 for (const [id, name, body] of [
   ["L01", "folded-brief", group(symbol(), 72, 59, 2.5)],
-  ["L02", "document-b", group(symbol(green, false, true), 72, 59, 2.5)],
+  ["L02", "document-b", group(symbol(ocean, false, true), 72, 59, 2.5)],
   [
     "L03",
     "folded-wordmark",
-    wordmark(67, 23, 153).body + shape("M205 167L223 167L223 149Z", green),
+    wordmark(67, 23, 153).body + shape("M205 167L223 167L223 149Z", ocean),
   ],
 ]) {
   await saveSvg(
@@ -304,7 +304,7 @@ for (const [name, sizes, maskable] of [
   const body =
     `<path fill="${paper}" d="M0 0H512V512H0Z"/>` +
     group(
-      symbol(green, true),
+      symbol(ocean, true),
       maskable ? 115 : 83,
       maskable ? 112 : 79,
       maskable ? 4.4 : 5.4,
@@ -314,7 +314,7 @@ for (const [name, sizes, maskable] of [
     id: "B09",
     group: "icons",
     title: `Ikon ${name}`,
-    prompt: `${logoBrief} Centered device icon on warm paper; essential geometry inside a circle of 80 percent diameter.`,
+    prompt: `${logoBrief} Centered device icon on blue-white paper; essential geometry inside a circle of 80 percent diameter.`,
   });
   for (const size of sizes)
     await raster(`icons/${name}-${size}.png`, source, size, {
@@ -326,14 +326,14 @@ for (const [name, sizes, maskable] of [
 }
 const avatar = await saveSvg(
   "logos/buatin-avatar.svg",
-  `<path fill="${green}" d="M0 0H1024V1024H0Z"/>${group(symbol(white), 253, 249, 8)}`,
+  `<path fill="${ocean}" d="M0 0H1024V1024H0Z"/>${group(symbol(white), 253, 249, 8)}`,
   1024,
   1024,
   {
     id: "B10",
     group: "logos",
     title: "Avatar Buatin",
-    prompt: `${logoBrief} White symbol on forest green, centered and safe under a circular crop.`,
+    prompt: `${logoBrief} White symbol on ocean blue, centered and safe under a circular crop.`,
   },
 );
 await raster("logos/png/buatin-avatar-1024.png", avatar, 1024, {
@@ -348,9 +348,9 @@ const grain = Buffer.alloc(512 * 512 * 4);
 let seed = 171024;
 for (let i = 0; i < grain.length; i += 4) {
   seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-  grain[i] = 32;
-  grain[i + 1] = 43;
-  grain[i + 2] = 39;
+  grain[i] = parseInt(ink.slice(1, 3), 16);
+  grain[i + 1] = parseInt(ink.slice(3, 5), 16);
+  grain[i + 2] = parseInt(ink.slice(5, 7), 16);
   grain[i + 3] = seed % 7 === 0 ? (seed >>> 24) % 10 : 0;
 }
 for (const format of ["png", "webp"]) {
@@ -445,23 +445,23 @@ function socialScene(page, square = false) {
     height = square ? 1080 : 630;
   let body =
     `<path fill="${paper}" d="M0 0H${width}V${height}H0Z"/>` +
-    group(logoBody("horizontal", green).body, 40, 31, 0.56);
+    group(logoBody("horizontal", ocean).body, 40, 31, 0.56);
   const fontSize = square ? 76 : illustration === "faq-conversation" ? 62 : 68;
   lines.forEach((line, i) => {
     body += fonts.serif.text(line, fontSize, {
       x: 70,
       y: (square ? 236 : 269) + i * (fontSize + 9),
-      fill: i ? green : ink,
+      fill: i ? ocean : ink,
       tracking: -0.6,
     }).body;
   });
   body += fonts.regular.text(subtitle, square ? 25 : 22, {
     x: 73,
     y: square ? 398 : 451,
-    fill: green,
+    fill: oceanInk,
   }).body;
   body += `<svg x="${square ? 110 : 667}" y="${square ? 443 : 136}" width="${square ? 858 : 488}" height="${square ? 545 : 376}" viewBox="${drawing.viewBox ?? "0 0 640 480"}">${drawing.body()}</svg>`;
-  body += `<path d="M72 ${height - 60}Q${width / 2} ${height - 54} ${width - 72} ${height - 60}" fill="none" stroke="${green}" stroke-width="1.5"/>`;
+  body += `<path d="M72 ${height - 60}Q${width / 2} ${height - 54} ${width - 72} ${height - 60}" fill="none" stroke="${ocean}" stroke-width="1.5"/>`;
   return { body, width, height };
 }
 for (const page of socialPages) {
@@ -470,7 +470,7 @@ for (const page of socialPages) {
     id: page[1],
     group: "social",
     title: `Pratinjau ${page[0]}`,
-    prompt: `Buatin ${page[0]} sharing card: working L01 parent logo, corresponding doodle, warm paper, and separately outlined factual Indonesian text. No prices or unverified claims.`,
+    prompt: `Buatin ${page[0]} sharing card: working L01 parent logo, corresponding doodle, blue-white paper, and separately outlined factual Indonesian text. No prices or unverified claims.`,
   };
   const file = `social/og-${page[0]}.svg`;
   const source = await saveSvg(
@@ -588,7 +588,7 @@ await writeFile(
   await format(
     JSON.stringify({
       brand: "Buatin",
-      version: 1,
+      version: 2,
       created: "2026-10-24",
       palette: colors,
       authoring:

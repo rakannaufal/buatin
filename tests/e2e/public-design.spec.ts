@@ -169,6 +169,13 @@ test("public navigation and doodle styles stay outside the authenticated workspa
   await expect(
     page.getByRole("link", { name: "Mulai gratis", exact: true }).first(),
   ).toBeVisible();
+  await expect(page.locator(".public-theme")).toHaveCSS(
+    "background-color",
+    "rgb(240, 251, 255)",
+  );
+  await expect(
+    page.getByRole("link", { name: "Mulai gratis", exact: true }).first(),
+  ).toHaveCSS("background-color", "rgb(22, 125, 173)");
   await login(page, testAccount);
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.locator(".public-theme")).toHaveCount(0);
@@ -177,6 +184,11 @@ test("public navigation and doodle styles stay outside the authenticated workspa
   expect(
     await heading.evaluate((node) => getComputedStyle(node).fontFamily),
   ).toContain("Source Serif 4");
+  expect(
+    await heading.evaluate((node) =>
+      getComputedStyle(node).getPropertyValue("--accent").trim(),
+    ),
+  ).toBe("#235c46");
   await page.screenshot({ path: "test-results/doodle-workspace-desktop.png" });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(heading).toBeVisible();

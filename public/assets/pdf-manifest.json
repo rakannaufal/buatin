@@ -7,7 +7,7 @@
       "width": 64,
       "height": 64,
       "bytes": 976,
-      "sha256": "a36f1a99c9b235ffe816782ff5c9765e2183bea5c744694fe98c9d8d05348149",
+      "sha256": "4c652474cf951feb8304b9f8d8cdec955e6678169828ad6bb417f7d5d9665fbe",
       "background": "none"
     },
     {
@@ -16,7 +16,7 @@
       "width": 64,
       "height": 64,
       "bytes": 966,
-      "sha256": "21d57492d26f44cc1e0b085847617246f53cb6efd50d30f44226311633bd94f5",
+      "sha256": "3b9e960a0fad309459aedda15b7793a5b20aaf91e57e1d2492d03199521d1e7f",
       "background": "none"
     },
     {
@@ -25,8 +25,8 @@
       "width": 64,
       "height": 64,
       "bytes": 999,
-      "sha256": "c50a35a93ae0607e1b0c0229f5a4f72906a11afc0d4a5ac5a38435fa67857ff5",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "sha256": "02eb4e1a89728740814db20c7adb30d01c9ade2e6aaea6776c93f3d8d1be97b9",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/buatin-wordmark-primary.pdf",
@@ -34,7 +34,7 @@
       "width": 375,
       "height": 144,
       "bytes": 2665,
-      "sha256": "1a0b2e41abff09d62d971801d16ceecc069930e292b94a999c4fece304d243e5",
+      "sha256": "5d2e3e0e11e14e15b47d3c40cffa378f00743f709bf0fb68f54fce05a96c59af",
       "background": "none"
     },
     {
@@ -43,7 +43,7 @@
       "width": 375,
       "height": 144,
       "bytes": 2651,
-      "sha256": "0acf7b3d933c8552fb8153667386b65f119a52df3c9ea478543efc15250aee02",
+      "sha256": "52ff7ef13fac641ae246765a764ef79267e6222afddb49a307553a7601ce5527",
       "background": "none"
     },
     {
@@ -52,16 +52,16 @@
       "width": 375,
       "height": 144,
       "bytes": 2695,
-      "sha256": "e4c430ea359ad791cfa3782f24a96fd2ec5fe87a19c830fa4ad9df0297abdfe8",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "sha256": "d427dc64ceaf91b9a68324f16628d2161eefe6c2eb606aa088b057b9223de427",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/buatin-horizontal-primary.pdf",
       "source": "logos/buatin-horizontal-primary.svg",
       "width": 433,
       "height": 144,
-      "bytes": 2805,
-      "sha256": "8af600eb708aa10edd923a1175d29f3a43fcd1d02b2dd2bc9404a0d67b6a6829",
+      "bytes": 2806,
+      "sha256": "8828f4e757df5a743033dffe3eb56506cbd9e1e16b67baf38937568af6a644ea",
       "background": "none"
     },
     {
@@ -70,7 +70,7 @@
       "width": 433,
       "height": 144,
       "bytes": 2792,
-      "sha256": "507481b214859100dd2fa12314e366488a0d9dc47da6ed2d2791285cbc472793",
+      "sha256": "49d16c11a7fb86215e3cc73abb0db3a16997f39108aafed5e3b12abe14ec8c4b",
       "background": "none"
     },
     {
@@ -79,8 +79,8 @@
       "width": 433,
       "height": 144,
       "bytes": 2833,
-      "sha256": "6f7f571d3cd0dbb4578d1ad8673048e6722701520c5d8d426fb1e4eb849268b5",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "sha256": "0ee96e1d2c49ff4632fd529ccb88d5bbc276998623ed4093490b8d10308b4361",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/buatin-stacked-primary.pdf",
@@ -88,7 +88,7 @@
       "width": 400,
       "height": 292,
       "bytes": 2812,
-      "sha256": "f98f32906b497767a770ad22af571e3b164604bf4a76103c204f32c70ae27087",
+      "sha256": "5a9a57e515cf525c495dcadbaa76555a34becb685fa22c77de4b21173a072e40",
       "background": "none"
     },
     {
@@ -97,7 +97,7 @@
       "width": 400,
       "height": 292,
       "bytes": 2797,
-      "sha256": "cff54155ab83dabcc19a4e331a9ae77567170e7a6c58fbaca3c725ea5668cd9f",
+      "sha256": "cf1635efa32cfe8dd3c8c29b3b6a5fe69eb98d8215f819d04953e3e3ecdc3263",
       "background": "none"
     },
     {
@@ -106,8 +106,8 @@
       "width": 400,
       "height": 292,
       "bytes": 2839,
-      "sha256": "ab286f2876a5e76864fd34d1742708b1bc14949381b77395815b392ee11e9a8d",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "sha256": "dd6884863c0a80e53a8b7bd5631d62fb9db62896f0df4bb926671e65740f62ee",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/buatin-symbol-micro-primary.pdf",
@@ -115,7 +115,7 @@
       "width": 64,
       "height": 64,
       "bytes": 976,
-      "sha256": "339dfccc629c81e333e6aafa60ae101ba66910f4de930acdedfbda0e4b3a31c1",
+      "sha256": "407a985ab93bbee16784db2f88339b0f1f58589ca471a55590a3201456544bce",
       "background": "none"
     },
     {
@@ -124,7 +124,7 @@
       "width": 64,
       "height": 64,
       "bytes": 967,
-      "sha256": "0e9f78501199a574d036143c304413a34e8143aab2dc386e7fca43ff7abc1713",
+      "sha256": "4b3034da93cb203c67912c83a701f454d0f51234812f244edc419ac2ef8d21a8",
       "background": "none"
     },
     {
@@ -132,17 +132,17 @@
       "source": "logos/buatin-symbol-micro-white.svg",
       "width": 64,
       "height": 64,
-      "bytes": 998,
-      "sha256": "553cd4073ad7cc4f2614ad0eba6a30cd36a72b78492848813572ebcbfe26357d",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "bytes": 999,
+      "sha256": "f9bc1e3c3385dd46261551702bf84c9702c3d1a7a22922c4118a942e0f87634c",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/buatin-tagline-primary.pdf",
       "source": "logos/buatin-tagline-primary.svg",
       "width": 433,
       "height": 172,
-      "bytes": 5624,
-      "sha256": "2aa016a17d1dd34690c30e90ea6fd417131ab2c17fb665dc17ef9a0498e0ad7f",
+      "bytes": 5626,
+      "sha256": "359c2f94ad75f66e8c2bb2ede35e76cf0960c9d17f4df29113c1597927119488",
       "background": "none"
     },
     {
@@ -151,7 +151,7 @@
       "width": 433,
       "height": 172,
       "bytes": 5602,
-      "sha256": "da506d13152f9297a75c35fcf7815c48e110dbfbaa095bf507349869de117174",
+      "sha256": "c0ee7f5d1c4f013dedc60b9c773a73a3208801202c4d0fc5a45b172776493cb9",
       "background": "none"
     },
     {
@@ -160,8 +160,8 @@
       "width": 433,
       "height": 172,
       "bytes": 5645,
-      "sha256": "e672b0d36ef4f569f2f93a49824da3fef5ef6be24f1e3eef561ecc65cbb969ea",
-      "background": "forest-green proof; use SVG for transparent white artwork"
+      "sha256": "5c21ed0ca451280ffe199f505171fbff68526a3bf36430cc3866b1c2339abb94",
+      "background": "ocean-blue proof; use SVG for transparent white artwork"
     },
     {
       "file": "logos/pdf/l01-folded-brief.pdf",
@@ -169,7 +169,7 @@
       "width": 320,
       "height": 280,
       "bytes": 987,
-      "sha256": "1be9c42c432699d8dd47544dfd257b225f69c65be804f87a477b28c98aa5d19b",
+      "sha256": "4a012dd87b51dd0ff493e2f19ea7dcbce0d31eeabd554883c856c93c278f185e",
       "background": "none"
     },
     {
@@ -178,7 +178,7 @@
       "width": 320,
       "height": 280,
       "bytes": 952,
-      "sha256": "fbc215c65cdf2bd78dc83d4bfc95099972f8742b9359d870e222950266cbfcf0",
+      "sha256": "f96f6d1975cc19a4e330099d8d68c47058298f6dfe6b293cee2fc1dd243fce3f",
       "background": "none"
     },
     {
@@ -187,7 +187,7 @@
       "width": 320,
       "height": 280,
       "bytes": 2693,
-      "sha256": "669cfc8a597dc535d825e74d1159ef3a81189933923501a1ed26469d06793cf5",
+      "sha256": "83652e40d8a406db1abc64716803a00fef06eec40f1f599d60dd997cf7ed8f56",
       "background": "none"
     },
     {
@@ -196,7 +196,7 @@
       "width": 1024,
       "height": 1024,
       "bytes": 1009,
-      "sha256": "dd41fa2d67c206b8a006458256dd9f67ae14933e10b98f3361be5896eb365b12",
+      "sha256": "c44e8c0bf2d296846ab0181fcf648da565626e1adf18b0c0eab0501373c4355a",
       "background": "none"
     }
   ]

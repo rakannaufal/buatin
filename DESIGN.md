@@ -2,17 +2,18 @@
 name: Buatin - Halaman Publik
 description: Doodle dokumen dan tulisan tangan untuk membawa ide menjadi rencana website.
 colors:
-  forest: "#235c46"
-  forest-hover: "#194935"
-  sage: "#e4eee7"
-  marker: "#f3d37a"
-  pale-yellow: "#fff6dc"
-  ink: "#202b27"
-  paper: "#faf7ef"
-  sheet: "#fffdf8"
-  muted: "#536157"
-  line: "#c9d2c5"
-  input-line: "#8c9e87"
+  ocean: "#167dad"
+  ocean-hover: "#10658e"
+  ocean-ink: "#0d5c83"
+  sky: "#dff2fa"
+  sun: "#ffd35a"
+  pale-yellow: "#fff4cc"
+  ink: "#173444"
+  paper: "#f0fbff"
+  sheet: "#ffffff"
+  muted: "#456371"
+  line: "#b9d6e3"
+  input-line: "#698b9d"
 typography:
   display:
     fontFamily: "Caveat, cursive"
@@ -55,13 +56,13 @@ spacing:
   large: "48px"
 components:
   button-primary:
-    backgroundColor: "{colors.forest}"
+    backgroundColor: "{colors.ocean}"
     textColor: "#ffffff"
     rounded: "{rounded.button}"
     typography: "{typography.label}"
     padding: "12px 23px"
   button-primary-hover:
-    backgroundColor: "{colors.forest-hover}"
+    backgroundColor: "{colors.ocean-hover}"
   button-secondary:
     backgroundColor: "{colors.sheet}"
     textColor: "{colors.ink}"
@@ -99,23 +100,28 @@ Dashboard dan workspace mempertahankan tipografi serta komponen aplikasi.
 **Key Characteristics:**
 
 - Judul tulisan tangan dengan isi Manrope.
-- Kertas krem, tinta hijau gelap dan sorotan kuning terbatas.
+- Kertas biru pucat, tinta biru gelap dan sorotan kuning matahari.
 - Doodle dokumen, folder, pensil, penjepit dan selotip dari pustaka aset proyek.
 - Tombol berbingkai tinta, kartu seperti lembar catatan, fokus keyboard jelas.
 
 ## Colors
 
+Palet **Laut & Matahari** memakai biru laut untuk tindakan, kuning untuk sorotan
+dan latar biru pucat. Warna publik dibatasi pada `.public-theme`; dashboard
+mempertahankan token aplikasinya.
+
 Palet berasal dari aset Buatin; warna mendukung hierarki isi dan tindakan.
 
 ### Primary
 
-- **Forest:** tindakan utama, penekanan tulisan tangan, tautan dan fokus.
-- **Forest Hover:** keadaan hover tombol utama.
+- **Ocean:** tombol utama, logo dan fokus.
+- **Ocean Ink:** tautan dan penekanan teks; lebih gelap agar terbaca pada latar terang.
+- **Ocean Hover:** keadaan hover tombol utama.
 
 ### Secondary
 
-- **Sage:** bidang contoh dokumen, panel cerita autentikasi dan sebagian kartu.
-- **Marker:** sorotan kata pada judul dan aksesori kertas.
+- **Sky:** bidang contoh dokumen, panel cerita autentikasi dan sebagian kartu.
+- **Sun:** sorotan kata pada judul dan aksesori kertas.
 - **Pale Yellow:** variasi latar kartu yang tetap memakai teks tinta.
 
 ### Neutral
@@ -176,7 +182,7 @@ tenang tanpa dekorasi di antara paragraf.
 
 ### Shadow Vocabulary
 
-- **Paper:** `3px 5px 0 #202b2714`, untuk kartu dan formulir.
+- **Paper:** `3px 5px 0 #17344414`, untuk kartu dan formulir.
 - **Action:** `2px 3px 0 var(--ink)`, untuk tombol publik.
 - **Action Hover:** `3px 4px 0 var(--ink)`, dengan pergeseran 1px.
 - **Action Pressed:** `0 1px 0 var(--ink)`, dengan pergeseran ke bawah.
@@ -195,14 +201,14 @@ aturan latar di panduan aset.
 Tindakan terasa seperti label pada lembar kerja: bingkai tinta, isi solid dan
 bayangan kecil. Tinggi minimum tombol utama 50px; menu mobile 44px. Hover
 mengubah warna dan posisi, pressed menurunkan bayangan. Fokus memakai outline
-Forest 3px dengan offset 5px. Disabled memakai isi netral, teks terbaca dan tanpa
+Ocean 3px dengan offset 5px. Disabled memakai isi netral, teks terbaca dan tanpa
 bayangan. Reduced motion meniadakan transisi.
 
 ### Cards / Containers
 
 Kartu langkah menggabungkan ilustrasi, nomor urutan, judul dan penjelasan. Kartu
 paket mengutamakan nama, harga dari layanan, kuota, masa simpan dan tindakan.
-Warna Sage/Pale Yellow membedakan permukaan; informasi paket tetap ada di HTML.
+Warna Sky/Pale Yellow membedakan permukaan; informasi paket tetap ada di HTML.
 
 Jenis website pada landing memakai kartu kertas berisi ikon garis, nama dan
 keterangan dari katalog. Grid tiga kolom berubah menjadi dua kolom di tablet
@@ -212,7 +218,7 @@ putus-putus. Kartu merupakan informasi, tanpa perilaku tombol atau hover palsu.
 ### Inputs / Fields
 
 Isian memakai latar Sheet, bingkai Input Line dan ukuran teks 16px. Fokus
-menampilkan outline Forest 2px dengan offset 3px. Label terlihat, pesan kesalahan
+menampilkan outline Ocean 2px dengan offset 3px. Label terlihat, pesan kesalahan
 berdekatan dengan isian. Formulir mempertahankan pending, disabled, success,
 error dan challenge dari alur autentikasi yang sudah ada.
 

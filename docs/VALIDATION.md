@@ -1,5 +1,57 @@
 # Hasil verifikasi Buatin
 
+## Palet Laut & Matahari - 24 Oktober 2026
+
+Halaman publik dan autentikasi menggunakan biru laut `#167DAD`, sorotan kuning
+`#FFD35A`, latar `#F0FBFF` dan tinta `#173444`. Tautan serta penekanan teks
+memakai `#0D5C83` agar kontras pada latar terang. Token dibatasi pada
+`.public-theme`; dashboard/workspace mempertahankan token sebelumnya.
+Logo, ilustrasi, doodle, tekstur, favicon, kartu berbagi, galeri dan ekspor PDF
+mengikuti palet yang sama. Sumber generator, manifest, DESIGN.md dan sidecar
+warna diperbarui bersama; layout, konten kebijakan dan harga tidak diubah.
+
+Pemeriksaan memakai Node.js 24, `MOCK_LLM=true`, database loopback dan production
+preview lokal 3191 melalui `.local/doodle-fixture/run.mjs`.
+
+| Perintah/pemeriksaan                                                                                                                     | Hasil aktual                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `node scripts/build-brand-assets.mjs`                                                                                                    | 163 aset dibuat; 2,34 MiB                                                                                                      |
+| `node scripts/export-brand-pdf.mjs`                                                                                                      | 22 PDF vektor diekspor                                                                                                         |
+| `node scripts/check-brand-assets.mjs`                                                                                                    | Checksum, dimensi, SVG, transparansi, maskable, ICO dan PDF lulus                                                              |
+| `npm run build`, `npm run lint`, `npm run typecheck`, `npm run format:check`                                                             | Lulus                                                                                                                          |
+| `npm test`                                                                                                                               | 159 test / 23 file lulus                                                                                                       |
+| Playwright: tes publik/autentikasi terpilih pada `public-design.spec.ts`, `google-auth.spec.ts`, `service-pages.spec.ts`, `saas.spec.ts` | 13 tes lulus pada batch utama; satu tes isolasi dashboard lulus saat diulang setelah cache build dibersihkan                   |
+| `npm run security:scan`, `git diff --check`                                                                                              | Lulus; secret scan memeriksa 411 berkas sumber/config/dokumen                                                                  |
+| `.local/doodle-fixture/inspect.mjs`                                                                                                      | 45 kombinasi halaman/viewport pada 320, 390, 768, 1440 dan 1996px; tanpa overflow halaman, gambar wajib hilang atau page error |
+| `.local/doodle-fixture/palette-contrast.mjs`                                                                                             | 15 halaman, 724 elemen teks terlihat, tanpa temuan kontras; FAQ dibuka/hover, isian signup difokuskan                          |
+| `npm audit --omit=dev --audit-level=high`                                                                                                | 0 vulnerabilities                                                                                                              |
+
+Kontras tombol utama putih/biru 4,59:1, hover 6,41:1, tautan pada latar 6,94:1,
+teks penekanan pada kuning 5,12:1, keterangan pada panel biru 5,56:1 dan bingkai
+isian pada putih 3,63:1. Screenshot landing, paket dan formulir desktop/mobile
+diperiksa. Perubahan awal pengguna pada `next-env.d.ts` dipertahankan;
+penambahan path build sementara di `tsconfig.json` dipulihkan.
+
+Build sandbox awal tertahan tanpa hasil lalu dihentikan; build dengan izin proses
+lokal lulus. Ekspor PDF awal ditolak sandbox Chromium lalu lulus dengan izin
+proses lokal. Audit npm awal gagal DNS sandbox; pengulangan berizin lulus.
+Batch browser pertama mengalami timeout koneksi database dan ENOSPC pada tes
+isolasi dashboard; pengulangan pertama juga tertahan ENOSPC. Cache Turbopack
+114 MiB dari build tugas ini dibersihkan. Pengulangan terisolasi lulus dan
+memastikan warna/typografi dashboard tetap, termasuk setelah navigasi publik.
+Ruang disk lokal masih terbatas; tidak ada file pengguna yang dibersihkan.
+
+Gate desain dalam lingkup perubahan palet:
+
+- Hard Gate PASS: 45 kombinasi responsif tanpa overflow; 724 elemen teks lulus kontras; navigasi/FAQ/formulir/loading/error/empty diperiksa oleh tes browser.
+- Purpose Gate PASS: biru, kuning dan latar mengikuti pilihan pengguna; peran warna serta alasan kontras tercatat pada DESIGN.md, tanpa dekorasi atau klaim baru.
+- Liveliness PASS: ENERGY 2 / RHYTHM 2 / MOTION 1 dipertahankan; ilustrasi brief, tulisan tangan, sorotan judul dan ritme bagian tetap mengikuti desain yang disetujui.
+- Craft PASS: build, lint, typecheck, unit, browser dan validasi aset lulus; token publik terisolasi dari workspace; tidak ada perubahan isi layanan.
+
+Hasil fixture bukan bukti OAuth Google, email atau pembayaran provider nyata.
+Audit identitas pengelola, alamat korespondensi dan email bantuan resmi tetap
+terbuka pada `docs/LEGAL_REVIEW.md`.
+
 ## Kartu jenis website pada landing - 24 Oktober 2026
 
 Daftar jenis website menjadi komponen server `WebsiteTypes`: sembilan kartu

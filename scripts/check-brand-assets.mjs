@@ -79,7 +79,9 @@ for (const size of [192, 512]) {
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const background = [250, 247, 239];
+  const background = [1, 3, 5].map((at) =>
+    parseInt(manifest.palette.paper.slice(at, at + 2), 16),
+  );
   for (let y = 0; y < size; y++)
     for (let x = 0; x < size; x++) {
       const offset = (y * size + x) * info.channels;
