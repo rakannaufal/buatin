@@ -1,0 +1,1639 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Aset Buatin</title>
+    <style>
+      @font-face {
+        font-family: Manrope;
+        src: url(fonts/manrope.woff2) format("woff2");
+        font-display: swap;
+      }
+      @font-face {
+        font-family: SourceSerif;
+        src: url(fonts/source-serif-4.woff2) format("woff2");
+        font-display: swap;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: #faf7ef;
+        color: #202b27;
+        font:
+          15px/1.65 Manrope,
+          sans-serif;
+      }
+      a {
+        color: #235c46;
+        text-underline-offset: 4px;
+      }
+      a:focus-visible {
+        outline: 3px solid #235c46;
+        outline-offset: 4px;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1440px;
+        margin: auto;
+        padding: 40px clamp(20px, 5vw, 72px);
+      }
+      header {
+        padding-top: 62px;
+        border-bottom: 1px solid #c6d1c8;
+      }
+      h1 {
+        font:
+          400 clamp(42px, 5vw, 72px)/1.1 SourceSerif,
+          serif;
+        letter-spacing: -0.025em;
+        margin: 24px 0;
+      }
+      h2 {
+        font:
+          400 34px/1.2 SourceSerif,
+          serif;
+        margin: 0 0 32px;
+      }
+      p {
+        max-width: 70ch;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+      }
+      nav a {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+      }
+      section {
+        padding: 32px 0 54px;
+        scroll-margin-top: 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 32px 28px;
+      }
+      .grid.social {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      figure {
+        margin: 0;
+        min-width: 0;
+      }
+      figure > a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 4/3;
+        background: #fffdf8;
+        border: 1px solid #d9dfd4;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      figure.dark > a {
+        background: #235c46;
+      }
+      figure img {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 16px;
+      }
+      #logos img {
+        padding: 28px;
+      }
+      #doodles img {
+        padding: 40px;
+      }
+      #icons img {
+        width: auto;
+        height: auto;
+        max-width: 100px;
+        max-height: 100px;
+        image-rendering: auto;
+        padding: 0;
+      }
+      #social img {
+        padding: 0;
+      }
+      figcaption {
+        padding-top: 12px;
+      }
+      figcaption span {
+        display: block;
+        color: #235c46;
+        font-size: 12px;
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+      }
+      .hero-preview {
+        display: grid;
+        grid-template-columns: 1fr 1.3fr;
+        align-items: center;
+        gap: 32px;
+      }
+      .hero-preview img {
+        width: 100%;
+      }
+      .hero-preview p {
+        font-size: 18px;
+      }
+      footer {
+        border-top: 1px solid #c6d1c8;
+        font-size: 13px;
+      }
+      @media (max-width: 800px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .hero-preview {
+          grid-template-columns: 1fr;
+        }
+        header {
+          padding-top: 30px;
+        }
+      }
+      @media (max-width: 480px) {
+        .grid,
+        .grid.social {
+          grid-template-columns: 1fr;
+        }
+        h2 {
+          font-size: 28px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img
+        src="logos/buatin-horizontal-primary.svg"
+        width="210"
+        height="70"
+        alt="Buatin"
+      />
+      <div class="hero-preview">
+        <div>
+          <h1>Dari coretan,<br />jadi terarah.</h1>
+          <p>
+            Keluarga aset untuk halaman publik Buatin. Logo, ilustrasi, dan
+            ornamen dibuat sebagai vektor. Tema aplikasi belum diubah.
+          </p>
+          <p>
+            Logo L01 menjadi induk kerja. Persetujuan merek dan pemeriksaan
+            kemiripan tetap terbuka.
+          </p>
+        </div>
+        <img
+          src="illustrations/hero-planning.svg"
+          alt="Brief berubah menjadi kumpulan dokumen perencanaan"
+        />
+      </div>
+      <nav aria-label="Kelompok aset">
+        <a href="#logos">Identitas Buatin</a
+        ><a href="#concepts">Alternatif konsep</a
+        ><a href="#illustrations">Ilustrasi halaman</a
+        ><a href="#doodles">Kit doodle</a><a href="#icons">Ikon perangkat</a
+        ><a href="#social">Pratinjau tautan</a><a href="README.md">Panduan</a>
+      </nav>
+    </header>
+    <main>
+      <section id="logos" aria-labelledby="logos-heading">
+        <h2 id="logos-heading">Identitas Buatin</h2>
+        <div class="grid logos">
+          <figure>
+            <a
+              href="logos/buatin-symbol-primary.svg"
+              aria-label="Buka Buatin symbol primary"
+              ><img
+                src="logos/buatin-symbol-primary.svg"
+                width="64"
+                height="64"
+                loading="lazy"
+                alt="Buatin symbol primary"
+            /></a>
+            <figcaption>
+              B01 Buatin symbol primary<span
+                >logos/buatin-symbol-primary.svg &middot; SVG &middot; 64
+                &times; 64</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-symbol-black.svg"
+              aria-label="Buka Buatin symbol black"
+              ><img
+                src="logos/buatin-symbol-black.svg"
+                width="64"
+                height="64"
+                loading="lazy"
+                alt="Buatin symbol black"
+            /></a>
+            <figcaption>
+              B05 Buatin symbol black<span
+                >logos/buatin-symbol-black.svg &middot; SVG &middot; 64 &times;
+                64</span
+              >
+            </figcaption>
+          </figure>
+          <figure class="dark">
+            <a
+              href="logos/buatin-symbol-white.svg"
+              aria-label="Buka Buatin symbol white"
+              ><img
+                src="logos/buatin-symbol-white.svg"
+                width="64"
+                height="64"
+                loading="lazy"
+                alt="Buatin symbol white"
+            /></a>
+            <figcaption>
+              B06 Buatin symbol white<span
+                >logos/buatin-symbol-white.svg &middot; SVG &middot; 64 &times;
+                64</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-wordmark-primary.svg"
+              aria-label="Buka Buatin wordmark primary"
+              ><img
+                src="logos/buatin-wordmark-primary.svg"
+                width="375"
+                height="144"
+                loading="lazy"
+                alt="Buatin wordmark primary"
+            /></a>
+            <figcaption>
+              B02 Buatin wordmark primary<span
+                >logos/buatin-wordmark-primary.svg &middot; SVG &middot; 375
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-wordmark-black.svg"
+              aria-label="Buka Buatin wordmark black"
+              ><img
+                src="logos/buatin-wordmark-black.svg"
+                width="375"
+                height="144"
+                loading="lazy"
+                alt="Buatin wordmark black"
+            /></a>
+            <figcaption>
+              B05 Buatin wordmark black<span
+                >logos/buatin-wordmark-black.svg &middot; SVG &middot; 375
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure class="dark">
+            <a
+              href="logos/buatin-wordmark-white.svg"
+              aria-label="Buka Buatin wordmark white"
+              ><img
+                src="logos/buatin-wordmark-white.svg"
+                width="375"
+                height="144"
+                loading="lazy"
+                alt="Buatin wordmark white"
+            /></a>
+            <figcaption>
+              B06 Buatin wordmark white<span
+                >logos/buatin-wordmark-white.svg &middot; SVG &middot; 375
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-horizontal-primary.svg"
+              aria-label="Buka Buatin horizontal primary"
+              ><img
+                src="logos/buatin-horizontal-primary.svg"
+                width="433"
+                height="144"
+                loading="lazy"
+                alt="Buatin horizontal primary"
+            /></a>
+            <figcaption>
+              B03 Buatin horizontal primary<span
+                >logos/buatin-horizontal-primary.svg &middot; SVG &middot; 433
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-horizontal-black.svg"
+              aria-label="Buka Buatin horizontal black"
+              ><img
+                src="logos/buatin-horizontal-black.svg"
+                width="433"
+                height="144"
+                loading="lazy"
+                alt="Buatin horizontal black"
+            /></a>
+            <figcaption>
+              B05 Buatin horizontal black<span
+                >logos/buatin-horizontal-black.svg &middot; SVG &middot; 433
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure class="dark">
+            <a
+              href="logos/buatin-horizontal-white.svg"
+              aria-label="Buka Buatin horizontal white"
+              ><img
+                src="logos/buatin-horizontal-white.svg"
+                width="433"
+                height="144"
+                loading="lazy"
+                alt="Buatin horizontal white"
+            /></a>
+            <figcaption>
+              B06 Buatin horizontal white<span
+                >logos/buatin-horizontal-white.svg &middot; SVG &middot; 433
+                &times; 144</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-stacked-primary.svg"
+              aria-label="Buka Buatin stacked primary"
+              ><img
+                src="logos/buatin-stacked-primary.svg"
+                width="400"
+                height="292"
+                loading="lazy"
+                alt="Buatin stacked primary"
+            /></a>
+            <figcaption>
+              B04 Buatin stacked primary<span
+                >logos/buatin-stacked-primary.svg &middot; SVG &middot; 400
+                &times; 292</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-stacked-black.svg"
+              aria-label="Buka Buatin stacked black"
+              ><img
+                src="logos/buatin-stacked-black.svg"
+                width="400"
+                height="292"
+                loading="lazy"
+                alt="Buatin stacked black"
+            /></a>
+            <figcaption>
+              B05 Buatin stacked black<span
+                >logos/buatin-stacked-black.svg &middot; SVG &middot; 400
+                &times; 292</span
+              >
+            </figcaption>
+          </figure>
+          <figure class="dark">
+            <a
+              href="logos/buatin-stacked-white.svg"
+              aria-label="Buka Buatin stacked white"
+              ><img
+                src="logos/buatin-stacked-white.svg"
+                width="400"
+                height="292"
+                loading="lazy"
+                alt="Buatin stacked white"
+            /></a>
+            <figcaption>
+              B06 Buatin stacked white<span
+                >logos/buatin-stacked-white.svg &middot; SVG &middot; 400
+                &times; 292</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-tagline-primary.svg"
+              aria-label="Buka Buatin tagline primary"
+              ><img
+                src="logos/buatin-tagline-primary.svg"
+                width="433"
+                height="172"
+                loading="lazy"
+                alt="Buatin tagline primary"
+            /></a>
+            <figcaption>
+              B11 Buatin tagline primary<span
+                >logos/buatin-tagline-primary.svg &middot; SVG &middot; 433
+                &times; 172</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/buatin-tagline-black.svg"
+              aria-label="Buka Buatin tagline black"
+              ><img
+                src="logos/buatin-tagline-black.svg"
+                width="433"
+                height="172"
+                loading="lazy"
+                alt="Buatin tagline black"
+            /></a>
+            <figcaption>
+              B05 Buatin tagline black<span
+                >logos/buatin-tagline-black.svg &middot; SVG &middot; 433
+                &times; 172</span
+              >
+            </figcaption>
+          </figure>
+          <figure class="dark">
+            <a
+              href="logos/buatin-tagline-white.svg"
+              aria-label="Buka Buatin tagline white"
+              ><img
+                src="logos/buatin-tagline-white.svg"
+                width="433"
+                height="172"
+                loading="lazy"
+                alt="Buatin tagline white"
+            /></a>
+            <figcaption>
+              B06 Buatin tagline white<span
+                >logos/buatin-tagline-white.svg &middot; SVG &middot; 433
+                &times; 172</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="logos/buatin-avatar.svg" aria-label="Buka Avatar Buatin"
+              ><img
+                src="logos/buatin-avatar.svg"
+                width="1024"
+                height="1024"
+                loading="lazy"
+                alt="Avatar Buatin"
+            /></a>
+            <figcaption>
+              B10 Avatar Buatin<span
+                >logos/buatin-avatar.svg &middot; SVG &middot; 1024 &times;
+                1024</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="concepts" aria-labelledby="concepts-heading">
+        <h2 id="concepts-heading">Alternatif konsep</h2>
+        <div class="grid concepts">
+          <figure>
+            <a
+              href="logos/concepts/l01-folded-brief.svg"
+              aria-label="Buka Konsep L01: folded-brief"
+              ><img
+                src="logos/concepts/l01-folded-brief.svg"
+                width="320"
+                height="280"
+                loading="lazy"
+                alt="Konsep L01: folded-brief"
+            /></a>
+            <figcaption>
+              L01 Konsep L01: folded-brief<span
+                >logos/concepts/l01-folded-brief.svg &middot; SVG &middot; 320
+                &times; 280</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/concepts/l02-document-b.svg"
+              aria-label="Buka Konsep L02: document-b"
+              ><img
+                src="logos/concepts/l02-document-b.svg"
+                width="320"
+                height="280"
+                loading="lazy"
+                alt="Konsep L02: document-b"
+            /></a>
+            <figcaption>
+              L02 Konsep L02: document-b<span
+                >logos/concepts/l02-document-b.svg &middot; SVG &middot; 320
+                &times; 280</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="logos/concepts/l03-folded-wordmark.svg"
+              aria-label="Buka Konsep L03: folded-wordmark"
+              ><img
+                src="logos/concepts/l03-folded-wordmark.svg"
+                width="320"
+                height="280"
+                loading="lazy"
+                alt="Konsep L03: folded-wordmark"
+            /></a>
+            <figcaption>
+              L03 Konsep L03: folded-wordmark<span
+                >logos/concepts/l03-folded-wordmark.svg &middot; SVG &middot;
+                320 &times; 280</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="illustrations" aria-labelledby="illustrations-heading">
+        <h2 id="illustrations-heading">Ilustrasi halaman</h2>
+        <div class="grid illustrations">
+          <figure>
+            <a
+              href="illustrations/hero-planning.svg"
+              aria-label="Buka Dari brief menjadi rencana"
+              ><img
+                src="illustrations/hero-planning.svg"
+                width="1536"
+                height="1024"
+                loading="lazy"
+                alt="Dari brief menjadi rencana"
+            /></a>
+            <figcaption>
+              I01 Dari brief menjadi rencana<span
+                >illustrations/hero-planning.svg &middot; SVG &middot; 1536
+                &times; 1024</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/hero-planning-mobile.svg"
+              aria-label="Buka Rencana dalam susunan ringkas"
+              ><img
+                src="illustrations/hero-planning-mobile.svg"
+                width="1024"
+                height="1024"
+                loading="lazy"
+                alt="Rencana dalam susunan ringkas"
+            /></a>
+            <figcaption>
+              I02 Rencana dalam susunan ringkas<span
+                >illustrations/hero-planning-mobile.svg &middot; SVG &middot;
+                1024 &times; 1024</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/workflow-brief.svg"
+              aria-label="Buka Tulis brief"
+              ><img
+                src="illustrations/workflow-brief.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Tulis brief"
+            /></a>
+            <figcaption>
+              I03 Tulis brief<span
+                >illustrations/workflow-brief.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/workflow-review.svg"
+              aria-label="Buka Periksa pilihan dokumen"
+              ><img
+                src="illustrations/workflow-review.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Periksa pilihan dokumen"
+            /></a>
+            <figcaption>
+              I04 Periksa pilihan dokumen<span
+                >illustrations/workflow-review.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/workflow-export.svg"
+              aria-label="Buka Bawa rencana ke pengerjaan"
+              ><img
+                src="illustrations/workflow-export.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Bawa rencana ke pengerjaan"
+            /></a>
+            <figcaption>
+              I05 Bawa rencana ke pengerjaan<span
+                >illustrations/workflow-export.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/feature-revisions.svg"
+              aria-label="Buka Tinjau perubahan"
+              ><img
+                src="illustrations/feature-revisions.svg"
+                width="1024"
+                height="768"
+                loading="lazy"
+                alt="Tinjau perubahan"
+            /></a>
+            <figcaption>
+              I06 Tinjau perubahan<span
+                >illustrations/feature-revisions.svg &middot; SVG &middot; 1024
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/feature-projects.svg"
+              aria-label="Buka Kelola beberapa rencana"
+              ><img
+                src="illustrations/feature-projects.svg"
+                width="1024"
+                height="768"
+                loading="lazy"
+                alt="Kelola beberapa rencana"
+            /></a>
+            <figcaption>
+              I07 Kelola beberapa rencana<span
+                >illustrations/feature-projects.svg &middot; SVG &middot; 1024
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/pricing-documents.svg"
+              aria-label="Buka Ruang untuk setiap proyek"
+              ><img
+                src="illustrations/pricing-documents.svg"
+                width="1024"
+                height="768"
+                loading="lazy"
+                alt="Ruang untuk setiap proyek"
+            /></a>
+            <figcaption>
+              I08 Ruang untuk setiap proyek<span
+                >illustrations/pricing-documents.svg &middot; SVG &middot; 1024
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/terms-document.svg"
+              aria-label="Buka Ketentuan layanan"
+              ><img
+                src="illustrations/terms-document.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Ketentuan layanan"
+            /></a>
+            <figcaption>
+              I09 Ketentuan layanan<span
+                >illustrations/terms-document.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/privacy-folder.svg"
+              aria-label="Buka Penanganan data pribadi"
+              ><img
+                src="illustrations/privacy-folder.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Penanganan data pribadi"
+            /></a>
+            <figcaption>
+              I10 Penanganan data pribadi<span
+                >illustrations/privacy-folder.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/faq-conversation.svg"
+              aria-label="Buka Pertanyaan dan jawaban"
+              ><img
+                src="illustrations/faq-conversation.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Pertanyaan dan jawaban"
+            /></a>
+            <figcaption>
+              I11 Pertanyaan dan jawaban<span
+                >illustrations/faq-conversation.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/refund-receipt.svg"
+              aria-label="Buka Pemeriksaan pengembalian dana"
+              ><img
+                src="illustrations/refund-receipt.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Pemeriksaan pengembalian dana"
+            /></a>
+            <figcaption>
+              I12 Pemeriksaan pengembalian dana<span
+                >illustrations/refund-receipt.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/disclaimer-review.svg"
+              aria-label="Buka Periksa sebelum digunakan"
+              ><img
+                src="illustrations/disclaimer-review.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Periksa sebelum digunakan"
+            /></a>
+            <figcaption>
+              I13 Periksa sebelum digunakan<span
+                >illustrations/disclaimer-review.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/cookies-browser.svg"
+              aria-label="Buka Cookie sesi browser"
+              ><img
+                src="illustrations/cookies-browser.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Cookie sesi browser"
+            /></a>
+            <figcaption>
+              I14 Cookie sesi browser<span
+                >illustrations/cookies-browser.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/contact-message.svg"
+              aria-label="Buka Hubungi pengelola"
+              ><img
+                src="illustrations/contact-message.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Hubungi pengelola"
+            /></a>
+            <figcaption>
+              I15 Hubungi pengelola<span
+                >illustrations/contact-message.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/auth-notebook.svg"
+              aria-label="Buka Mulai merencanakan"
+              ><img
+                src="illustrations/auth-notebook.svg"
+                width="1024"
+                height="1024"
+                loading="lazy"
+                alt="Mulai merencanakan"
+            /></a>
+            <figcaption>
+              I16 Mulai merencanakan<span
+                >illustrations/auth-notebook.svg &middot; SVG &middot; 1024
+                &times; 1024</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/auth-email.svg"
+              aria-label="Buka Periksa email Anda"
+              ><img
+                src="illustrations/auth-email.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Periksa email Anda"
+            /></a>
+            <figcaption>
+              I17 Periksa email Anda<span
+                >illustrations/auth-email.svg &middot; SVG &middot; 512 &times;
+                512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/auth-recovery.svg"
+              aria-label="Buka Pulihkan akses akun"
+              ><img
+                src="illustrations/auth-recovery.svg"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="Pulihkan akses akun"
+            /></a>
+            <figcaption>
+              I18 Pulihkan akses akun<span
+                >illustrations/auth-recovery.svg &middot; SVG &middot; 512
+                &times; 512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/public-not-found.svg"
+              aria-label="Buka Halaman belum ditemukan"
+              ><img
+                src="illustrations/public-not-found.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Halaman belum ditemukan"
+            /></a>
+            <figcaption>
+              I19 Halaman belum ditemukan<span
+                >illustrations/public-not-found.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="illustrations/public-error.svg"
+              aria-label="Buka Proses perlu dilanjutkan"
+              ><img
+                src="illustrations/public-error.svg"
+                width="768"
+                height="768"
+                loading="lazy"
+                alt="Proses perlu dilanjutkan"
+            /></a>
+            <figcaption>
+              I20 Proses perlu dilanjutkan<span
+                >illustrations/public-error.svg &middot; SVG &middot; 768
+                &times; 768</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="doodles" aria-labelledby="doodles-heading">
+        <h2 id="doodles-heading">Kit doodle</h2>
+        <div class="grid doodles">
+          <figure>
+            <a href="doodles/arrow-curved.svg" aria-label="Buka Panah curved"
+              ><img
+                src="doodles/arrow-curved.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah curved"
+            /></a>
+            <figcaption>
+              D01 Panah curved<span
+                >doodles/arrow-curved.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/arrow-long.svg" aria-label="Buka Panah long"
+              ><img
+                src="doodles/arrow-long.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah long"
+            /></a>
+            <figcaption>
+              D01 Panah long<span
+                >doodles/arrow-long.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/arrow-return.svg" aria-label="Buka Panah return"
+              ><img
+                src="doodles/arrow-return.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah return"
+            /></a>
+            <figcaption>
+              D01 Panah return<span
+                >doodles/arrow-return.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/arrow-down.svg" aria-label="Buka Panah down"
+              ><img
+                src="doodles/arrow-down.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah down"
+            /></a>
+            <figcaption>
+              D01 Panah down<span
+                >doodles/arrow-down.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/arrow-diagonal.svg"
+              aria-label="Buka Panah diagonal"
+              ><img
+                src="doodles/arrow-diagonal.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah diagonal"
+            /></a>
+            <figcaption>
+              D01 Panah diagonal<span
+                >doodles/arrow-diagonal.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/arrow-loop.svg" aria-label="Buka Panah loop"
+              ><img
+                src="doodles/arrow-loop.svg"
+                width="280"
+                height="170"
+                loading="lazy"
+                alt="Panah loop"
+            /></a>
+            <figcaption>
+              D01 Panah loop<span
+                >doodles/arrow-loop.svg &middot; SVG &middot; 280 &times;
+                170</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/emphasis-underline.svg"
+              aria-label="Buka Garis bawah"
+              ><img
+                src="doodles/emphasis-underline.svg"
+                width="300"
+                height="54"
+                loading="lazy"
+                alt="Garis bawah"
+            /></a>
+            <figcaption>
+              D02 Garis bawah<span
+                >doodles/emphasis-underline.svg &middot; SVG &middot; 300
+                &times; 54</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/emphasis-double.svg"
+              aria-label="Buka Garis bawah ganda"
+              ><img
+                src="doodles/emphasis-double.svg"
+                width="300"
+                height="64"
+                loading="lazy"
+                alt="Garis bawah ganda"
+            /></a>
+            <figcaption>
+              D02 Garis bawah ganda<span
+                >doodles/emphasis-double.svg &middot; SVG &middot; 300 &times;
+                64</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/emphasis-oval.svg"
+              aria-label="Buka Lingkaran penekanan"
+              ><img
+                src="doodles/emphasis-oval.svg"
+                width="320"
+                height="116"
+                loading="lazy"
+                alt="Lingkaran penekanan"
+            /></a>
+            <figcaption>
+              D02 Lingkaran penekanan<span
+                >doodles/emphasis-oval.svg &middot; SVG &middot; 320 &times;
+                116</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/emphasis-brackets.svg"
+              aria-label="Buka Kurung penekanan"
+              ><img
+                src="doodles/emphasis-brackets.svg"
+                width="320"
+                height="112"
+                loading="lazy"
+                alt="Kurung penekanan"
+            /></a>
+            <figcaption>
+              D02 Kurung penekanan<span
+                >doodles/emphasis-brackets.svg &middot; SVG &middot; 320 &times;
+                112</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/paperclip.svg" aria-label="Buka Klip kertas"
+              ><img
+                src="doodles/paperclip.svg"
+                width="110"
+                height="150"
+                loading="lazy"
+                alt="Klip kertas"
+            /></a>
+            <figcaption>
+              D03 Klip kertas<span
+                >doodles/paperclip.svg &middot; SVG &middot; 110 &times;
+                150</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/folded-corner.svg" aria-label="Buka Lipatan kertas"
+              ><img
+                src="doodles/folded-corner.svg"
+                width="128"
+                height="128"
+                loading="lazy"
+                alt="Lipatan kertas"
+            /></a>
+            <figcaption>
+              D03 Lipatan kertas<span
+                >doodles/folded-corner.svg &middot; SVG &middot; 128 &times;
+                128</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/binder-clip.svg" aria-label="Buka Penjepit dokumen"
+              ><img
+                src="doodles/binder-clip.svg"
+                width="128"
+                height="144"
+                loading="lazy"
+                alt="Penjepit dokumen"
+            /></a>
+            <figcaption>
+              D03 Penjepit dokumen<span
+                >doodles/binder-clip.svg &middot; SVG &middot; 128 &times;
+                144</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/paper-tape.svg" aria-label="Buka Pita kertas"
+              ><img
+                src="doodles/paper-tape.svg"
+                width="220"
+                height="100"
+                loading="lazy"
+                alt="Pita kertas"
+            /></a>
+            <figcaption>
+              D03 Pita kertas<span
+                >doodles/paper-tape.svg &middot; SVG &middot; 220 &times;
+                100</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/corner-top.svg"
+              aria-label="Buka Ornamen sudut atas"
+              ><img
+                src="doodles/corner-top.svg"
+                width="160"
+                height="160"
+                loading="lazy"
+                alt="Ornamen sudut atas"
+            /></a>
+            <figcaption>
+              D04 Ornamen sudut atas<span
+                >doodles/corner-top.svg &middot; SVG &middot; 160 &times;
+                160</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/corner-bottom.svg"
+              aria-label="Buka Ornamen sudut bawah"
+              ><img
+                src="doodles/corner-bottom.svg"
+                width="160"
+                height="160"
+                loading="lazy"
+                alt="Ornamen sudut bawah"
+            /></a>
+            <figcaption>
+              D04 Ornamen sudut bawah<span
+                >doodles/corner-bottom.svg &middot; SVG &middot; 160 &times;
+                160</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/divider-line.svg" aria-label="Buka Pemisah garis"
+              ><img
+                src="doodles/divider-line.svg"
+                width="600"
+                height="44"
+                loading="lazy"
+                alt="Pemisah garis"
+            /></a>
+            <figcaption>
+              D06 Pemisah garis<span
+                >doodles/divider-line.svg &middot; SVG &middot; 600 &times;
+                44</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/divider-dashed.svg"
+              aria-label="Buka Pemisah putus-putus"
+              ><img
+                src="doodles/divider-dashed.svg"
+                width="600"
+                height="44"
+                loading="lazy"
+                alt="Pemisah putus-putus"
+            /></a>
+            <figcaption>
+              D06 Pemisah putus-putus<span
+                >doodles/divider-dashed.svg &middot; SVG &middot; 600 &times;
+                44</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="doodles/divider-paper.svg"
+              aria-label="Buka Pemisah dokumen"
+              ><img
+                src="doodles/divider-paper.svg"
+                width="600"
+                height="72"
+                loading="lazy"
+                alt="Pemisah dokumen"
+            /></a>
+            <figcaption>
+              D06 Pemisah dokumen<span
+                >doodles/divider-paper.svg &middot; SVG &middot; 600 &times;
+                72</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/plan-free.svg" aria-label="Buka Paket Free"
+              ><img
+                src="doodles/plan-free.svg"
+                width="256"
+                height="256"
+                loading="lazy"
+                alt="Paket Free"
+            /></a>
+            <figcaption>
+              D07 Paket Free<span
+                >doodles/plan-free.svg &middot; SVG &middot; 256 &times;
+                256</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/plan-starter.svg" aria-label="Buka Pro Starter"
+              ><img
+                src="doodles/plan-starter.svg"
+                width="256"
+                height="256"
+                loading="lazy"
+                alt="Pro Starter"
+            /></a>
+            <figcaption>
+              D08 Pro Starter<span
+                >doodles/plan-starter.svg &middot; SVG &middot; 256 &times;
+                256</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/plan-plus.svg" aria-label="Buka Pro Plus"
+              ><img
+                src="doodles/plan-plus.svg"
+                width="256"
+                height="256"
+                loading="lazy"
+                alt="Pro Plus"
+            /></a>
+            <figcaption>
+              D09 Pro Plus<span
+                >doodles/plan-plus.svg &middot; SVG &middot; 256 &times;
+                256</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="doodles/plan-max.svg" aria-label="Buka Pro Max"
+              ><img
+                src="doodles/plan-max.svg"
+                width="256"
+                height="256"
+                loading="lazy"
+                alt="Pro Max"
+            /></a>
+            <figcaption>
+              D10 Pro Max<span
+                >doodles/plan-max.svg &middot; SVG &middot; 256 &times;
+                256</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="icons" aria-labelledby="icons-heading">
+        <h2 id="icons-heading">Ikon perangkat</h2>
+        <div class="grid icons">
+          <figure>
+            <a href="icons/favicon-16.png" aria-label="Buka Favicon 16px"
+              ><img
+                src="icons/favicon-16.png"
+                width="16"
+                height="16"
+                loading="lazy"
+                alt="Favicon 16px"
+            /></a>
+            <figcaption>
+              B08 Favicon 16px<span
+                >icons/favicon-16.png &middot; PNG &middot; 16 &times; 16</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="icons/favicon-32.png" aria-label="Buka Favicon 32px"
+              ><img
+                src="icons/favicon-32.png"
+                width="32"
+                height="32"
+                loading="lazy"
+                alt="Favicon 32px"
+            /></a>
+            <figcaption>
+              B08 Favicon 32px<span
+                >icons/favicon-32.png &middot; PNG &middot; 32 &times; 32</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="icons/favicon-48.png" aria-label="Buka Favicon 48px"
+              ><img
+                src="icons/favicon-48.png"
+                width="48"
+                height="48"
+                loading="lazy"
+                alt="Favicon 48px"
+            /></a>
+            <figcaption>
+              B08 Favicon 48px<span
+                >icons/favicon-48.png &middot; PNG &middot; 48 &times; 48</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="icons/apple-touch-icon-180.png"
+              aria-label="Buka apple-touch-icon 180px"
+              ><img
+                src="icons/apple-touch-icon-180.png"
+                width="180"
+                height="180"
+                loading="lazy"
+                alt="apple-touch-icon 180px"
+            /></a>
+            <figcaption>
+              B09 apple-touch-icon 180px<span
+                >icons/apple-touch-icon-180.png &middot; PNG &middot; 180
+                &times; 180</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="icons/android-chrome-192.png"
+              aria-label="Buka android-chrome 192px"
+              ><img
+                src="icons/android-chrome-192.png"
+                width="192"
+                height="192"
+                loading="lazy"
+                alt="android-chrome 192px"
+            /></a>
+            <figcaption>
+              B09 android-chrome 192px<span
+                >icons/android-chrome-192.png &middot; PNG &middot; 192 &times;
+                192</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="icons/android-chrome-512.png"
+              aria-label="Buka android-chrome 512px"
+              ><img
+                src="icons/android-chrome-512.png"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="android-chrome 512px"
+            /></a>
+            <figcaption>
+              B09 android-chrome 512px<span
+                >icons/android-chrome-512.png &middot; PNG &middot; 512 &times;
+                512</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="icons/maskable-192.png" aria-label="Buka maskable 192px"
+              ><img
+                src="icons/maskable-192.png"
+                width="192"
+                height="192"
+                loading="lazy"
+                alt="maskable 192px"
+            /></a>
+            <figcaption>
+              B09 maskable 192px<span
+                >icons/maskable-192.png &middot; PNG &middot; 192 &times;
+                192</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="icons/maskable-512.png" aria-label="Buka maskable 512px"
+              ><img
+                src="icons/maskable-512.png"
+                width="512"
+                height="512"
+                loading="lazy"
+                alt="maskable 512px"
+            /></a>
+            <figcaption>
+              B09 maskable 512px<span
+                >icons/maskable-512.png &middot; PNG &middot; 512 &times;
+                512</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="social" aria-labelledby="social-heading">
+        <h2 id="social-heading">Pratinjau tautan</h2>
+        <div class="grid social">
+          <figure>
+            <a href="social/og-landing.png" aria-label="Buka Pratinjau landing"
+              ><img
+                src="social/og-landing.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau landing"
+            /></a>
+            <figcaption>
+              S01 Pratinjau landing<span
+                >social/og-landing.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-pricing.png" aria-label="Buka Pratinjau pricing"
+              ><img
+                src="social/og-pricing.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau pricing"
+            /></a>
+            <figcaption>
+              S02 Pratinjau pricing<span
+                >social/og-pricing.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-terms.png" aria-label="Buka Pratinjau terms"
+              ><img
+                src="social/og-terms.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau terms"
+            /></a>
+            <figcaption>
+              S02 Pratinjau terms<span
+                >social/og-terms.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-privacy.png" aria-label="Buka Pratinjau privacy"
+              ><img
+                src="social/og-privacy.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau privacy"
+            /></a>
+            <figcaption>
+              S02 Pratinjau privacy<span
+                >social/og-privacy.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-faq.png" aria-label="Buka Pratinjau faq"
+              ><img
+                src="social/og-faq.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau faq"
+            /></a>
+            <figcaption>
+              S02 Pratinjau faq<span
+                >social/og-faq.png &middot; PNG &middot; 1200 &times; 630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-refund.png" aria-label="Buka Pratinjau refund"
+              ><img
+                src="social/og-refund.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau refund"
+            /></a>
+            <figcaption>
+              S02 Pratinjau refund<span
+                >social/og-refund.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a
+              href="social/og-disclaimer.png"
+              aria-label="Buka Pratinjau disclaimer"
+              ><img
+                src="social/og-disclaimer.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau disclaimer"
+            /></a>
+            <figcaption>
+              S02 Pratinjau disclaimer<span
+                >social/og-disclaimer.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-cookies.png" aria-label="Buka Pratinjau cookies"
+              ><img
+                src="social/og-cookies.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau cookies"
+            /></a>
+            <figcaption>
+              S02 Pratinjau cookies<span
+                >social/og-cookies.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/og-contact.png" aria-label="Buka Pratinjau contact"
+              ><img
+                src="social/og-contact.png"
+                width="1200"
+                height="630"
+                loading="lazy"
+                alt="Pratinjau contact"
+            /></a>
+            <figcaption>
+              S02 Pratinjau contact<span
+                >social/og-contact.png &middot; PNG &middot; 1200 &times;
+                630</span
+              >
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="social/buatin-square.png" aria-label="Buka Buatin persegi"
+              ><img
+                src="social/buatin-square.png"
+                width="1080"
+                height="1080"
+                loading="lazy"
+                alt="Buatin persegi"
+            /></a>
+            <figcaption>
+              S03 Buatin persegi<span
+                >social/buatin-square.png &middot; PNG &middot; 1080 &times;
+                1080</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>
+        Gambar asli disusun langsung dari path SVG. Lettering memakai Manrope
+        dan Source Serif 4 dengan lisensi SIL OFL yang disertakan. Tidak
+        menggunakan ilustrasi stok atau logo provider. Setiap aset dapat dibuka
+        dari galeri.
+      </p>
+      <a href="manifest.json">Manifest berkas dan checksum</a>
+    </footer>
+  </body>
+</html>

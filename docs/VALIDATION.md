@@ -1,5 +1,52 @@
 # Hasil verifikasi Buatin
 
+## Paket aset doodle dan logo - 24 Oktober 2026
+
+`public/assets/` memuat 163 aset utama: 79 SVG, 81 PNG/WebP, satu ICO dan
+dua font galeri WOFF2. Tambahan 22 PDF logo memiliki manifest terpisah. Seluruh
+48 ID brief tercakup, termasuk 20 ilustrasi halaman, ornamen, tiga konsep logo,
+varian identitas/perangkat dan sepuluh gambar berbagi. Prompt, ukuran, sumber,
+checksum SHA-256, lisensi font serta panduan pemakaian disertakan.
+
+Artwork dibuat lokal dari geometri SVG; layanan generasi gambar tidak dipakai.
+Lettering Manrope/Source Serif 4 diubah menjadi path, dengan lisensi SIL OFL
+disertakan. L01 menjadi induk kerja. Persetujuan visual pemilik dan pemeriksaan
+kemiripan merek belum dilakukan. Logo provider tidak dibuat ulang.
+
+| Perintah/pemeriksaan                                      | Hasil aktual                                                                                                                                                                                                                  |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `node scripts/build-brand-assets.mjs`                     | 163 aset utama, 2,34 MiB; galeri, prompt dan manifest dibuat                                                                                                                                                                  |
+| `node scripts/export-brand-pdf.mjs`                       | 22 PDF logo diekspor dari path SVG                                                                                                                                                                                            |
+| `node scripts/check-brand-assets.mjs`                     | Checksum/dimensi, 48 ID brief, transparansi ilustrasi, SVG tanpa skrip/referensi eksternal, ICO 16/32/48px dan safe circle maskable lulus                                                                                     |
+| Inspeksi PDF dengan pypdf                                 | 22 PDF satu halaman; seluruhnya memiliki konten vektor, tanpa objek gambar raster atau dependency font                                                                                                                        |
+| `npm test`                                                | 159 test / 23 file lulus                                                                                                                                                                                                      |
+| `npm run lint`, `npm run typecheck`                       | Lulus                                                                                                                                                                                                                         |
+| `npm run build` melalui wrapper fixture                   | Production build lulus dengan Node.js 24 dan build directory terpisah                                                                                                                                                         |
+| `.local/asset-fixture/check-gallery.mjs` melalui Chromium | 1440px dan 390px: 82 gambar tampil, dua font lokal termuat, tanpa overflow atau error browser; 82 tautan berkas diklik, enam anchor per viewport dijalankan dengan keyboard; 185 respons aset HTTP 200 dengan checksum sesuai |
+| `npm audit --omit=dev --audit-level=high`                 | Nol kerentanan                                                                                                                                                                                                                |
+| `npm run security:scan`                                   | Lulus; 398 file source/config/dokumen diperiksa sebelum catatan ini ditambahkan                                                                                                                                               |
+
+`npm run format:check` dan `git diff --check` lulus. Kontras teks yang digunakan
+pada galeri/kartu berbagi diperiksa: hijau/kertas 7,29:1, tinta/kertas 13,66:1,
+hijau/panel 7,68:1 dan hijau/putih 7,80:1. Setelah penyesuaian format manifest,
+185 berkas kembali diperiksa melalui HTTP dengan checksum sesuai.
+PDF ditandai biner di `.gitattributes` agar normalisasi teks tidak mengubah
+offset cross-reference atau menandai spasi wajib format PDF sebagai masalah.
+
+Seluruh keluarga ilustrasi, logo, doodle dan kartu berbagi diamati melalui contact
+sheet; galeri diamati pada screenshot desktop/ponsel. Garis tinta dan motif
+brief/dokumen mengikuti fungsi produk. Hijau memberi identitas, kuning membatasi
+aksen, warna kertas menjaga ruang kosong. Serif menandai judul; Manrope menjaga
+keterbacaan label. Galeri memakai grid agar varian mudah dibandingkan. Aset
+statis, tanpa animasi; arah visual ENERGY 2 / RHYTHM 2 / MOTION 1.
+
+Fixture memakai `.local/asset-fixture/next`, loopback dan mock, tanpa provider
+atau data produksi. Perubahan konfigurasi otomatis Next dipulihkan dari snapshot;
+perubahan awal pengguna pada `next-env.d.ts` dipertahankan dan tidak di-stage.
+Tidak ada dependency/migration baru, pemasangan favicon, perubahan halaman
+aplikasi/dashboard atau deployment. Full suite integrasi/E2E dan smoke provider
+tidak diulang karena perubahan hanya menambah aset dan alat pembuatannya.
+
 ## Dokumen layanan dan identitas pengelola - 24 Oktober 2026
 
 Ketentuan layanan dan privasi ditulis ulang berdasarkan perilaku aplikasi.

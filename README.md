@@ -33,6 +33,24 @@ privasi, bantuan dan laporan. Panduan penggunaan serta batas operasional:
 [Panduan admin](docs/ADMIN_GUIDE.md). Rancangan awal tersimpan di
 [Rencana panel admin](docs/ADMIN_PLAN.md).
 
+## Aset publik
+
+Paket doodle dan identitas tersedia di `public/assets/`: 20 ilustrasi, ornamen,
+logo beserta variannya, favicon/ikon perangkat, tekstur dan kartu berbagi.
+[Galeri aset](public/assets/index.html), [panduan penggunaan](public/assets/README.md)
+dan [brief/prompt](public/assets/PROMPTS.md) disertakan. Master SVG, ekspor
+PNG/WebP, ICO dan 22 PDF logo dapat diperiksa lewat manifest/checksum.
+Paket belum diterapkan pada halaman aplikasi atau dashboard. Logo L01 masih
+menunggu persetujuan visual dan pemeriksaan kemiripan merek.
+
+Reproduksi dari root proyek dengan Node.js 24 dan Chromium Playwright terpasang:
+
+```sh
+node scripts/build-brand-assets.mjs
+node scripts/export-brand-pdf.mjs
+node scripts/check-brand-assets.mjs
+```
+
 ## Paket dan fitur
 
 Tabel berikut adalah default awal. Kebijakan aktif ditampilkan pada website;

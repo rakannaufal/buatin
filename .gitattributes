@@ -1,0 +1,2 @@
+# PDF cross-reference offsets require preserving the exported bytes.
+/public/assets/logos/pdf/*.pdf binary
